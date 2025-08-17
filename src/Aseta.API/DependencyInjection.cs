@@ -9,8 +9,6 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.JWT_OPTIONS_KEY));
-
         services.AddControllers();
 
         services.AddExceptionHandler<GlobalExceptionHandler>();

@@ -1,28 +1,21 @@
-﻿using System.Text;
-using Aseta.Application.Abstractions.Authentication;
-using Aseta.Domain.User;
-using Aseta.Infrastructure.Authentication;
-using Aseta.Infrastructure.Database;
+﻿using Aseta.Infrastructure.Database;
 using Aseta.Infrastructure.Options;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+using Aseta.Infrastructure.Services;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Aseta.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(
-        this IServiceCollection services,
-        IConfiguration configuration) =>
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration) =>
         services
             .AddDatabase(configuration)
-            .AddAuthenticationInternal(configuration);
+            .AddAuthenticationInternal()
+            .AddEmailSender(configuration);
 
     private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
     {
@@ -37,39 +30,23 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddAuthenticationInternal(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    private static IServiceCollection AddAuthenticationInternal(this IServiceCollection services)
     {
-        var jwtOptions = configuration.GetSection("JwtOptions")
-            .Get<JwtOptions>() ?? throw new InvalidOperationException("JwtOptions configuration is missing.");
+        services.AddAuthentication();
 
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(o =>
-            {
-                o.RequireHttpsMetadata = false; // TODO: remove
-                o.TokenValidationParameters = new TokenValidationParameters
-                {
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret)),
-                    ValidIssuer = jwtOptions.Issuer,
-                    ValidAudience = jwtOptions.Audience,
-                    ClockSkew = TimeSpan.Zero
-                };
-            });
-
-        services.AddIdentity<User, IdentityRole<Guid>>(opt =>
-        { 
-            opt.Password.RequiredLength = 6;
-            opt.Password.RequireNonAlphanumeric = true;
-            opt.Password.RequireLowercase = true; 
-            opt.Password.RequireUppercase = true;
-            opt.Password.RequireDigit = true; 
-            opt.User.RequireUniqueEmail = true;
+        services.AddIdentityApiEndpoints<UserApplication>(opts =>
+        {
+            opts.SignIn.RequireConfirmedEmail = true;
         }).AddEntityFrameworkStores<AppDbContext>();
 
-        services.AddHttpContextAccessor();
-        services.AddSingleton<ITokenProvider, TokenProvider>();
+        return services;
+    }
 
+    private static IServiceCollection AddEmailSender(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<AuthMessageSenderOptions>(configuration.GetSection(AuthMessageSenderOptions.SEND_GRID_KEY));
+        services.AddTransient<IEmailSender, EmailSender>();
+        
         return services;
     }
 }

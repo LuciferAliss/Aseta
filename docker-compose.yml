@@ -6,8 +6,8 @@ services:
     ports:
       - "8080:8080"
     container_name: aseta-api
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+    # environment:
+    #   - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
       - db
 

@@ -1,14 +1,19 @@
-using Aseta.Domain.User;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aseta.Infrastructure.Database;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<User, IdentityRole<Guid>, Guid>(options)
+public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<UserApplication, IdentityRole<Guid>, Guid>(options)
 {
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
     }
 }
+// {
+//   "tokenType": "Bearer",
+//   "accessToken": "CfDJ8AW0X8xfR91KlcMqVqniYhOSwVvRiKus8oKoaceSMxxjroOY6vAC4ScSYwbcbW0cvoJUPri0r6u1ZmuWWE6vPEgDVMK_0yswQSq09CDulbGSsymTdwfb4jTsCesom2h3pZofg6uIJyiwae-8NpHNUuKsz_mFeqFEwUDofIbavaN7jGT74pa7soXi9sx4tByE1b0tPz5U23EglAtbr443WzZvgGblDBDegJIE9e4zy612BcWxIr2SlAmy_FTqSEngTNrT9mFqxCQseZuWMTRy9AN2_r0cJoUcmmH_mW1SQFBzZX2_r9inhWjzOlIfUWb0keeIssPgUfXj5CfsE-mR1Sf2SHuZah-e_jKiYqotdUvRpBDb6YclwPH-c5VoUXhu8RMXcMfCgmcYSi560_XTXBnDDBxp4oIyi4IkZpehgSLBBmw51vGIwhnKKDwbWhj6olYV8CpD-tNBLjDaK0A36sdFFzu70Ohwyxd73MBLLkPuksZi-3Z9ilktHVc02qqTjEUaMJTp-0cKDoFgHzl9eqU2GuA4-4TEFndYXSFlOuoNUBIWDKM4IUdINUSsNSVEKAq4IP_o2qeUBlT-zopQnM7NXXLKfJByDCeHyUQmf-6sBtewhpS5yDcqZHJRhy2Kc8DuqCwWY6hYfu6-NmBH2SCrolfnptDb7aShv-icfTmy",
+//   "expiresIn": 3600,
+//   "refreshToken": "CfDJ8AW0X8xfR91KlcMqVqniYhNyYsSD-jYJIff9yPFk4uMJRYguvtLSIAzDYWOQ2tkc0Mz7gpdDJJ1J_XX_-Q36xpGJN7X5Zk3FmScutAvRZdV3BZoYbhOtBcESnqfe9-qdSXtmvUtrjHl_dMa0YucFoYPMfTGsMUKGRx75gy7IFdBNoSJhxndp88p7OXH46JbxoYpqU2tje8aUwS4dFTcWFvZ2cbURCSHGIUxb_TPgxI4AOTgmIsw0TmLfd_3RQlZcNMpZLhMDVIjW0ZItY_o-k4LZNHb_WKkNoTpvhU4sxG9lHLZRW1xCDzjJTC6A6ZbNzua23I36Si2XOTv1YiGEIWsX-L4ob5cetSEXd015kPhwKimlzNJ51IT8rTwOzzJ5soqLJgH4rhKAPVBtNVWENF2JMT5u2ZH1bs_HmNOP7oPkJyQiDhw8dxoa69E3Cp-X2DxfceSoy9Lf6tL32RxV55TyN68Vypg9OijpPkcEIRdP93oYF0yFRv5n_IvWjR3jcSd-5yPV6iaWzCy5qr11hnV2THSUNb-NuSEB6Xej1MM8sXNKLTvu6MAjaQX64IMnkJoNrJNkVcYLhoyYDlEe4F6cAwDSMcudna2kLVg45-bA1NibMA7nv4DSJtT7C2gtyo2wj8K8Y12UgUT_aQ45BBZQccmch09R75DnJfbopCk-"
+// }

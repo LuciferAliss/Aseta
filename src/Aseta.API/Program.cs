@@ -2,6 +2,8 @@ using Aseta.API;
 using Aseta.API.Extensions;
 using Aseta.Application;
 using Aseta.Infrastructure;
+using Aseta.Infrastructure.Database;
+using Microsoft.AspNetCore.Identity;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +27,8 @@ if (app.Environment.IsDevelopment())
     });
     await app.ApplyMigrations();
 }
+
+app.MapIdentityApi<UserApplication>();
 
 app.UseExceptionHandler();
 
