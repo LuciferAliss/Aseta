@@ -13,13 +13,13 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration) =>
         services
-            .AddDatabase(configuration)
+            .AddDatabase()
             .AddAuthenticationInternal()
-            .AddEmailSender(configuration);
+            .AddEmailSender();
 
-    private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddDatabase(this IServiceCollection services)
     {
-        string? connectionString = configuration.GetConnectionString("DATABASE_PRIVATE_UR");
+        string? connectionString = Environment.GetEnvironmentVariable("DATABASE_PRIVATE_UR") ?? throw new InvalidOperationException("Variable not found");
 
         services.AddDbContext<AppDbContext>(
             options => options
@@ -42,9 +42,13 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddEmailSender(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddEmailSender(this IServiceCollection services)
     {
-        services.Configure<AuthMessageSenderOptions>(configuration.GetSection(AuthMessageSenderOptions.SEND_GRID_KEY));
+        services.Configure<AuthMessageSenderOptions>(options =>
+        {
+            options.SendGridKey = Environment.GetEnvironmentVariable(AuthMessageSenderOptions.SEND_GRID_KEY) ?? throw new InvalidOperationException("Variable not found");
+        });
+
         services.AddTransient<IEmailSender, EmailSender>();
         
         return services;

@@ -7,7 +7,9 @@
       "launchBrowser": false,
       "applicationUrl": "http://localhost:8080",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "SEND_GRID_KEY": "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",
+        "DATABASE_PRIVATE_UR": "Host=aseta-db;Port=5432;Database=aseta;Username=postgres;Password=postgres"
       }
     },
     "https": {

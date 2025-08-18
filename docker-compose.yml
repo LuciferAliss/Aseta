@@ -6,22 +6,20 @@ services:
     ports:
       - "8080:8080"
     container_name: aseta-api
-    # environment:
-    #   - ASPNETCORE_ENVIRONMENT=Development
-    # depends_on:
-    #   - db
+    depends_on:
+      - db
 
-  # db:
-  #   image: postgres:latest
-  #   container_name: aseta-db
-  #   environment:
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: postgres
-  #     POSTGRES_DB: aseta
-  #   volumes:
-  #     - db-data:/var/lib/postgresql/data
-  #   ports:
-  #     - "5432:5432"
+#   db:
+#     image: postgres:latest
+#     container_name: aseta-db
+#     environment:
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#       POSTGRES_DB: aseta
+#     volumes:
+#       - db-data:/var/lib/postgresql/data
+#     ports:
+#       - "5432:5432"
 
 # volumes:
 #   db-data:
