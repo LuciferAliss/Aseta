@@ -19,7 +19,7 @@ public static class DependencyInjection
 
     private static IServiceCollection AddDatabase(this IServiceCollection services)
     {
-        string? connectionString = Environment.GetEnvironmentVariable("DATABASE_PRIVATE_UR") ?? throw new InvalidOperationException("Variable not found");
+        string? connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? throw new InvalidOperationException("Variable not found");
 
         services.AddDbContext<AppDbContext>(
             options => options
