@@ -19,7 +19,7 @@ public static class DependencyInjection
 
     private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
     {
-        string? connectionString = configuration.GetConnectionString("Database");
+        string? connectionString = configuration.GetConnectionString("DATABASE_PRIVATE_UR");
 
         services.AddDbContext<AppDbContext>(
             options => options
