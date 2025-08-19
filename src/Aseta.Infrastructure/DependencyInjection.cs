@@ -17,7 +17,7 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, bool isDev) =>
         services
             .AddDatabase(configuration, isDev)
-            .AddAuthenticationInternal()
+            .AddAuthenticationInternal(isDev)
             .AddEmailSender(configuration, isDev);
 
     private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration, bool isDev)
@@ -49,9 +49,23 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddAuthenticationInternal(this IServiceCollection services)
+    private static IServiceCollection AddAuthenticationInternal(this IServiceCollection services, bool isDev)
     {
-        services.AddAuthentication();
+        if (isDev)
+        {
+            services.AddAuthentication();
+        }
+        else
+        {
+            string ClientId = Environment.GetEnvironmentVariable("CLIENT_ID_GOOGLE") ?? throw new InvalidOperationException("Variable `CLIENT_ID_GOOGLE` not found in production");
+            string ClientSecret = Environment.GetEnvironmentVariable("CLIENT_SECRET_GOOGLE") ?? throw new InvalidOperationException("Variable `CLIENT_SECRET_GOOGLE` not found in production");
+            
+            services.AddAuthentication().AddGoogle(googleOptions =>
+            {
+                googleOptions.ClientId = ClientId;
+                googleOptions.ClientSecret = ClientSecret;
+            });
+        }        
 
         services.AddIdentityApiEndpoints<UserApplication>(opts =>
         {
