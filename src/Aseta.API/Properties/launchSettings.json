@@ -8,8 +8,6 @@
       "applicationUrl": "http://localhost:8080",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "SEND_GRID_KEY": "",
-        "DATABASE_URL": ""
       }
     },
     "https": {

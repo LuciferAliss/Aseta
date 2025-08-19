@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddApplication()
     .AddPresentation(builder.Configuration)
-    .AddInfrastructure(builder.Configuration);
+    .AddInfrastructure(builder.Configuration, builder.Environment.IsDevelopment());
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
@@ -20,13 +20,14 @@ var app = builder.Build();
 
 // if (app.Environment.IsDevelopment())
 // {
-app.MapOpenApi();
-app.MapScalarApiReference(opt =>
-{
-    opt.WithTitle("JWT + Refresh Token Auth API");
-});
-await app.ApplyMigrations();
+    app.MapOpenApi();
+    app.MapScalarApiReference(opt =>
+    {
+        opt.WithTitle("JWT + Refresh Token Auth API");
+    });
 // }
+
+await app.ApplyMigrations();
 
 app.MapIdentityApi<UserApplication>();
 
