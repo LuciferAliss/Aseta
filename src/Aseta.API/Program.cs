@@ -18,14 +18,14 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// if (app.Environment.IsDevelopment())
-// {
+if (app.Environment.IsDevelopment())
+{
     app.MapOpenApi();
     app.MapScalarApiReference(opt =>
     {
         opt.WithTitle("JWT + Refresh Token Auth API");
     });
-// }
+}
 
 await app.ApplyMigrations();
 

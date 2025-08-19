@@ -68,7 +68,7 @@ public static class DependencyInjection
             connectionString = configuration.GetConnectionString(AuthMessageSenderOptions.SEND_GRID_KEY) ?? throw new InvalidOperationException("Variable `SEND_GRID_KEY` not found in local development");
         else
         {
-            connectionString = Environment.GetEnvironmentVariable(AuthMessageSenderOptions.SEND_GRID_KEY) ?? throw new InvalidOperationException("Variable not found in production");
+            connectionString = Environment.GetEnvironmentVariable(AuthMessageSenderOptions.SEND_GRID_KEY) ?? throw new InvalidOperationException("Variable `SEND_GRID_KEY` not found in production");
         }
 
         services.Configure<AuthMessageSenderOptions>(options =>
