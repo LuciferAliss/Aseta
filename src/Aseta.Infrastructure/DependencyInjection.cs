@@ -2,6 +2,7 @@
 using Aseta.Infrastructure.Database;
 using Aseta.Infrastructure.Options;
 using Aseta.Infrastructure.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -12,33 +13,19 @@ namespace Aseta.Infrastructure;
 
 public static class DependencyInjection
 {
-    private const string CONNECTION_STRING_FOR_DATABASE = "DATABASE_URL";
-
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, bool isDev) =>
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration) =>
         services
-            .AddDatabase(configuration, isDev)
-            .AddAuthenticationInternal(isDev)
-            .AddEmailSender(configuration, isDev);
+        .AddAuthenticationInternal(configuration)
+        .AddEmailSender(configuration)
+        .ConfigureCookies()
+        .AddDatabase(configuration);
 
-    private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration, bool isDev)
+    private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
     {
-        string connectionString; 
-        if (isDev) 
-            connectionString = configuration.GetConnectionString(CONNECTION_STRING_FOR_DATABASE) ?? throw new InvalidOperationException("Variable `DATABASE_URL` not found in local development"); 
-        else
-        { 
-            var connUrl = Environment.GetEnvironmentVariable(CONNECTION_STRING_FOR_DATABASE) ?? throw new InvalidOperationException("Variable `DATABASE_URL` not found in production"); 
-
-            var databaseUri = new Uri(connUrl); 
-            var userInfo = databaseUri.UserInfo.Split(':'); 
-            var Host = databaseUri.Host; 
-            var Port = databaseUri.Port; 
-            var UserName = userInfo[0]; 
-            var Password = userInfo[1]; 
-            var Database = databaseUri.LocalPath.TrimStart('/'); 
-            
-            connectionString = $"Server={Host};Port={Port};UserId={UserName} ;Password={Password};Database={Database};"; 
-        }
+        DatabaseOptions options = new();
+        configuration.GetSection(DatabaseOptions.SectionName).Bind(options);
+        
+        string connectionString = ConfigurationConnectionStringDb(options.Url);
 
         services.AddDbContext<AppDbContext>(
             options => options
@@ -49,23 +36,68 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddAuthenticationInternal(this IServiceCollection services, bool isDev)
+    private static string ConfigurationConnectionStringDb(string? connUrl)
     {
-        if (isDev)
+        ArgumentException.ThrowIfNullOrWhiteSpace(connUrl);
+
+        if (!Uri.TryCreate(connUrl, UriKind.Absolute, out var databaseUri))
         {
-            services.AddAuthentication();
+            return connUrl;
         }
-        else
+        
+        var userInfo = databaseUri.UserInfo.Split(':');
+        var Host = databaseUri.Host;
+        var Port = databaseUri.Port;
+        var UserName = userInfo[0];
+        var Password = userInfo[1];
+        var Database = databaseUri.LocalPath.TrimStart('/');
+
+        return $"Server={Host};Port={Port};UserId={UserName};Password={Password};Database={Database};";
+    }
+
+    private static IServiceCollection ConfigureCookies(this IServiceCollection services)
+    {
+        services.ConfigureApplicationCookie(options =>
         {
-            string ClientId = Environment.GetEnvironmentVariable("CLIENT_ID_GOOGLE") ?? throw new InvalidOperationException("Variable `CLIENT_ID_GOOGLE` not found in production");
-            string ClientSecret = Environment.GetEnvironmentVariable("CLIENT_SECRET_GOOGLE") ?? throw new InvalidOperationException("Variable `CLIENT_SECRET_GOOGLE` not found in production");
-            
-            services.AddAuthentication().AddGoogle(googleOptions =>
+            options.Events.OnRedirectToLogin = context =>
             {
-                googleOptions.ClientId = ClientId;
-                googleOptions.ClientSecret = ClientSecret;
-            });
-        }        
+                context.Response.StatusCode = 401;
+                return Task.CompletedTask;
+            };
+
+            options.Events.OnRedirectToAccessDenied = context =>
+            {
+                context.Response.StatusCode = 401;
+                return Task.CompletedTask;
+            };
+
+            options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+            options.Cookie.SameSite = SameSiteMode.None;
+            options.Cookie.HttpOnly = true;
+            // options.Cookie.SecurePolicy = CookieSecurePolicy.Always; for production
+        });
+
+        return services;
+    }
+
+    private static IServiceCollection AddAuthenticationInternal(this IServiceCollection services, IConfiguration configuration)
+    {
+        GoogleAuthOptions options = new();
+        configuration.GetSection(GoogleAuthOptions.SectionName).Bind(options);
+
+        if (string.IsNullOrWhiteSpace(options.Id) || string.IsNullOrWhiteSpace(options.Secret))
+        {
+            throw new ArgumentException("Null Google Id or Secret");
+        }
+
+        services.AddAuthentication().AddCookie(options =>
+        {
+            options.SlidingExpiration = true;
+        }).AddGoogle(googleOptions =>
+        {
+            googleOptions.ClientId = options.Id;
+            googleOptions.ClientSecret = options.Secret;
+        });
 
         services.AddIdentityApiEndpoints<UserApplication>(opts =>
         {
@@ -75,19 +107,15 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddEmailSender(this IServiceCollection services, IConfiguration configuration, bool isDev)
+    private static IServiceCollection AddEmailSender(this IServiceCollection services, IConfiguration configuration)
     {
-        string connectionString;
-        if (isDev)
-            connectionString = configuration.GetConnectionString(AuthMessageSenderOptions.SEND_GRID_KEY) ?? throw new InvalidOperationException("Variable `SEND_GRID_KEY` not found in local development");
-        else
-        {
-            connectionString = Environment.GetEnvironmentVariable(AuthMessageSenderOptions.SEND_GRID_KEY) ?? throw new InvalidOperationException("Variable `SEND_GRID_KEY` not found in production");
-        }
+        AuthMessageSenderOptions options = new();
+        configuration.GetSection(AuthMessageSenderOptions.SectionName).Bind(options);
+        ArgumentException.ThrowIfNullOrWhiteSpace(options.Key);
 
         services.Configure<AuthMessageSenderOptions>(options =>
         {
-            options.SendGridKey = connectionString;
+            options.Key = options.Key;
         });
 
         services.AddTransient<IEmailSender, EmailSender>();

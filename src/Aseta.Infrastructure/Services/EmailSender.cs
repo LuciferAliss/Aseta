@@ -16,11 +16,11 @@ public class EmailSender(IOptions<AuthMessageSenderOptions> optionsAccessor,
 
     public async Task SendEmailAsync(string toEmail, string subject, string message)
     {
-        if (string.IsNullOrEmpty(_options.SendGridKey))
+        if (string.IsNullOrEmpty(_options.Key))
         {
             throw new Exception("Null SendGridKey");
         }
-        await Execute(_options.SendGridKey, subject, message, toEmail);
+        await Execute(_options.Key, subject, message, toEmail);
     }
 
     public async Task Execute(string apiKey, string subject, string message, string toEmail)

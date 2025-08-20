@@ -1,10 +1,8 @@
-using System;
-
 namespace Aseta.Infrastructure.Options;
 
 public sealed record AuthMessageSenderOptions
 {
-    public const string SEND_GRID_KEY = "SEND_GRID_KEY";
+    public const string SectionName = "Sendgrid";
 
-    public required string SendGridKey { get; set; }
+    public string? Key { get; set; }
 }
