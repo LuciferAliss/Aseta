@@ -90,14 +90,15 @@ public static class DependencyInjection
             throw new ArgumentException("Null Google Id or Secret");
         }
 
-        services.AddAuthentication().AddCookie(options =>
-        {
-            options.SlidingExpiration = true;
-        }).AddGoogle(googleOptions =>
-        {
-            googleOptions.ClientId = options.Id;
-            googleOptions.ClientSecret = options.Secret;
-        });
+        services.AddAuthentication()
+            .AddCookie(options =>
+            {
+                options.SlidingExpiration = true;
+            }).AddGoogle(googleOptions =>
+            {
+                googleOptions.ClientId = options.Id;
+                googleOptions.ClientSecret = options.Secret;
+            });
 
         services.AddIdentityApiEndpoints<UserApplication>(opts =>
         {
