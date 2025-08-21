@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Aseta.Infrastructure.Database;
+﻿using Aseta.Infrastructure.Database;
 using Aseta.Infrastructure.Options;
 using Aseta.Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
@@ -82,10 +81,10 @@ public static class DependencyInjection
 
     private static IServiceCollection AddAuthenticationInternal(this IServiceCollection services, IConfiguration configuration)
     {
-        GoogleAuthOptions options = new();
-        configuration.GetSection(GoogleAuthOptions.SectionName).Bind(options);
+        var optionsFacebook = new FacebookOption();
+        configuration.GetSection(FacebookOption.SectionName).Bind(optionsFacebook);
 
-        if (string.IsNullOrWhiteSpace(options.Id) || string.IsNullOrWhiteSpace(options.Secret))
+        if (string.IsNullOrWhiteSpace(optionsFacebook.Id) || string.IsNullOrWhiteSpace(optionsFacebook.Secret))
         {
             throw new ArgumentException("Null Google Id or Secret");
         }
@@ -94,10 +93,11 @@ public static class DependencyInjection
             .AddCookie(options =>
             {
                 options.SlidingExpiration = true;
-            }).AddGoogle(googleOptions =>
+            })
+            .AddFacebook(options =>
             {
-                googleOptions.ClientId = options.Id;
-                googleOptions.ClientSecret = options.Secret;
+                options.AppId = optionsFacebook.Id;
+                options.AppSecret = optionsFacebook.Secret;
             });
 
         services.AddIdentityApiEndpoints<UserApplication>(opts =>
