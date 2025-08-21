@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Aseta.API.Controllers;
 
-[Route("api/auth")]
+[Route("[controller]")]
 [ApiController]
 public class AuthController : ControllerBase
 {

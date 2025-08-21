@@ -86,7 +86,7 @@ public static class DependencyInjection
 
         if (string.IsNullOrWhiteSpace(optionsFacebook.Id) || string.IsNullOrWhiteSpace(optionsFacebook.Secret))
         {
-            throw new ArgumentException("Null Google Id or Secret");
+            throw new ArgumentException("Null Facebook Id or Secret");
         }
 
         services.AddAuthentication()

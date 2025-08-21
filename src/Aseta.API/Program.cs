@@ -33,7 +33,7 @@ if (app.Environment.IsDevelopment())
 
 await app.ApplyMigrations();
 
-app.MapGroup("/api/auth").MapIdentityApi<UserApplication>();
+app.MapGroup("/auth").MapIdentityApi<UserApplication>();
 
 app.UseCors("CorsPolicy");
 
