@@ -4,6 +4,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Aseta.Infrastructure.Database.Migrations
 {
     /// <inheritdoc />
@@ -49,6 +51,32 @@ namespace Aseta.Infrastructure.Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_asp_net_users", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_categories", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Tags",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_tags", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -157,6 +185,86 @@ namespace Aseta.Infrastructure.Database.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Inventories",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    category_id = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_inventories", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_inventories_categories_category_id",
+                        column: x => x.category_id,
+                        principalTable: "Categories",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Items",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    custom_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    name = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false),
+                    description = table.Column<string>(type: "text", nullable: false),
+                    image_url = table.Column<string>(type: "text", nullable: false),
+                    inventory_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_items", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_items_inventories_inventory_id",
+                        column: x => x.inventory_id,
+                        principalTable: "Inventories",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "inventory_tag",
+                columns: table => new
+                {
+                    inventories_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    tags_id = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_inventory_tag", x => new { x.inventories_id, x.tags_id });
+                    table.ForeignKey(
+                        name: "fk_inventory_tag_inventories_inventories_id",
+                        column: x => x.inventories_id,
+                        principalTable: "Inventories",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_inventory_tag_tags_tags_id",
+                        column: x => x.tags_id,
+                        principalTable: "Tags",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Categories",
+                columns: new[] { "id", "name" },
+                values: new object[,]
+                {
+                    { 1, "Electronics" },
+                    { 2, "Clothing" },
+                    { 3, "Books" },
+                    { 4, "Games" },
+                    { 5, "Toys" },
+                    { 6, "Sports" },
+                    { 7, "Furniture" },
+                    { 8, "Other" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "ix_asp_net_role_claims_role_id",
                 table: "AspNetRoleClaims",
@@ -193,6 +301,34 @@ namespace Aseta.Infrastructure.Database.Migrations
                 table: "AspNetUsers",
                 column: "normalized_user_name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_categories_name",
+                table: "Categories",
+                column: "name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_inventories_category_id",
+                table: "Inventories",
+                column: "category_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_items_inventory_id_custom_id",
+                table: "Items",
+                columns: new[] { "inventory_id", "custom_id" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_tags_name",
+                table: "Tags",
+                column: "name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_inventory_tag_tags_id",
+                table: "inventory_tag",
+                column: "tags_id");
         }
 
         /// <inheritdoc />
@@ -214,10 +350,25 @@ namespace Aseta.Infrastructure.Database.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Items");
+
+            migrationBuilder.DropTable(
+                name: "inventory_tag");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Inventories");
+
+            migrationBuilder.DropTable(
+                name: "Tags");
+
+            migrationBuilder.DropTable(
+                name: "Categories");
         }
     }
 }

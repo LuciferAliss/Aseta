@@ -6,6 +6,7 @@ using Aseta.Domain.Entities.Items;
 using Aseta.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -14,9 +15,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Aseta.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250826222147_update_entities")]
+    partial class update_entities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -132,29 +135,6 @@ namespace Aseta.Infrastructure.Database.Migrations
                         .HasDatabaseName("ix_inventories_creator_id");
 
                     b.ToTable("Inventories", (string)null);
-                });
-
-            modelBuilder.Entity("Aseta.Domain.Entities.Inventories.InventoryUserRole", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.Property<Guid>("InventoryId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("inventory_id");
-
-                    b.Property<string>("Role")
-                        .HasColumnType("text")
-                        .HasColumnName("role");
-
-                    b.HasKey("UserId", "InventoryId", "Role")
-                        .HasName("pk_inventory_user_roles");
-
-                    b.HasIndex("InventoryId")
-                        .HasDatabaseName("ix_inventory_user_roles_inventory_id");
-
-                    b.ToTable("InventoryUserRoles", (string)null);
                 });
 
             modelBuilder.Entity("Aseta.Domain.Entities.Items.Item", b =>
@@ -290,12 +270,6 @@ namespace Aseta.Infrastructure.Database.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("phone_number_confirmed");
 
-                    b.Property<Guid>("RoleId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValue(new Guid("b9c2d84a-9a7b-4f1e-8b5a-0e2c1d3f7a6b"))
-                        .HasColumnName("role_id");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text")
                         .HasColumnName("security_stamp");
@@ -318,9 +292,6 @@ namespace Aseta.Infrastructure.Database.Migrations
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
-
-                    b.HasIndex("RoleId")
-                        .HasDatabaseName("ix_asp_net_users_role_id");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -374,20 +345,6 @@ namespace Aseta.Infrastructure.Database.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("c100b9de-c285-4d0c-b3a0-58e3a7e6b80f"),
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
-                        },
-                        new
-                        {
-                            Id = new Guid("b9c2d84a-9a7b-4f1e-8b5a-0e2c1d3f7a6b"),
-                            Name = "User",
-                            NormalizedName = "USER"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -541,27 +498,6 @@ namespace Aseta.Infrastructure.Database.Migrations
                     b.Navigation("Creator");
                 });
 
-            modelBuilder.Entity("Aseta.Domain.Entities.Inventories.InventoryUserRole", b =>
-                {
-                    b.HasOne("Aseta.Domain.Entities.Inventories.Inventory", "Inventory")
-                        .WithMany("UserRoles")
-                        .HasForeignKey("InventoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_inventory_user_roles_inventories_inventory_id");
-
-                    b.HasOne("Aseta.Domain.Entities.Users.UserApplication", "User")
-                        .WithMany("InventoryUserRoles")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_inventory_user_roles_asp_net_users_user_id");
-
-                    b.Navigation("Inventory");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Aseta.Domain.Entities.Items.Item", b =>
                 {
                     b.HasOne("Aseta.Domain.Entities.Users.UserApplication", "Creator")
@@ -590,18 +526,6 @@ namespace Aseta.Infrastructure.Database.Migrations
                     b.Navigation("Inventory");
 
                     b.Navigation("Updater");
-                });
-
-            modelBuilder.Entity("Aseta.Domain.Entities.Users.UserApplication", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_asp_net_users_roles_role_id");
-
-                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("InventoryTag", b =>
@@ -686,15 +610,11 @@ namespace Aseta.Infrastructure.Database.Migrations
             modelBuilder.Entity("Aseta.Domain.Entities.Inventories.Inventory", b =>
                 {
                     b.Navigation("Items");
-
-                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("Aseta.Domain.Entities.Users.UserApplication", b =>
                 {
                     b.Navigation("Inventories");
-
-                    b.Navigation("InventoryUserRoles");
                 });
 #pragma warning restore 612, 618
         }

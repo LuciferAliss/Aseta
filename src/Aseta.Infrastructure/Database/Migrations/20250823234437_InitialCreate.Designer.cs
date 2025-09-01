@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Aseta.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250815191030_InitialCreate")]
+    [Migration("20250823234437_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -25,7 +25,169 @@ namespace Aseta.Infrastructure.Database.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Aseta.Domain.User.User", b =>
+            modelBuilder.Entity("Aseta.Domain.Entities.Inventories.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_categories");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_categories_name");
+
+                    b.ToTable("Categories", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Electronics"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Clothing"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Books"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Games"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Toys"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Sports"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Furniture"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "Other"
+                        });
+                });
+
+            modelBuilder.Entity("Aseta.Domain.Entities.Inventories.Inventory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("category_id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_inventories");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("ix_inventories_category_id");
+
+                    b.ToTable("Inventories", (string)null);
+                });
+
+            modelBuilder.Entity("Aseta.Domain.Entities.Items.Item", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("image_url");
+
+                    b.Property<Guid>("InventoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("inventory_id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("custom_id_for_index")
+                        .IsRequired()
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("custom_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_items");
+
+                    b.HasIndex("InventoryId", "custom_id_for_index")
+                        .IsUnique()
+                        .HasDatabaseName("ix_items_inventory_id_custom_id");
+
+                    b.ToTable("Items", (string)null);
+                });
+
+            modelBuilder.Entity("Aseta.Domain.Entities.Tags.Tag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tags");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_tags_name");
+
+                    b.ToTable("Tags", (string)null);
+                });
+
+            modelBuilder.Entity("Aseta.Infrastructure.Database.UserApplication", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -104,6 +266,25 @@ namespace Aseta.Infrastructure.Database.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("InventoryTag", b =>
+                {
+                    b.Property<Guid>("InventoriesId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("inventories_id");
+
+                    b.Property<int>("TagsId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tags_id");
+
+                    b.HasKey("InventoriesId", "TagsId")
+                        .HasName("pk_inventory_tag");
+
+                    b.HasIndex("TagsId")
+                        .HasDatabaseName("ix_inventory_tag_tags_id");
+
+                    b.ToTable("inventory_tag", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -268,6 +449,72 @@ namespace Aseta.Infrastructure.Database.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Aseta.Domain.Entities.Inventories.Inventory", b =>
+                {
+                    b.HasOne("Aseta.Domain.Entities.Inventories.Category", "Category")
+                        .WithMany("Inventories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_inventories_categories_category_id");
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Aseta.Domain.Entities.Items.Item", b =>
+                {
+                    b.HasOne("Aseta.Domain.Entities.Inventories.Inventory", "Inventory")
+                        .WithMany("Items")
+                        .HasForeignKey("InventoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_items_inventories_inventory_id");
+
+                    b.OwnsOne("Aseta.Domain.Entities.Items.CustomId", "CustomId", b1 =>
+                        {
+                            b1.Property<Guid>("ItemId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)")
+                                .HasColumnName("custom_id");
+
+                            b1.HasKey("ItemId");
+
+                            b1.ToTable("Items");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ItemId")
+                                .HasConstraintName("fk_items_items_id");
+                        });
+
+                    b.Navigation("CustomId")
+                        .IsRequired();
+
+                    b.Navigation("Inventory");
+                });
+
+            modelBuilder.Entity("InventoryTag", b =>
+                {
+                    b.HasOne("Aseta.Domain.Entities.Inventories.Inventory", null)
+                        .WithMany()
+                        .HasForeignKey("InventoriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_inventory_tag_inventories_inventories_id");
+
+                    b.HasOne("Aseta.Domain.Entities.Tags.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_inventory_tag_tags_tags_id");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
@@ -280,7 +527,7 @@ namespace Aseta.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
-                    b.HasOne("Aseta.Domain.User.User", null)
+                    b.HasOne("Aseta.Infrastructure.Database.UserApplication", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -290,7 +537,7 @@ namespace Aseta.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
-                    b.HasOne("Aseta.Domain.User.User", null)
+                    b.HasOne("Aseta.Infrastructure.Database.UserApplication", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -307,7 +554,7 @@ namespace Aseta.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_asp_net_user_roles_asp_net_roles_role_id");
 
-                    b.HasOne("Aseta.Domain.User.User", null)
+                    b.HasOne("Aseta.Infrastructure.Database.UserApplication", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -317,12 +564,22 @@ namespace Aseta.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
-                    b.HasOne("Aseta.Domain.User.User", null)
+                    b.HasOne("Aseta.Infrastructure.Database.UserApplication", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_asp_net_user_tokens_asp_net_users_user_id");
+                });
+
+            modelBuilder.Entity("Aseta.Domain.Entities.Inventories.Category", b =>
+                {
+                    b.Navigation("Inventories");
+                });
+
+            modelBuilder.Entity("Aseta.Domain.Entities.Inventories.Inventory", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

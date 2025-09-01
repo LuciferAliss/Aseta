@@ -1,16 +1,18 @@
 using Aseta.API;
 using Aseta.API.Extensions;
 using Aseta.Application;
+using Aseta.Domain;
+using Aseta.Domain.Entities.Users;
 using Aseta.Infrastructure;
-using Aseta.Infrastructure.Database;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
+    .AddDomain()
+    .AddInfrastructure(builder.Configuration)
     .AddApplication()
-    .AddPresentation(builder.Configuration)
-    .AddInfrastructure(builder.Configuration);
+    .AddPresentation(builder.Configuration);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();

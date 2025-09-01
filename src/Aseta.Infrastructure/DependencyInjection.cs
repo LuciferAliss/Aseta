@@ -1,35 +1,50 @@
-﻿using Aseta.Infrastructure.Database;
+﻿using Aseta.Domain.Abstractions.Repository;
+using Aseta.Domain.Entities.Inventories;
+using Aseta.Domain.Entities.Users;
+using Aseta.Infrastructure.Database;
 using Aseta.Infrastructure.Options;
+using Aseta.Infrastructure.Repository;
+using Aseta.Infrastructure.Requirements;
 using Aseta.Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 
 namespace Aseta.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration) =>
-        services
-        .AddAuthenticationInternal(configuration)
-        .AddEmailSender(configuration)
-        .ConfigureCookies()
-        .AddDatabase(configuration);
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    {
+        return services
+            .AddRepositories()
+            .AddAuthenticationInternal(configuration)
+            .AddEmailSender(configuration)
+            .ConfigureCookies()
+            .AddDatabase(configuration)
+            .AddPolicies();
+    }
 
     private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
     {
         DatabaseOptions options = new();
         configuration.GetSection(DatabaseOptions.SectionName).Bind(options);
-        
+
         string connectionString = ConfigurationConnectionStringDb(options.Url);
 
-        services.AddDbContext<AppDbContext>(
-            options => options
-                .UseNpgsql(connectionString, npgsqlOptions =>
-                    npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Default))
+        var dataSource = new NpgsqlDataSourceBuilder(connectionString)
+            .EnableDynamicJson()
+            .Build();
+
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseNpgsql(dataSource, npgsqlOptions =>
+                npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Default))
                 .UseSnakeCaseNamingConvention());
 
         return services;
@@ -43,7 +58,7 @@ public static class DependencyInjection
         {
             return connUrl;
         }
-        
+
         var userInfo = databaseUri.UserInfo.Split(':');
         var Host = databaseUri.Host;
         var Port = databaseUri.Port;
@@ -73,7 +88,7 @@ public static class DependencyInjection
             options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
             options.Cookie.SameSite = SameSiteMode.None;
             options.Cookie.HttpOnly = true;
-            // options.Cookie.SecurePolicy = CookieSecurePolicy.Always; for production
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         });
 
         return services;
@@ -90,10 +105,6 @@ public static class DependencyInjection
         }
 
         services.AddAuthentication()
-            .AddCookie(options =>
-            {
-                options.SlidingExpiration = true;
-            })
             .AddFacebook(options =>
             {
                 options.AppId = optionsFacebook.Id;
@@ -103,24 +114,46 @@ public static class DependencyInjection
         services.AddIdentityApiEndpoints<UserApplication>(opts =>
         {
             opts.SignIn.RequireConfirmedEmail = true;
-        }).AddEntityFrameworkStores<AppDbContext>();
+        })
+        .AddRoles<IdentityRole<Guid>>()
+        .AddEntityFrameworkStores<AppDbContext>();
 
+        return services;
+    }
+
+    private static IServiceCollection AddPolicies(this IServiceCollection services)
+    {
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("CanManageInventory", policy =>
+                policy.Requirements.Add(new InventoryRoleRequirement(InventoryRole.Owner)));
+            options.AddPolicy("CanEditInventory", policy =>
+                policy.Requirements.Add(new InventoryRoleRequirement(InventoryRole.Editor)));
+        });
+        
+        services.AddSingleton<IAuthorizationHandler, InventoryRoleHandler>();
         return services;
     }
 
     private static IServiceCollection AddEmailSender(this IServiceCollection services, IConfiguration configuration)
     {
-        AuthMessageSenderOptions options = new();
-        configuration.GetSection(AuthMessageSenderOptions.SectionName).Bind(options);
-        ArgumentException.ThrowIfNullOrWhiteSpace(options.Key);
+        services.Configure<AuthMessageSenderOptions>(configuration.GetSection(AuthMessageSenderOptions.SectionName));
 
-        services.Configure<AuthMessageSenderOptions>(options =>
-        {
-            options.Key = options.Key;
-        });
+        var authOptions = new AuthMessageSenderOptions();
+        configuration.GetSection(AuthMessageSenderOptions.SectionName).Bind(authOptions);
+        ArgumentException.ThrowIfNullOrWhiteSpace(authOptions.Key);
 
         services.AddTransient<IEmailSender, EmailSender>();
-        
+
+        return services;
+    }
+
+    private static IServiceCollection AddRepositories(this IServiceCollection services)
+    {
+        services.AddScoped<IInventoryRepository, InventoryRepository>();
+        services.AddScoped<IItemRepository, ItemRepository>();
+        services.AddScoped<IInventoryUserRoleRepository, InventoryUserRoleRepository>();
+
         return services;
     }
 }

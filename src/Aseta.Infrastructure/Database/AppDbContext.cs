@@ -1,3 +1,7 @@
+using Aseta.Domain.Entities.Inventories;
+using Aseta.Domain.Entities.Items;
+using Aseta.Domain.Entities.Tags;
+using Aseta.Domain.Entities.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -6,14 +10,141 @@ namespace Aseta.Infrastructure.Database;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<UserApplication, IdentityRole<Guid>, Guid>(options)
 {
+    public DbSet<Inventory> Inventories { get; set; }
+    public DbSet<Item> Items { get; set; }
+    public DbSet<Category> Categories { get; set; }
+    public DbSet<Tag> Tags { get; set; }
+    public DbSet<InventoryUserRole> InventoryUserRoles { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        builder.Entity<IdentityRole<Guid>>().HasData(
+            new IdentityRole<Guid> { Id = Guid.Parse("C100B9DE-C285-4D0C-B3A0-58E3A7E6B80F"), Name = "Admin", NormalizedName = "ADMIN" },
+            new IdentityRole<Guid> { Id = Guid.Parse("B9C2D84A-9A7B-4F1E-8B5A-0E2C1D3F7A6B"), Name = "User", NormalizedName = "USER" }
+        );
+
+        builder.Entity<UserApplication>(user =>
+        {
+            user.HasMany(u => u.InventoryUserRoles)
+                .WithOne(iur => iur.User)
+                .HasForeignKey(iur => iur.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            user.Property(u => u.RoleId)
+                .HasDefaultValue(Guid.Parse("B9C2D84A-9A7B-4F1E-8B5A-0E2C1D3F7A6B"));
+        });
+
+        builder.Entity<Inventory>(inventory =>
+        {
+            inventory.ToTable("Inventories");
+            inventory.HasKey(i => i.Id);
+
+            inventory.Property(i => i.Name)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            inventory.HasMany(i => i.UserRoles)
+                .WithOne(iur => iur.Inventory)
+                .HasForeignKey(iur => iur.InventoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            inventory.HasMany(i => i.Items)
+                .WithOne(item => item.Inventory)
+                .HasForeignKey(item => item.InventoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            inventory.HasOne(i => i.Category)
+                .WithMany(c => c.Inventories)
+                .HasForeignKey(i => i.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            inventory.HasMany(i => i.Tags)
+                .WithMany(t => t.Inventories);
+
+            inventory.HasOne(i => i.Creator)
+                .WithMany(u => u.Inventories)
+                .HasForeignKey(i => i.CreatorId)
+                .IsRequired();
+
+            inventory.Property(i => i.CustomIdParts).HasColumnType("jsonb");
+        });
+
+        builder.Entity<InventoryUserRole>(iur =>
+        {
+            iur.ToTable("InventoryUserRoles");
+            iur.HasKey(i => new { i.UserId, i.InventoryId, i.Role });
+
+            iur.HasOne(i => i.User)
+                .WithMany(u => u.InventoryUserRoles)
+                .HasForeignKey(i => i.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            iur.HasOne(i => i.Inventory)
+                .WithMany(inv => inv.UserRoles)
+                .HasForeignKey(i => i.InventoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            iur.Property(i => i.Role)
+                .HasConversion<string>();
+        });
+
+        builder.Entity<Item>(item =>
+        {
+            item.ToTable("Items");
+            item.HasKey(i => i.Id);
+
+            item.Property(i => i.CustomFields).HasColumnType("jsonb");
+
+            item.HasIndex(item => new { item.InventoryId, item.CustomId }).IsUnique();
+
+            item.HasOne(i => i.Creator)
+                .WithMany()
+                .HasForeignKey(i => i.CreatorId)
+                .IsRequired();
+
+            item.HasOne(i => i.Updater)
+                .WithMany()
+                .HasForeignKey(i => i.UpdaterId)
+                .IsRequired();
+        });
+
+
+        builder.Entity<Category>(category =>
+        {
+            category.ToTable("Categories");
+            category.HasKey(c => c.Id);
+
+            category.Property(c => c.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            category.HasIndex(c => c.Name).IsUnique();
+        });
+
+        builder.Entity<Category>().HasData(
+            new Category { Id = 1, Name = "Electronics" },
+            new Category { Id = 2, Name = "Clothing" },
+            new Category { Id = 3, Name = "Books" },
+            new Category { Id = 4, Name = "Games" },
+            new Category { Id = 5, Name = "Toys" },
+            new Category { Id = 6, Name = "Sports" },
+            new Category { Id = 7, Name = "Furniture" },
+            new Category { Id = 8, Name = "Other" }
+        );
+
+
+        builder.Entity<Tag>(tag =>
+        {
+            tag.ToTable("Tags");
+            tag.HasKey(t => t.Id);
+
+            tag.Property(t => t.Name)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            tag.HasIndex(t => t.Name).IsUnique();
+        });
     }
 }
-// {
-//   "tokenType": "Bearer",
-//   "accessToken": "CfDJ8AW0X8xfR91KlcMqVqniYhOSwVvRiKus8oKoaceSMxxjroOY6vAC4ScSYwbcbW0cvoJUPri0r6u1ZmuWWE6vPEgDVMK_0yswQSq09CDulbGSsymTdwfb4jTsCesom2h3pZofg6uIJyiwae-8NpHNUuKsz_mFeqFEwUDofIbavaN7jGT74pa7soXi9sx4tByE1b0tPz5U23EglAtbr443WzZvgGblDBDegJIE9e4zy612BcWxIr2SlAmy_FTqSEngTNrT9mFqxCQseZuWMTRy9AN2_r0cJoUcmmH_mW1SQFBzZX2_r9inhWjzOlIfUWb0keeIssPgUfXj5CfsE-mR1Sf2SHuZah-e_jKiYqotdUvRpBDb6YclwPH-c5VoUXhu8RMXcMfCgmcYSi560_XTXBnDDBxp4oIyi4IkZpehgSLBBmw51vGIwhnKKDwbWhj6olYV8CpD-tNBLjDaK0A36sdFFzu70Ohwyxd73MBLLkPuksZi-3Z9ilktHVc02qqTjEUaMJTp-0cKDoFgHzl9eqU2GuA4-4TEFndYXSFlOuoNUBIWDKM4IUdINUSsNSVEKAq4IP_o2qeUBlT-zopQnM7NXXLKfJByDCeHyUQmf-6sBtewhpS5yDcqZHJRhy2Kc8DuqCwWY6hYfu6-NmBH2SCrolfnptDb7aShv-icfTmy",
-//   "expiresIn": 3600,
-//   "refreshToken": "CfDJ8AW0X8xfR91KlcMqVqniYhNyYsSD-jYJIff9yPFk4uMJRYguvtLSIAzDYWOQ2tkc0Mz7gpdDJJ1J_XX_-Q36xpGJN7X5Zk3FmScutAvRZdV3BZoYbhOtBcESnqfe9-qdSXtmvUtrjHl_dMa0YucFoYPMfTGsMUKGRx75gy7IFdBNoSJhxndp88p7OXH46JbxoYpqU2tje8aUwS4dFTcWFvZ2cbURCSHGIUxb_TPgxI4AOTgmIsw0TmLfd_3RQlZcNMpZLhMDVIjW0ZItY_o-k4LZNHb_WKkNoTpvhU4sxG9lHLZRW1xCDzjJTC6A6ZbNzua23I36Si2XOTv1YiGEIWsX-L4ob5cetSEXd015kPhwKimlzNJ51IT8rTwOzzJ5soqLJgH4rhKAPVBtNVWENF2JMT5u2ZH1bs_HmNOP7oPkJyQiDhw8dxoa69E3Cp-X2DxfceSoy9Lf6tL32RxV55TyN68Vypg9OijpPkcEIRdP93oYF0yFRv5n_IvWjR3jcSd-5yPV6iaWzCy5qr11hnV2THSUNb-NuSEB6Xej1MM8sXNKLTvu6MAjaQX64IMnkJoNrJNkVcYLhoyYDlEe4F6cAwDSMcudna2kLVg45-bA1NibMA7nv4DSJtT7C2gtyo2wj8K8Y12UgUT_aQ45BBZQccmch09R75DnJfbopCk-"
-// }

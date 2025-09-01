@@ -6,23 +6,20 @@ services:
     ports:
       - "8080:8080"
     container_name: aseta-api
-#     environment:
-#       SEND_GRID_KEY: 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,
-#       DATABASE_URL: Host=aseta-db;Port=5432;Database=aseta;Username=postgres;Password=postgres
-#     depends_on:
-#       - db
+    depends_on:
+      - db
 
-#   db:
-#     image: postgres:latest
-#     container_name: aseta-db
-#     environment:
-#       POSTGRES_USER: postgres
-#       POSTGRES_PASSWORD: postgres
-#       POSTGRES_DB: aseta
-#     volumes:
-#       - db-data:/var/lib/postgresql/data
-#     ports:
-#       - "5432:5432"
+  db:
+    image: postgres:latest
+    container_name: aseta-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: aseta
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
-# volumes:
-#   db-data:
+volumes:
+  db-data:
