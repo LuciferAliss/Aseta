@@ -15,8 +15,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Aseta.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250901002454_add_role")]
-    partial class add_role
+    [Migration("20250901103815_update_connection")]
+    partial class update_connection
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -293,12 +293,6 @@ namespace Aseta.Infrastructure.Database.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("phone_number_confirmed");
 
-                    b.Property<Guid>("RoleId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValue(new Guid("b9c2d84a-9a7b-4f1e-8b5a-0e2c1d3f7a6b"))
-                        .HasColumnName("role_id");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text")
                         .HasColumnName("security_stamp");
@@ -321,9 +315,6 @@ namespace Aseta.Infrastructure.Database.Migrations
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
-
-                    b.HasIndex("RoleId")
-                        .HasDatabaseName("ix_asp_net_users_role_id");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -377,20 +368,6 @@ namespace Aseta.Infrastructure.Database.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("c100b9de-c285-4d0c-b3a0-58e3a7e6b80f"),
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
-                        },
-                        new
-                        {
-                            Id = new Guid("b9c2d84a-9a7b-4f1e-8b5a-0e2c1d3f7a6b"),
-                            Name = "User",
-                            NormalizedName = "USER"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -549,7 +526,7 @@ namespace Aseta.Infrastructure.Database.Migrations
                     b.HasOne("Aseta.Domain.Entities.Inventories.Inventory", "Inventory")
                         .WithMany("UserRoles")
                         .HasForeignKey("InventoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_inventory_user_roles_inventories_inventory_id");
 
@@ -593,18 +570,6 @@ namespace Aseta.Infrastructure.Database.Migrations
                     b.Navigation("Inventory");
 
                     b.Navigation("Updater");
-                });
-
-            modelBuilder.Entity("Aseta.Domain.Entities.Users.UserApplication", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_asp_net_users_roles_role_id");
-
-                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("InventoryTag", b =>

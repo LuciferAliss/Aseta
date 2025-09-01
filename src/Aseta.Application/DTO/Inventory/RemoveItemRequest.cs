@@ -1,3 +1,3 @@
 namespace Aseta.Application.DTO.Inventory;
 
-public record RemoveItemRequest(Guid InventoryId, Guid ItemId);
+public record RemoveItemRequest(Guid ItemId, Guid InventoryId);

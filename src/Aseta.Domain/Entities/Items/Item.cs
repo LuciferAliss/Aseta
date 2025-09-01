@@ -61,5 +61,13 @@ public class Item
             DateTime.UtcNow,
             creatorId
         );
-    } 
+    }
+
+    public void Update(string customId, Guid updaterId, List<CustomField> customFields)
+    {
+        UpdaterId = updaterId;
+        UpdatedAt = DateTime.UtcNow;
+        CustomId = customId;
+        CustomFields = customFields;
+    }
 }

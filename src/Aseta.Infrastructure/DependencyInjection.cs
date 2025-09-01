@@ -1,6 +1,10 @@
-﻿using Aseta.Domain.Abstractions.Repository;
+﻿using System.Threading.Tasks;
+using Aseta.Application.Abstractions.Checkers;
+using Aseta.Domain.Abstractions;
+using Aseta.Domain.Abstractions.Repository;
 using Aseta.Domain.Entities.Inventories;
 using Aseta.Domain.Entities.Users;
+using Aseta.Infrastructure.Checkers;
 using Aseta.Infrastructure.Database;
 using Aseta.Infrastructure.Options;
 using Aseta.Infrastructure.Repository;
@@ -20,15 +24,17 @@ namespace Aseta.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static async Task<IServiceCollection> AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        return services
+        return await services
             .AddRepositories()
             .AddAuthenticationInternal(configuration)
             .AddEmailSender(configuration)
             .ConfigureCookies()
             .AddDatabase(configuration)
-            .AddPolicies();
+            .AddPolicies()
+            .AddCheckers()
+            .AddRoleAdmin();
     }
 
     private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
@@ -148,11 +154,29 @@ public static class DependencyInjection
         return services;
     }
 
+    private static async Task<IServiceCollection> AddRoleAdmin(this IServiceCollection services)
+    {
+        var userManager = services.BuildServiceProvider().GetRequiredService<UserManager<UserApplication>>();
+        var roleManager = services.BuildServiceProvider().GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        await RoleInitializer.InitializeAsync(userManager, roleManager);
+        
+        return services;
+    }
+
+    private static IServiceCollection AddCheckers(this IServiceCollection services)
+    {
+        services.AddScoped<ICheckingAccessPolicy, CheckingAccessPolicy>();
+        services.AddScoped<ICheckingLockoutUser, CheckingLockoutUser>();
+
+        return services;
+    }
+
     private static IServiceCollection AddRepositories(this IServiceCollection services)
     {
         services.AddScoped<IInventoryRepository, InventoryRepository>();
         services.AddScoped<IItemRepository, ItemRepository>();
         services.AddScoped<IInventoryUserRoleRepository, InventoryUserRoleRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;
     }

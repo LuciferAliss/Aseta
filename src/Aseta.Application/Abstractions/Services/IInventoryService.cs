@@ -5,8 +5,9 @@ namespace Aseta.Application.Abstractions.Services;
 
 public interface IInventoryService
 {
-    Task CreateInventoryAsync(CreateInventoryRequest request);
-    Task RemoveInventoryAsync(RemoveInventoryRequest request);
-    Task AddItemAsync(CrateItemRequest request);
+    Task CreateInventoryAsync(CreateInventoryRequest request, Guid userId);
+    Task RemoveInventoryAsync(Guid inventoryId);
+    Task AddItemAsync(CrateItemRequest request, Guid userId);
     Task RemoveItemAsync(RemoveItemRequest request);
+    Task UpdateItemAsync(UpdateItemRequest request, Guid userId);
 }

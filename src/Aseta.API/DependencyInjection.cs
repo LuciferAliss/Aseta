@@ -19,7 +19,7 @@ public static class DependencyInjection
             });
         });
 
-        services.AddControllers();
+        services.AddControllers().AddNewtonsoftJson();
 
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();

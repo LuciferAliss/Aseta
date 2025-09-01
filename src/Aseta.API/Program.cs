@@ -11,6 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddDomain()
     .AddInfrastructure(builder.Configuration)
+        .GetAwaiter()
+        .GetResult()
     .AddApplication()
     .AddPresentation(builder.Configuration);
 

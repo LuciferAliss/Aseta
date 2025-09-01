@@ -31,20 +31,9 @@ public class Repository<T>(AppDbContext context) : IRepository<T> where T : clas
         return entity;
     }
 
-    public virtual Task UpdateAsync(T entity)
-    {
-        _context.Entry(entity).State = EntityState.Modified;
-        return Task.CompletedTask;
-    }
-
     public virtual Task DeleteAsync(T entity)
     {
         _dbSet.Remove(entity);
         return Task.CompletedTask;
-    }
-
-    public virtual async Task<int> SaveChangesAsync()
-    {
-        return await _context.SaveChangesAsync();
     }
 }

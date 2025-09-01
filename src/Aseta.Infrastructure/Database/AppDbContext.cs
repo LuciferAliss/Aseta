@@ -20,20 +20,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<IdentityRole<Guid>>().HasData(
-            new IdentityRole<Guid> { Id = Guid.Parse("C100B9DE-C285-4D0C-B3A0-58E3A7E6B80F"), Name = "Admin", NormalizedName = "ADMIN" },
-            new IdentityRole<Guid> { Id = Guid.Parse("B9C2D84A-9A7B-4F1E-8B5A-0E2C1D3F7A6B"), Name = "User", NormalizedName = "USER" }
-        );
-
         builder.Entity<UserApplication>(user =>
         {
             user.HasMany(u => u.InventoryUserRoles)
                 .WithOne(iur => iur.User)
                 .HasForeignKey(iur => iur.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            user.Property(u => u.RoleId)
-                .HasDefaultValue(Guid.Parse("B9C2D84A-9A7B-4F1E-8B5A-0E2C1D3F7A6B"));
         });
 
         builder.Entity<Inventory>(inventory =>
@@ -84,7 +76,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             iur.HasOne(i => i.Inventory)
                 .WithMany(inv => inv.UserRoles)
                 .HasForeignKey(i => i.InventoryId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             iur.Property(i => i.Role)
                 .HasConversion<string>();
@@ -133,7 +125,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             new Category { Id = 7, Name = "Furniture" },
             new Category { Id = 8, Name = "Other" }
         );
-
 
         builder.Entity<Tag>(tag =>
         {
