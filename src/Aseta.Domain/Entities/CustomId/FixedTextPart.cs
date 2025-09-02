@@ -7,4 +7,9 @@ namespace Aseta.Domain.Entities.CustomId;
 public record FixedTextPart(string Value, string Separator) : CustomIdPart(Separator)
 {
     public override string GenerationCustomId() => Value;
+
+    public override bool IsValid(string customIdPart)
+    {
+        return true;
+    }
 }

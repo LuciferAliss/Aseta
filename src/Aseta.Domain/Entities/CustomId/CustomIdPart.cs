@@ -12,4 +12,5 @@ namespace Aseta.Domain.Entities.CustomId;
 public abstract record CustomIdPart(string Separator)
 {
     public abstract string GenerationCustomId();
+    public abstract bool IsValid(string customIdPart);
 }

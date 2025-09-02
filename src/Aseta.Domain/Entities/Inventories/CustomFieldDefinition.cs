@@ -9,7 +9,7 @@ public class CustomFieldDefinition
     public string Description { get; set; }
     public CustomFieldType Type { get; set; }
     public bool ShowInTableView { get; set; }
-    
+
     private CustomFieldDefinition() { }
 
     private CustomFieldDefinition(Guid id, string name, string description, CustomFieldType type, bool showInTableView)
@@ -19,13 +19,25 @@ public class CustomFieldDefinition
         Description = description;
         Type = type;
         ShowInTableView = showInTableView;
-    }   
+    }
 
     public static CustomFieldDefinition Create(string name, string description, CustomFieldType type, bool showInTableView)
     {
         return new CustomFieldDefinition
         (
             Guid.NewGuid(),
+            name,
+            description,
+            type,
+            showInTableView
+        );
+    }
+    
+    public static CustomFieldDefinition Create(Guid id, string name, string description, CustomFieldType type, bool showInTableView)
+    {
+        return new CustomFieldDefinition
+        (
+            id,
             name,
             description,
             type,

@@ -7,4 +7,9 @@ namespace Aseta.Domain.Entities.CustomId;
 public record GuidPart(string FormatOption, string Separator) : CustomIdPart(Separator)
 {
     public override string GenerationCustomId() => Guid.NewGuid().ToString(FormatOption);
+
+    public override bool IsValid(string customIdPart)
+    {
+        return Guid.TryParse(customIdPart, out _);
+    }
 }

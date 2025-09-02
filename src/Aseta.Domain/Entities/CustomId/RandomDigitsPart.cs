@@ -13,4 +13,9 @@ public record RandomDigitsPart(int Count, bool LeadingZeros, string Separator) :
         return RandomNumberGenerator.GetInt32(0, number)
             .ToString(LeadingZeros ? "D" + Count : "");
     }
+
+    public override bool IsValid(string customIdPart)
+    {
+        return int.TryParse(customIdPart, out _);
+    }
 }

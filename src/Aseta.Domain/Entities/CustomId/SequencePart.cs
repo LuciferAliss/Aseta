@@ -10,4 +10,9 @@ public record SequencePart(int Padding, int Number, string Separator) : CustomId
     {
         return Number.ToString("D" + Padding);
     }
+
+    public override bool IsValid(string customIdPart)
+    {
+        return int.TryParse(customIdPart, out _);
+    }
 }

@@ -1,3 +1,5 @@
+using System.Text;
+using System.Text.RegularExpressions;
 using Aseta.Domain.Abstractions.Services;
 using Aseta.Domain.Entities.CustomId;
 
@@ -17,5 +19,10 @@ public class CustomIdService : ICustomIdService
         }
 
         return customId[..^1];
+    }
+
+    public bool IsValid(string customId, List<CustomIdPart> customIdParts)
+    {
+        return true;
     }
 }

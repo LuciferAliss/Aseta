@@ -74,27 +74,32 @@ public class InventoryService(IInventoryRepository inventoryRepository,
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task UpdateCustomFieldsToInventoryAsync(UpdateCustomFieldsRequest request) // Доделать
+    public async Task UpdateCustomFieldsToInventoryAsync(UpdateCustomFieldsRequest request)
     {
         var inventory = await _inventoryRepository.GetByIdAsync(request.InventoryId)
             ?? throw new Exception("Inventory not found");
 
-        var CustomFields = request.CustomFields.Select(f => CustomFieldDefinition.Create(f.Name, f.Description, f.Type, f.ShowInTableView)).ToList();
+        var oldFieldIds = inventory.CustomFields.Select(f => f.Id).ToHashSet();
+        var newFieldIdsFromRequest = request.CustomFields.Select(f => f.Id).ToHashSet();
+        
+        var deletedFieldIds = oldFieldIds.Where(id => !newFieldIdsFromRequest.Contains(id)).ToList();
 
-        var item = inventory.Items;
+        if (deletedFieldIds.Count != 0)
+        {
+            foreach (var item in inventory.Items)
+            {
+                item.CustomFieldValues.RemoveAll(value => deletedFieldIds.Contains(value.FieldId));
+            }
+        }
 
-        // var customFieldValues = CustomFields.Select(d => 
-        // {
-        //     var requestValue = request.CustomFields.FirstOrDefault(f => f.FieldId == d.Id);
+        var newCustomFields = request.CustomFields.Select(c => 
+        {
+            return (c.Id == Guid.Empty)
+                ? CustomFieldDefinition.Create(c.Name, c.Description, c.Type, c.ShowInTableView)
+                : CustomFieldDefinition.Create(c.Id, c.Name, c.Description, c.Type, c.ShowInTableView);
+        }).ToList();
 
-        //     return new CustomFieldValue
-        //     {
-        //         FieldId = d.Id,
-        //         Value = requestValue?.Value
-        //     };
-        // }).ToList();
-
-        inventory.UpdateCustomFields(CustomFields);
+        inventory.UpdateCustomFields(newCustomFields);
 
         await _unitOfWork.SaveChangesAsync();
     }
@@ -121,8 +126,6 @@ public class InventoryService(IInventoryRepository inventoryRepository,
 
         await _unitOfWork.SaveChangesAsync();
     }
-
-    
 
     public async Task AddItemAsync(CrateItemRequest request, Guid userId)
     {
@@ -182,8 +185,6 @@ public class InventoryService(IInventoryRepository inventoryRepository,
         if (item.InventoryId != inventory.Id)
             throw new Exception("Item not found in inventory");
 
-        string customId = _customIdService.GenerateAsync(inventory.CustomIdParts);
-
         var customFieldValues = inventory.CustomFields.Select(d => 
         {
             var requestValue = request.CustomFields.FirstOrDefault(f => f.FieldId == d.Id);
@@ -195,10 +196,8 @@ public class InventoryService(IInventoryRepository inventoryRepository,
             };
         }).ToList();
 
-        item.Update(customId, user.Id, customFieldValues);
+        item.Update(item.CustomId, user.Id, customFieldValues);
 
         await _unitOfWork.SaveChangesAsync();
     }
 }
-
-public record UpdateInventoryCategoryRequest(Guid InventoryId, int CategoryId);

@@ -9,6 +9,14 @@ public record RandomNumberPart(int Bits, string FormatOption, string Separator) 
 {
     public override string GenerationCustomId()
     {
-        return RandomNumberGenerator.GetInt32(1 << Bits).ToString(FormatOption);
+        byte[] randomBytes = new byte[Bits / 8];
+        using RandomNumberGenerator rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomBytes);
+        return BitConverter.ToUInt32(randomBytes, 0).ToString(FormatOption);
+    }
+
+    public override bool IsValid(string customIdPart)
+    {
+        return int.TryParse(customIdPart, out _);
     }
 }

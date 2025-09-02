@@ -1,3 +1,3 @@
 namespace Aseta.Application.DTO.Inventory;
 
-public record UpdateCustomFieldsRequest(Guid InventoryId, List<CreateCustomFieldDefinitionRequest> CustomFields);
+public record UpdateCustomFieldsRequest(Guid InventoryId, List<UpdateCustomFieldDefinitionRequest> CustomFields);

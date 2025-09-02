@@ -10,4 +10,9 @@ public record DateTimePart(string Format, string Separator) : CustomIdPart(Separ
     {
         return DateTime.UtcNow.ToString(Format);
     }
+
+    public override bool IsValid(string customIdPart)
+    {
+        return DateTime.TryParse(customIdPart, out _);
+    }
 }
