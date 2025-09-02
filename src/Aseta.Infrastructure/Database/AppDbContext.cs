@@ -22,9 +22,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
 
         builder.Entity<UserApplication>(user =>
         {
-            user.HasMany(u => u.InventoryUserRoles)
-                .WithOne(iur => iur.User)
-                .HasForeignKey(iur => iur.UserId)
+            user.HasMany(i => i.InventoryUserRoles)
+                .WithOne(i => i.User)
+                .HasForeignKey(i => i.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
@@ -37,14 +37,22 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
                 .IsRequired()
                 .HasMaxLength(200);
 
+            inventory.Property(i => i.Description)
+                .IsRequired(false)
+                .HasMaxLength(1000);
+
+            inventory.Property(i => i.ImageUrl)
+                .IsRequired(false)
+                .HasMaxLength(1000);
+
             inventory.HasMany(i => i.UserRoles)
-                .WithOne(iur => iur.Inventory)
-                .HasForeignKey(iur => iur.InventoryId)
+                .WithOne(i => i.Inventory)
+                .HasForeignKey(i => i.InventoryId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             inventory.HasMany(i => i.Items)
-                .WithOne(item => item.Inventory)
-                .HasForeignKey(item => item.InventoryId)
+                .WithOne(i => i.Inventory)
+                .HasForeignKey(i => i.InventoryId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             inventory.HasOne(i => i.Category)
@@ -53,12 +61,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
                 .OnDelete(DeleteBehavior.Restrict);
 
             inventory.HasMany(i => i.Tags)
-                .WithMany(t => t.Inventories);
+                .WithMany(i => i.Inventories);
 
             inventory.HasOne(i => i.Creator)
-                .WithMany(u => u.Inventories)
+                .WithMany(i => i.Inventories)
                 .HasForeignKey(i => i.CreatorId)
                 .IsRequired();
+
+            inventory.Property(i => i.CustomFields).HasColumnType("jsonb");
 
             inventory.Property(i => i.CustomIdParts).HasColumnType("jsonb");
         });
@@ -69,12 +79,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             iur.HasKey(i => new { i.UserId, i.InventoryId, i.Role });
 
             iur.HasOne(i => i.User)
-                .WithMany(u => u.InventoryUserRoles)
+                .WithMany(i => i.InventoryUserRoles)
                 .HasForeignKey(i => i.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             iur.HasOne(i => i.Inventory)
-                .WithMany(inv => inv.UserRoles)
+                .WithMany(i => i.UserRoles)
                 .HasForeignKey(i => i.InventoryId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -87,9 +97,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             item.ToTable("Items");
             item.HasKey(i => i.Id);
 
-            item.Property(i => i.CustomFields).HasColumnType("jsonb");
+            item.Property(i => i.CustomFieldValues).HasColumnType("jsonb");
 
-            item.HasIndex(item => new { item.InventoryId, item.CustomId }).IsUnique();
+            item.HasIndex(i => new { i.InventoryId, i.CustomId }).IsUnique();
 
             item.HasOne(i => i.Creator)
                 .WithMany()
@@ -106,13 +116,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
         builder.Entity<Category>(category =>
         {
             category.ToTable("Categories");
-            category.HasKey(c => c.Id);
+            category.HasKey(i => i.Id);
 
-            category.Property(c => c.Name)
+            category.Property(i => i.Name)
                 .IsRequired()
                 .HasMaxLength(100);
 
-            category.HasIndex(c => c.Name).IsUnique();
+            category.HasIndex(i => i.Name).IsUnique();
         });
 
         builder.Entity<Category>().HasData(
@@ -129,13 +139,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
         builder.Entity<Tag>(tag =>
         {
             tag.ToTable("Tags");
-            tag.HasKey(t => t.Id);
+            tag.HasKey(i => i.Id);
 
-            tag.Property(t => t.Name)
+            tag.Property(i => i.Id).ValueGeneratedOnAdd();
+
+            tag.Property(i => i.Name)
                 .IsRequired()
                 .HasMaxLength(50);
 
-            tag.HasIndex(t => t.Name).IsUnique();
+            tag.HasIndex(i => i.Name).IsUnique();
         });
     }
 }

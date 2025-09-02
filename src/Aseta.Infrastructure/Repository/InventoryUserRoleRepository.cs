@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aseta.Infrastructure.Repository;
 
-public class InventoryUserRoleRepository(AppDbContext context) : Repository<InventoryUserRole>(context), IInventoryUserRoleRepository
+public class InventoryUserRoleRepository(AppDbContext context) : Repository<InventoryUserRole, Guid>(context), IInventoryUserRoleRepository
 {
     public async Task<bool> UserHasRoleAsync(Guid userId, Guid inventoryId, InventoryRole role)
     {

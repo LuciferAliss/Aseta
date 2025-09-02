@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using Aseta.Domain.Entities.CustomId;
+using Aseta.Domain.Entities.Inventories;
 using Aseta.Domain.Entities.Items;
 using Aseta.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
@@ -111,10 +112,29 @@ namespace Aseta.Infrastructure.Database.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("creator_id");
 
+                    b.Property<List<CustomFieldDefinition>>("CustomFields")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("custom_fields");
+
                     b.Property<List<CustomIdPart>>("CustomIdParts")
                         .IsRequired()
                         .HasColumnType("jsonb")
                         .HasColumnName("custom_id_parts");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("image_url");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_public");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -172,10 +192,10 @@ namespace Aseta.Infrastructure.Database.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("creator_id");
 
-                    b.Property<List<CustomField>>("CustomFields")
+                    b.Property<List<CustomFieldValue>>("CustomFieldValues")
                         .IsRequired()
                         .HasColumnType("jsonb")
-                        .HasColumnName("custom_fields");
+                        .HasColumnName("custom_field_values");
 
                     b.Property<string>("CustomId")
                         .IsRequired()

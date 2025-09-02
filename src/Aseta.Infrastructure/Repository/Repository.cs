@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aseta.Infrastructure.Repository;
 
-public class Repository<T>(AppDbContext context) : IRepository<T> where T : class
+public class Repository<T, TId>(AppDbContext context) : IRepository<T, TId> where T : class
 {
     protected readonly AppDbContext _context = context;
     protected readonly DbSet<T> _dbSet = context.Set<T>();
@@ -20,7 +20,7 @@ public class Repository<T>(AppDbContext context) : IRepository<T> where T : clas
         return await _dbSet.Where(predicate).ToListAsync();
     }
 
-    public virtual async Task<T?> GetByIdAsync(Guid id)
+    public virtual async Task<T?> GetByIdAsync(TId id)
     {
         return await _dbSet.FindAsync(id);
     }

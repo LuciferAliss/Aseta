@@ -9,6 +9,12 @@ public class Inventory
 {
     public Guid Id { get; private set; }
     public string Name { get; private set; }
+    public string Description { get; private set; }
+    public string ImageUrl { get; private set; }
+
+    public bool IsPublic { get; private set; }
+
+    public List<CustomFieldDefinition> CustomFields { get; private set; } = [];
 
     public virtual List<Item> Items { get; private set; } = [];
 
@@ -28,18 +34,41 @@ public class Inventory
 
     private Inventory() { }
 
-    public Inventory(string name, int categoryId, Guid creatorId)
+    public Inventory(string name, string description, string imageUrl, bool isPublic, int categoryId, Guid creatorId)
     {
         Name = name;
+        Description = description;
+        ImageUrl = imageUrl;
+        IsPublic = isPublic;
         CategoryId = categoryId;
         CreatedAt = DateTime.UtcNow;
         CreatorId = creatorId;
     }
 
-    public static Inventory Create(string name, int categoryId, Guid creatorId)
+    public static Inventory Create(string name, string description, string imageUrl, int categoryId, Guid creatorId, bool isPublic = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(name));
 
-        return new Inventory(name, categoryId, creatorId);
+        return new Inventory(name, description, imageUrl, isPublic, categoryId, creatorId);
+    }
+
+    public void UpdateTags(List<Tag> tags)
+    {
+        Tags = tags;
+    }
+
+    public void UpdateCustomFields(List<CustomFieldDefinition> newFields)
+    {
+        CustomFields = newFields;
+    }
+
+    public void UpdateCustomIdParts(List<CustomIdPart> customIdParts)
+    {
+        CustomIdParts = customIdParts;
+    }
+
+    public void UpdateCategory(int categoryId)
+    {
+        CategoryId = categoryId;
     }
 }

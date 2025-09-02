@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aseta.Infrastructure.Repository;
 
-public class InventoryRepository(AppDbContext context) : Repository<Inventory>(context), IInventoryRepository
+public class InventoryRepository(AppDbContext context) : Repository<Inventory, Guid>(context), IInventoryRepository
 {
     public async Task<bool> ItemContainsInventoryAsync(Guid inventoryId, Guid itemId)
     {

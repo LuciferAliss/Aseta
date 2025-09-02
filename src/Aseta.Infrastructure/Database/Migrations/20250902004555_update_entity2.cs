@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using Aseta.Domain.Entities.CustomId;
+using Aseta.Domain.Entities.Inventories;
+using Aseta.Domain.Entities.Items;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -9,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Aseta.Infrastructure.Database.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class update_entity2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -191,11 +195,24 @@ namespace Aseta.Infrastructure.Database.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    category_id = table.Column<int>(type: "integer", nullable: false)
+                    description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    image_url = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    is_public = table.Column<bool>(type: "boolean", nullable: false),
+                    custom_fields = table.Column<List<CustomFieldDefinition>>(type: "jsonb", nullable: false),
+                    category_id = table.Column<int>(type: "integer", nullable: false),
+                    custom_id_parts = table.Column<List<CustomIdPart>>(type: "jsonb", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    creator_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_inventories", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_inventories_asp_net_users_creator_id",
+                        column: x => x.creator_id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "fk_inventories_categories_category_id",
                         column: x => x.category_id,
@@ -205,19 +222,58 @@ namespace Aseta.Infrastructure.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "InventoryUserRoles",
+                columns: table => new
+                {
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    inventory_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    role = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_inventory_user_roles", x => new { x.user_id, x.inventory_id, x.role });
+                    table.ForeignKey(
+                        name: "fk_inventory_user_roles_asp_net_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_inventory_user_roles_inventories_inventory_id",
+                        column: x => x.inventory_id,
+                        principalTable: "Inventories",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Items",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    custom_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    name = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false),
-                    description = table.Column<string>(type: "text", nullable: false),
-                    image_url = table.Column<string>(type: "text", nullable: false),
-                    inventory_id = table.Column<Guid>(type: "uuid", nullable: false)
+                    custom_id = table.Column<string>(type: "text", nullable: false),
+                    inventory_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    custom_field_values = table.Column<List<CustomFieldValue>>(type: "jsonb", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    creator_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updater_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_items", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_items_asp_net_users_creator_id",
+                        column: x => x.creator_id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_items_asp_net_users_updater_id",
+                        column: x => x.updater_id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "fk_items_inventories_inventory_id",
                         column: x => x.inventory_id,
@@ -314,10 +370,30 @@ namespace Aseta.Infrastructure.Database.Migrations
                 column: "category_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_inventories_creator_id",
+                table: "Inventories",
+                column: "creator_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_inventory_user_roles_inventory_id",
+                table: "InventoryUserRoles",
+                column: "inventory_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_items_creator_id",
+                table: "Items",
+                column: "creator_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_items_inventory_id_custom_id",
                 table: "Items",
                 columns: new[] { "inventory_id", "custom_id" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_items_updater_id",
+                table: "Items",
+                column: "updater_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_tags_name",
@@ -350,6 +426,9 @@ namespace Aseta.Infrastructure.Database.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "InventoryUserRoles");
+
+            migrationBuilder.DropTable(
                 name: "Items");
 
             migrationBuilder.DropTable(
@@ -359,13 +438,13 @@ namespace Aseta.Infrastructure.Database.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
                 name: "Inventories");
 
             migrationBuilder.DropTable(
                 name: "Tags");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "Categories");

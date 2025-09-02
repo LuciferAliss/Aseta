@@ -8,4 +8,16 @@ public class Tag
     public string Name { get; set; }
 
     public virtual List<Inventory> Inventories { get; private set; } = [];
+
+    private Tag() { }
+
+    private Tag(string name)
+    {
+        Name = name;
+    }
+
+    public static Tag Create(string name)
+    {
+        return new Tag(name);
+    }
 }

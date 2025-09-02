@@ -11,7 +11,7 @@ public class Item
     public Guid InventoryId { get; private set; }
     public virtual Inventory Inventory { get; private set; }
 
-    public List<CustomField> CustomFields { get; private set; } = [];
+    public List<CustomFieldValue> CustomFieldValues { get; private set; } = [];
 
     public DateTime CreatedAt { get; private set; }
 
@@ -25,7 +25,7 @@ public class Item
 
     private Item(Guid id,
         string customId,
-        List<CustomField> customFields,
+        List<CustomFieldValue> сustomFieldValues,
         Guid inventoryId,
         DateTime createdAt,
         Guid creatorId,
@@ -34,7 +34,7 @@ public class Item
     {
         Id = id;
         CustomId = customId;
-        CustomFields = customFields;
+        CustomFieldValues = сustomFieldValues;
         InventoryId = inventoryId;
         CreatedAt = createdAt;
         CreatorId = creatorId;
@@ -47,14 +47,12 @@ public class Item
     public static Item Create(string customId,
         Guid inventoryId,
         Guid creatorId,
-        List<CustomField> customFields)
+        List<CustomFieldValue> сustomFieldValues)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(customId, nameof(customId));
-
         return new Item(
             Guid.NewGuid(),
             customId,
-            customFields,
+            сustomFieldValues,
             inventoryId,
             DateTime.UtcNow,
             creatorId,
@@ -63,11 +61,11 @@ public class Item
         );
     }
 
-    public void Update(string customId, Guid updaterId, List<CustomField> customFields)
+    public void Update(string customId, Guid updaterId, List<CustomFieldValue> customFieldValues)
     {
         UpdaterId = updaterId;
         UpdatedAt = DateTime.UtcNow;
         CustomId = customId;
-        CustomFields = customFields;
+        CustomFieldValues = customFieldValues;
     }
 }

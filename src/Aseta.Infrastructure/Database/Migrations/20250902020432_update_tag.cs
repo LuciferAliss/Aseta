@@ -5,7 +5,7 @@
 namespace Aseta.Infrastructure.Database.Migrations
 {
     /// <inheritdoc />
-    public partial class delete_admin : Migration
+    public partial class update_tag : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
