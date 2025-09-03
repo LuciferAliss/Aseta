@@ -6,9 +6,9 @@ public class FixedTextRule : CustomIdRuleBase
 {
     public string Text { get; set; }
 
-    public override string Generation(IItemRepository itemRepository)
+    public override Task<string> Generation(IItemRepository itemRepository, Guid inventoryId)
     {
-        return Text;
+        return Task.FromResult(Text);
     }
 
     public override bool IsValid(string value)

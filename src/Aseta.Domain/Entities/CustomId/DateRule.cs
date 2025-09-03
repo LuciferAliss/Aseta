@@ -6,9 +6,9 @@ public class DateRule : CustomIdRuleBase
 {
     public string Format { get; set; }
 
-    public override string Generation(IItemRepository itemRepository)
+    public override Task<string> Generation(IItemRepository itemRepository, Guid inventoryId)
     {
-        return DateTime.Now.ToString(Format);
+        return Task.FromResult(DateTime.Now.ToString(Format));
     }
 
     public override bool IsValid(string value)

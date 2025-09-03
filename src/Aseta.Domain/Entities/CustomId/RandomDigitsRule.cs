@@ -7,10 +7,10 @@ public class RandomDigitsRule : CustomIdRuleBase
 {
     public int Length { get; set; }
 
-    public override string Generation(IItemRepository itemRepository)
+    public override Task<string> Generation(IItemRepository itemRepository, Guid inventoryId)
     {
         int number = (int)Math.Pow(10, Length);
-        return RandomNumberGenerator.GetInt32(0, number).ToString($"D{Length}");
+        return Task.FromResult(RandomNumberGenerator.GetInt32(0, number).ToString($"D{Length}"));
     }
 
     public override bool IsValid(string value)

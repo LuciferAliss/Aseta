@@ -5,5 +5,6 @@ namespace Aseta.Domain.Abstractions.Repository;
 
 public interface IItemRepository : IRepository<Item, Guid>
 {
-    Task<int> CountAsync();
+    Task<int> LastItemPosition(Guid inventoryId);
+    Task<List<Item>> GetByItemsInventoryIdAsync(Guid inventoryId);
 }

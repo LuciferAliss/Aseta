@@ -120,7 +120,7 @@ namespace Aseta.Infrastructure.Database.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("custom_fields");
 
-                    b.Property<List<CustomIdPart>>("CustomIdParts")
+                    b.Property<List<CustomIdRuleBase>>("CustomIdRuleBase")
                         .IsRequired()
                         .HasColumnType("jsonb")
                         .HasColumnName("custom_id_parts");

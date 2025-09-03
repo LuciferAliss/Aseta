@@ -12,6 +12,6 @@ namespace Aseta.Domain.Entities.CustomId;
 public abstract class CustomIdRuleBase
 {
     public int Order { get; set; }
-    abstract public string Generation(IItemRepository itemRepository);
+    abstract public Task<string> Generation(IItemRepository itemRepository, Guid inventoryId);
     abstract public bool IsValid(string value);
 }

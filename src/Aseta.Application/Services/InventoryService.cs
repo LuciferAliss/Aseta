@@ -1,5 +1,10 @@
 using Aseta.Application.Abstractions.Services;
+using Aseta.Application.DTO.Category;
+using Aseta.Application.DTO.CustomField;
+using Aseta.Application.DTO.CustomId;
 using Aseta.Application.DTO.Inventory;
+using Aseta.Application.DTO.Item;
+using Aseta.Application.DTO.Tag;
 using Aseta.Domain.Abstractions;
 using Aseta.Domain.Abstractions.Repository;
 using Aseta.Domain.Abstractions.Services;
@@ -81,18 +86,19 @@ public class InventoryService(IInventoryRepository inventoryRepository,
 
         var oldFieldIds = inventory.CustomFields.Select(f => f.Id).ToHashSet();
         var newFieldIdsFromRequest = request.CustomFields.Select(f => f.Id).ToHashSet();
-        
+
         var deletedFieldIds = oldFieldIds.Where(id => !newFieldIdsFromRequest.Contains(id)).ToList();
 
         if (deletedFieldIds.Count != 0)
         {
-            foreach (var item in inventory.Items)
+            var items = await _itemRepository.GetByItemsInventoryIdAsync(inventory.Id);
+            foreach (var item in items)
             {
                 item.CustomFieldValues.RemoveAll(value => deletedFieldIds.Contains(value.FieldId));
             }
         }
 
-        var newCustomFields = request.CustomFields.Select(c => 
+        var newCustomFields = request.CustomFields.Select(c =>
         {
             return (c.Id == Guid.Empty)
                 ? CustomFieldDefinition.Create(c.Name, c.Description, c.Type, c.ShowInTableView)
@@ -104,13 +110,13 @@ public class InventoryService(IInventoryRepository inventoryRepository,
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task UpdateCustomIdPartsToInventoryAsync(UpdateCustomIdPartsRequest request)
+    public async Task UpdateCustomIdRulePartsToInventoryAsync(UpdateCustomIdPartsRequest request)
     {
         var inventory = await _inventoryRepository.GetByIdAsync(request.InventoryId)
             ?? throw new Exception("Inventory not found");
 
-        // inventory.UpdateCustomIdParts(request.CustomIdParts);
-        
+        inventory.UpdateCustomIdRuleParts(request.CustomIdParts);
+
         await _unitOfWork.SaveChangesAsync();
     }
 
@@ -135,7 +141,7 @@ public class InventoryService(IInventoryRepository inventoryRepository,
         var inventory = await _inventoryRepository.GetByIdAsync(request.InventoryId)
             ?? throw new Exception("Inventory not found");
 
-        // string customId = _customIdService.GenerateAsync(inventory.CustomIdParts);
+        string customId = _customIdService.GenerateAsync(inventory.CustomIdRules, inventory.Id);
 
         var customFieldValues = inventory.CustomFields.Select(d =>
         {
@@ -185,7 +191,24 @@ public class InventoryService(IInventoryRepository inventoryRepository,
         if (item.InventoryId != inventory.Id)
             throw new Exception("Item not found in inventory");
 
-        var customFieldValues = inventory.CustomFields.Select(d => 
+        string customId = "";
+
+        if (request.CustomId != item.CustomId)
+        {
+            if (!_customIdService.IsValid(request.CustomId, inventory.CustomIdRules))
+                throw new Exception("Invalid custom id");
+            else
+                customId = request.CustomId;
+        }
+        else
+        {
+            if (!_customIdService.IsValid(request.CustomId, inventory.CustomIdRules))
+                customId = _customIdService.GenerateAsync(inventory.CustomIdRules, item.InventoryId);
+            else
+                customId = item.CustomId;
+        }
+
+        var customFieldValues = inventory.CustomFields.Select(d =>
         {
             var requestValue = request.CustomFields.FirstOrDefault(f => f.FieldId == d.Id);
 
@@ -196,7 +219,17 @@ public class InventoryService(IInventoryRepository inventoryRepository,
             };
         }).ToList();
 
-        item.Update(item.CustomId, user.Id, customFieldValues);
+        item.Update(customId, user.Id, customFieldValues);
+
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task UpdateInventoryAsync(UpdateInventoryRequest request)
+    {
+        var inventory = await _inventoryRepository.GetByIdAsync(request.InventoryId)
+            ?? throw new Exception("Inventory not found");
+
+        inventory.Update(request.Name, request.Description, request.ImageUrl, request.IsPublic);
 
         await _unitOfWork.SaveChangesAsync();
     }

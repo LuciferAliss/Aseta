@@ -7,9 +7,9 @@ public class GuidRule : CustomIdRuleBase
     // GUID: "N", "D", "B", "P", "X"
     public string Format { get; set; }
 
-    public override string Generation(IItemRepository itemRepository)
+    public override Task<string> Generation(IItemRepository itemRepository, Guid inventoryId)
     {
-        return Guid.NewGuid().ToString(Format);
+        return Task.FromResult(Guid.NewGuid().ToString(Format));
     }
 
     public override bool IsValid(string value)

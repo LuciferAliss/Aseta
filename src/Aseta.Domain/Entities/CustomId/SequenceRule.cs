@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Aseta.Domain.Abstractions.Repository;
 
 namespace Aseta.Domain.Entities.CustomId;
@@ -7,9 +6,9 @@ public class SequenceRule : CustomIdRuleBase
 {
     public int Padding { get; set; }
 
-    public override string Generation(IItemRepository itemRepository)
+    public override async Task<string> Generation(IItemRepository itemRepository, Guid inventoryId)
     {
-        int count = itemRepository.CountAsync().Result + 1;
+        int count = await itemRepository.LastItemPosition(inventoryId) + 1;
         return count.ToString($"D{Padding}");
     }
 

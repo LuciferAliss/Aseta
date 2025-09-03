@@ -26,15 +26,15 @@ public static class DependencyInjection
 {
     public static async Task<IServiceCollection> AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        return await services
+        return services
             .AddRepositories()
             .AddAuthenticationInternal(configuration)
             .AddEmailSender(configuration)
             .ConfigureCookies()
             .AddDatabase(configuration)
             .AddPolicies()
-            .AddCheckers()
-            .AddRoleAdmin();
+            .AddCheckers();
+            // .AddRoleAdmin();
     }
 
     private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
@@ -176,6 +176,8 @@ public static class DependencyInjection
         services.AddScoped<IInventoryRepository, InventoryRepository>();
         services.AddScoped<IItemRepository, ItemRepository>();
         services.AddScoped<IInventoryUserRoleRepository, InventoryUserRoleRepository>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<ITagRepository, TagRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;

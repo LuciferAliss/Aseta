@@ -66,4 +66,17 @@ public class Inventory
     {
         CategoryId = categoryId;
     }
+
+    public void UpdateCustomIdRuleParts(List<CustomIdRuleBase> customIdParts)
+    {
+        CustomIdRules = customIdParts;
+    }
+
+    public void Update(string name, string description, string imageUrl, bool isPublic)
+    {
+        Name = name;
+        Description = description;
+        ImageUrl = imageUrl;
+        IsPublic = isPublic;
+    }
 }

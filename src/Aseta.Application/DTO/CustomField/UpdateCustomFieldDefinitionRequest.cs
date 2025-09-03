@@ -1,6 +1,6 @@
 using Aseta.Domain.Entities.Inventories;
 
-namespace Aseta.Application.DTO.Inventory;
+namespace Aseta.Application.DTO.CustomField;
 
 public record UpdateCustomFieldDefinitionRequest
 (

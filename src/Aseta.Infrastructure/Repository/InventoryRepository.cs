@@ -9,6 +9,6 @@ public class InventoryRepository(AppDbContext context) : Repository<Inventory, G
 {
     public async Task<bool> ItemContainsInventoryAsync(Guid inventoryId, Guid itemId)
     {
-        return await _dbSet.AnyAsync(i => i.Id == inventoryId && i.Items.Any(ii => ii.Id == itemId));        
+        return await _dbSet.AnyAsync(i => i.Id == inventoryId && i.Items.Any(ii => ii.Id == itemId));
     }
 }

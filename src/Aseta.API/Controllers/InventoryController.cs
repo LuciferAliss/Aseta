@@ -1,7 +1,12 @@
 using System.Security.Claims;
 using Aseta.Application.Abstractions.Checkers;
 using Aseta.Application.Abstractions.Services;
+using Aseta.Application.DTO.Category;
+using Aseta.Application.DTO.CustomField;
+using Aseta.Application.DTO.CustomId;
 using Aseta.Application.DTO.Inventory;
+using Aseta.Application.DTO.Item;
+using Aseta.Application.DTO.Tag;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -86,6 +91,75 @@ public class InventoryController(IInventoryService inventoryService,
             ?? throw new Exception("User not found");
 
         await _inventoryService.CreateInventoryAsync(request, Guid.Parse(userId));
+        return Ok();
+    }
+
+    [HttpPut("update-inventory")]
+    public async Task<ActionResult> UpdateInventory(UpdateInventoryRequest request)
+    {
+        if (!await _checkingAccessPolicy.CheckAsync(User, request.InventoryId, "CanManageInventory"))
+            return Forbid("User not has permission");
+
+        if (await _checkingLockoutUser.CheckAsync(User))
+            return Forbid("User is lockout");
+
+        await _inventoryService.UpdateInventoryAsync(request);
+        return Ok();
+    }
+
+    [HttpPut("update-tags")]
+    public async Task<ActionResult> UpdateTagsToInventory(UpdateInventoryTagsRequest request)
+    {
+        if (!await _checkingAccessPolicy.CheckAsync(User, request.InventoryId, "CanEditInventory"))
+            return Forbid("User not has permission");
+
+        if (await _checkingLockoutUser.CheckAsync(User))
+            return Forbid("User is lockout");
+
+        await _inventoryService.UpdateTagsToInventoryAsync(request);
+
+        return Ok();
+    }
+
+    [HttpPut("update-category")]
+    public async Task<ActionResult> UpdateCategoryToInventory(UpdateInventoryCategoryRequest request)
+    {
+        if (!await _checkingAccessPolicy.CheckAsync(User, request.InventoryId, "CanManageInventory"))
+            return Forbid("User not has permission");
+
+        if (await _checkingLockoutUser.CheckAsync(User))
+            return Forbid("User is lockout");
+
+        await _inventoryService.UpdateCategoryToInventoryAsync(request);
+
+        return Ok();
+    }
+
+    [HttpPut("update-custom-fields")]
+    public async Task<ActionResult> UpdateCustomFieldsToInventory(UpdateCustomFieldsRequest request)
+    {
+        if (!await _checkingAccessPolicy.CheckAsync(User, request.InventoryId, "CanManageInventory"))
+            return Forbid("User not has permission");
+
+        if (await _checkingLockoutUser.CheckAsync(User))
+            return Forbid("User is lockout");
+
+        await _inventoryService.UpdateCustomFieldsToInventoryAsync(request);
+
+        return Ok();
+    }
+
+    [HttpPut("update-custom-id-rule-parts")]
+    public async Task<ActionResult> UpdateCustomIdRulePartsToInventory(UpdateCustomIdPartsRequest request)
+    {
+        if (!await _checkingAccessPolicy.CheckAsync(User, request.InventoryId, "CanManageInventory"))
+            return Forbid("User not has permission");
+
+        if (await _checkingLockoutUser.CheckAsync(User))
+            return Forbid("User is lockout");
+
+        await _inventoryService.UpdateCustomIdRulePartsToInventoryAsync(request);
+
         return Ok();
     }
 }

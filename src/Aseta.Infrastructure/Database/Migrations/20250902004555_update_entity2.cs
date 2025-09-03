@@ -200,7 +200,7 @@ namespace Aseta.Infrastructure.Database.Migrations
                     is_public = table.Column<bool>(type: "boolean", nullable: false),
                     custom_fields = table.Column<List<CustomFieldDefinition>>(type: "jsonb", nullable: false),
                     category_id = table.Column<int>(type: "integer", nullable: false),
-                    custom_id_parts = table.Column<List<CustomIdPart>>(type: "jsonb", nullable: false),
+                    custom_id_parts = table.Column<List<CustomIdRuleBase>>(type: "jsonb", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     creator_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
