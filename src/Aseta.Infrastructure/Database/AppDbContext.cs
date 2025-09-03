@@ -70,7 +70,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
 
             inventory.Property(i => i.CustomFields).HasColumnType("jsonb");
 
-            inventory.Property(i => i.CustomIdParts).HasColumnType("jsonb");
+            inventory.Property(i => i.CustomIdRules).HasColumnType("jsonb");
         });
 
         builder.Entity<InventoryUserRole>(iur =>

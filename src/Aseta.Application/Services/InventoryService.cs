@@ -109,7 +109,7 @@ public class InventoryService(IInventoryRepository inventoryRepository,
         var inventory = await _inventoryRepository.GetByIdAsync(request.InventoryId)
             ?? throw new Exception("Inventory not found");
 
-        inventory.UpdateCustomIdParts(request.CustomIdParts);
+        // inventory.UpdateCustomIdParts(request.CustomIdParts);
         
         await _unitOfWork.SaveChangesAsync();
     }
@@ -135,7 +135,7 @@ public class InventoryService(IInventoryRepository inventoryRepository,
         var inventory = await _inventoryRepository.GetByIdAsync(request.InventoryId)
             ?? throw new Exception("Inventory not found");
 
-        string customId = _customIdService.GenerateAsync(inventory.CustomIdParts);
+        // string customId = _customIdService.GenerateAsync(inventory.CustomIdParts);
 
         var customFieldValues = inventory.CustomFields.Select(d =>
         {
@@ -148,7 +148,7 @@ public class InventoryService(IInventoryRepository inventoryRepository,
             };
         }).ToList();
 
-        var item = Item.Create(customId, inventory.Id, user.Id, customFieldValues);
+        var item = Item.Create("", inventory.Id, user.Id, customFieldValues);
 
         await _itemRepository.AddAsync(item);
 

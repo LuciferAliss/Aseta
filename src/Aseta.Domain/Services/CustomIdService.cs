@@ -1,28 +1,32 @@
 using System.Text;
 using System.Text.RegularExpressions;
+using Aseta.Domain.Abstractions.Repository;
 using Aseta.Domain.Abstractions.Services;
 using Aseta.Domain.Entities.CustomId;
 
 namespace Aseta.Domain.Services;
 
 public class CustomIdService : ICustomIdService
-{
-    public string GenerateAsync(List<CustomIdPart> customFields)
+{//IGenerationContext    
+    public string GenerateAsync(List<CustomIdRuleBase> customIdRule)
     {
-        if (customFields.Count == 0) return Guid.NewGuid().ToString();
+        if (customIdRule.Count == 0) return Guid.NewGuid().ToString();
 
-        string customId = "";
-
-        foreach (var item in customFields)
-        {
-            customId += item.GenerationCustomId() + item.Separator;
-        }
-
-        return customId[..^1];
+        var customId = customIdRule.Select(r => r.Generation());
+        return string.Join("-", customId);
     }
 
-    public bool IsValid(string customId, List<CustomIdPart> customIdParts)
+    public bool IsValid(string customId, List<CustomIdRuleBase> customIdRule)
     {
+        var parts = customId.Split('-');
+        if (parts.Length != customIdRule.Count) return false;
+
+        for (int i = 0; i < parts.Length; i++)
+        {
+            if (!customIdRule[i].IsValid(parts[i]))
+                return false;
+        }
+
         return true;
     }
 }

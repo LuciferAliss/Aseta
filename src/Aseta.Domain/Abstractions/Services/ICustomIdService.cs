@@ -4,5 +4,5 @@ namespace Aseta.Domain.Abstractions.Services;
 
 public interface ICustomIdService
 {
-    string GenerateAsync(List<CustomIdPart> customFields);
+    string GenerateAsync(List<CustomIdRuleBase> customFields);
 }

@@ -22,8 +22,8 @@ public class Inventory
     public virtual Category Category { get; private set; }
 
     public virtual List<Tag> Tags { get; private set; } = [];
-
-    public List<CustomIdPart> CustomIdParts { get; private set; } = [new GuidPart("", "-")];
+    
+    public List<CustomIdRuleBase> CustomIdRules { get; set; } = [];
 
     public DateTime CreatedAt { get; private set; }
 
@@ -60,11 +60,6 @@ public class Inventory
     public void UpdateCustomFields(List<CustomFieldDefinition> newFields)
     {
         CustomFields = newFields;
-    }
-
-    public void UpdateCustomIdParts(List<CustomIdPart> customIdParts)
-    {
-        CustomIdParts = customIdParts;
     }
 
     public void UpdateCategory(int categoryId)
