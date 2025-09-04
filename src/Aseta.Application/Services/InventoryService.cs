@@ -12,6 +12,7 @@ using Aseta.Domain.Entities.Inventories;
 using Aseta.Domain.Entities.Items;
 using Aseta.Domain.Entities.Tags;
 using Aseta.Domain.Entities.Users;
+using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 
 namespace Aseta.Application.Services;
@@ -23,7 +24,8 @@ public class InventoryService(IInventoryRepository inventoryRepository,
     ITagRepository tagRepository,
     ICategoryRepository categoryRepository,
     UserManager<UserApplication> userManager,
-    IUnitOfWork unitOfWork) : IInventoryService
+    IUnitOfWork unitOfWork,
+    IMapper mapper) : IInventoryService
 {
     private readonly IInventoryRepository _inventoryRepository = inventoryRepository;
     private readonly IItemRepository _itemRepository = itemRepository;
@@ -33,6 +35,23 @@ public class InventoryService(IInventoryRepository inventoryRepository,
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly ITagRepository _tagRepository = tagRepository;
     private readonly ICategoryRepository _categoryRepository = categoryRepository;
+    private readonly IMapper _mapper = mapper;
+
+    public async Task<IEnumerable<InventoryResponse>> GetAllInventoriesInPublicAsync(Guid inventoryId, Guid userId)
+    {
+        Guid verifiedUserId;
+
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+
+        if (user != null) verifiedUserId = user.Id;
+        else verifiedUserId = Guid.Empty;
+
+        var inventories = await _inventoryRepository.GetAllPublicInventoriesAsync(verifiedUserId);
+
+        List<InventoryResponse> inventoryResponses = _mapper.Map<List<InventoryResponse>>(inventories);
+
+        return inventoryResponses;
+    }
 
     public async Task RemoveInventoryAsync(Guid inventoryId)
     {
@@ -101,8 +120,8 @@ public class InventoryService(IInventoryRepository inventoryRepository,
         var newCustomFields = request.CustomFields.Select(c =>
         {
             return (c.Id == Guid.Empty)
-                ? CustomFieldDefinition.Create(c.Name, c.Description, c.Type, c.ShowInTableView)
-                : CustomFieldDefinition.Create(c.Id, c.Name, c.Description, c.Type, c.ShowInTableView);
+                ? CustomFieldDefinition.Create(c.Name, c.Type, c.ShowInTableView)
+                : CustomFieldDefinition.Create(c.Id, c.Name, c.Type, c.ShowInTableView);
         }).ToList();
 
         inventory.UpdateCustomFields(newCustomFields);
@@ -224,6 +243,12 @@ public class InventoryService(IInventoryRepository inventoryRepository,
         await _unitOfWork.SaveChangesAsync();
     }
 
+    public async Task GetItemAsync(Guid itemId)
+    {
+        var item = await _itemRepository.GetByIdAsync(itemId)
+            ?? throw new Exception("Item not found");
+    }
+
     public async Task UpdateInventoryAsync(UpdateInventoryRequest request)
     {
         var inventory = await _inventoryRepository.GetByIdAsync(request.InventoryId)
@@ -234,3 +259,27 @@ public class InventoryService(IInventoryRepository inventoryRepository,
         await _unitOfWork.SaveChangesAsync();
     }
 }
+
+public record InventoryResponse
+(
+    Guid Id,
+    string Name,
+    string Description,
+    string ImageUrl,
+    CategoryResponse? Category,
+    List<TagResponse> Tags
+);
+
+public record CustomIdRulePartResponse(string Type, string Value);
+
+public record CustomFieldDefinitionResponse
+(
+    Guid Id, 
+    string Name,
+    string Type,
+    bool ShowInTableView
+);
+
+public record TagResponse(int Id, string Name);
+
+public record CategoryResponse(int Id, string Name);

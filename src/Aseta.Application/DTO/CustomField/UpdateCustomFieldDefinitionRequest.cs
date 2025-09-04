@@ -6,7 +6,6 @@ public record UpdateCustomFieldDefinitionRequest
 (
     Guid Id,
     string Name,
-    string Description,
     CustomFieldType Type,
     bool ShowInTableView
 );
