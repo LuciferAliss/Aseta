@@ -1,5 +1,5 @@
-﻿using Aseta.Application.Abstractions.Checkers;
-using Aseta.Application.Abstractions.Services;
+﻿using Aseta.Application.Abstractions.Services;
+using Aseta.Application.Mapping;
 using Aseta.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,6 +10,12 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddScoped<IInventoryService, InventoryService>();
+        services.AddScoped<IInventoryPermissionService, InventoryPermissionService>();
+        services.AddScoped<IAdminService, AdminService>();
+
+        services.AddAutoMapper(opt =>
+            opt.AddProfile<MappingProfile>()
+        );
 
         return services;
     }

@@ -7,13 +7,17 @@ namespace Aseta.Infrastructure.Repository;
 
 public class InventoryRepository(AppDbContext context) : Repository<Inventory, Guid>(context), IInventoryRepository
 {
-    public async Task<List<Inventory>> GetAllPublicInventoriesAsync(Guid userId)
+    public Task DeleteByFieldIdsAsync(List<Guid> deletedFieldIds)
     {
-        return await _dbSet.Where(i => i.IsPublic && i.CreatorId != userId).ToListAsync();
+        return _dbSet.Where(f => deletedFieldIds.Contains(f.Id)).ExecuteDeleteAsync();
     }
 
-    public async Task<bool> ItemContainsInventoryAsync(Guid inventoryId, Guid itemId)
+    public async Task<List<Inventory>> GetAllPublicInventoriesAsync(Guid userId)
     {
-        return await _dbSet.AnyAsync(i => i.Id == inventoryId && i.Items.Any(ii => ii.Id == itemId));
+        return await _dbSet
+            .Include(i => i.Category)
+            .Include(i => i.Tags)
+            .Include(i => i.Creator)
+            .Where(i => i.IsPublic || i.CreatorId == userId).ToListAsync();
     }
 }

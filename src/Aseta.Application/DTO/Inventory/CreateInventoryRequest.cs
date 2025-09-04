@@ -6,6 +6,5 @@ public record CreateInventoryRequest
     string Description,
     string ImageUrl,
     bool IsPublic,
-    Guid CreatorId,
     int CategoryId
 );

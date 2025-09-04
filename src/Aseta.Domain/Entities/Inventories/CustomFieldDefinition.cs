@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 
 namespace Aseta.Domain.Entities.Inventories;
 
@@ -11,6 +12,7 @@ public class CustomFieldDefinition
 
     private CustomFieldDefinition() { }
 
+    [JsonConstructor]
     private CustomFieldDefinition(Guid id, string name, CustomFieldType type, bool showInTableView)
     {
         Id = id;
@@ -30,11 +32,11 @@ public class CustomFieldDefinition
         );
     }
     
-    public static CustomFieldDefinition Create(Guid id, string name, CustomFieldType type, bool showInTableView)
+    public static CustomFieldDefinition Create(Guid? id, string name, CustomFieldType type, bool showInTableView)
     {
         return new CustomFieldDefinition
         (
-            id,
+            id ?? Guid.NewGuid(),
             name,
             type,
             showInTableView

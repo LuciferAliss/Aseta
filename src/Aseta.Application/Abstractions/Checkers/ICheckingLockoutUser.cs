@@ -4,5 +4,5 @@ namespace Aseta.Application.Abstractions.Checkers;
 
 public interface ICheckingLockoutUser
 {
-    Task<bool> CheckAsync(ClaimsPrincipal claims);
+    Task CheckAsync(ClaimsPrincipal claims);
 }

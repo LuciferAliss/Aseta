@@ -7,14 +7,23 @@ namespace Aseta.Infrastructure.Checkers;
 
 public class CheckingLockoutUser(UserManager<UserApplication> userManager) : ICheckingLockoutUser
 {
-    public async Task<bool> CheckAsync(ClaimsPrincipal claims)
+    public async Task CheckAsync(ClaimsPrincipal claims)
     {
-        var userId = claims.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
-            ?? throw new Exception("User not found");
+        var userId = claims.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null)
+        {
+            return;
+        }
 
-        var user = await userManager.FindByIdAsync(userId.ToString())
-            ?? throw new Exception("User not found");
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            return;
+        }
 
-        return await userManager.IsLockedOutAsync(user);
+        if (await userManager.IsLockedOutAsync(user))
+        {
+            throw new Exception("User is lockout");
+        }
     }
 }

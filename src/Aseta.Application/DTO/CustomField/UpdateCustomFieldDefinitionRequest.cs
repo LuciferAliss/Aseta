@@ -4,9 +4,8 @@ namespace Aseta.Application.DTO.CustomField;
 
 public record UpdateCustomFieldDefinitionRequest
 (
-    Guid Id,
+    Guid? Id,
     string Name,
     CustomFieldType Type,
     bool ShowInTableView
 );
-

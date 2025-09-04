@@ -9,6 +9,7 @@ namespace Aseta.Application.Abstractions.Services;
 
 public interface IInventoryService
 {
+    Task<IEnumerable<InventoryResponse>> GetAllInventoriesInPublicAsync(Guid userId);
     Task AddItemAsync(CrateItemRequest request, Guid userId);
     Task CreateInventoryAsync(CreateInventoryRequest request, Guid userId);
     Task UpdateInventoryAsync(UpdateInventoryRequest request);

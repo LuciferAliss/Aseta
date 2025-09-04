@@ -25,11 +25,10 @@ public class InventoryController(IInventoryService inventoryService,
     [HttpPost("create-item")]
     public async Task<ActionResult> CreateItem(CrateItemRequest request)
     {
+        await _checkingLockoutUser.CheckAsync(User);
+        
         if (!await _checkingAccessPolicy.CheckAsync(User, request.InventoryId, "CanEditInventory"))
             return Forbid("User not has permission");
-
-        if (await _checkingLockoutUser.CheckAsync(User))
-            return Forbid("User is lockout");
 
         var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
             ?? throw new Exception("User not found");
@@ -41,11 +40,10 @@ public class InventoryController(IInventoryService inventoryService,
     [HttpPut("update-item")]
     public async Task<ActionResult> UpdateItem(UpdateItemRequest request)
     {
+        await _checkingLockoutUser.CheckAsync(User);
+        
         if (!await _checkingAccessPolicy.CheckAsync(User, request.InventoryId, "CanEditInventory"))
             return Forbid("User not has permission");
-
-        if (await _checkingLockoutUser.CheckAsync(User))
-            return Forbid("User is lockout");
 
         var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
             ?? throw new Exception("User not found");
@@ -57,24 +55,33 @@ public class InventoryController(IInventoryService inventoryService,
     [HttpDelete("remove-item")]
     public async Task<ActionResult> RemoveItem(RemoveItemRequest request)
     {
+        await _checkingLockoutUser.CheckAsync(User);
+        
         if (!await _checkingAccessPolicy.CheckAsync(User, request.InventoryId, "CanEditInventory"))
             return Forbid("User not has permission");
-
-        if (await _checkingLockoutUser.CheckAsync(User))
-            return Forbid("User is lockout");
 
         await _inventoryService.RemoveItemAsync(request);
         return Ok();
     }
 
+    [HttpGet("get-all-inventory")]
+    public async Task<ActionResult> GetAllInventory()
+    {
+        await _checkingLockoutUser.CheckAsync(User);
+            
+        var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
+            ?? throw new Exception("User not found");
+
+        return Ok(await _inventoryService.GetAllInventoriesInPublicAsync(Guid.Parse(userId)));
+    }
+
     [HttpDelete("remove-inventory{InventoryId}")]
     public async Task<ActionResult> RemoveInventory(Guid InventoryId)
     {
+        await _checkingLockoutUser.CheckAsync(User);
+        
         if (!await _checkingAccessPolicy.CheckAsync(User, InventoryId, "CanManageInventory"))
             return Forbid("User not has permission");
-
-        if (await _checkingLockoutUser.CheckAsync(User))
-            return Forbid("User is lockout");
 
         await _inventoryService.RemoveInventoryAsync(InventoryId);
         return Ok();
@@ -84,9 +91,8 @@ public class InventoryController(IInventoryService inventoryService,
     [HttpPost("create-inventory")]
     public async Task<ActionResult> CreateInventory(CreateInventoryRequest request)
     {
-        if (await _checkingLockoutUser.CheckAsync(User))
-            return Forbid("User is lockout");
-
+        await _checkingLockoutUser.CheckAsync(User);
+        
         var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
             ?? throw new Exception("User not found");
 
@@ -97,11 +103,10 @@ public class InventoryController(IInventoryService inventoryService,
     [HttpPut("update-inventory")]
     public async Task<ActionResult> UpdateInventory(UpdateInventoryRequest request)
     {
+        await _checkingLockoutUser.CheckAsync(User);
+        
         if (!await _checkingAccessPolicy.CheckAsync(User, request.InventoryId, "CanManageInventory"))
             return Forbid("User not has permission");
-
-        if (await _checkingLockoutUser.CheckAsync(User))
-            return Forbid("User is lockout");
 
         await _inventoryService.UpdateInventoryAsync(request);
         return Ok();
@@ -110,11 +115,10 @@ public class InventoryController(IInventoryService inventoryService,
     [HttpPut("update-tags")]
     public async Task<ActionResult> UpdateTagsToInventory(UpdateInventoryTagsRequest request)
     {
+        await _checkingLockoutUser.CheckAsync(User);
+        
         if (!await _checkingAccessPolicy.CheckAsync(User, request.InventoryId, "CanEditInventory"))
             return Forbid("User not has permission");
-
-        if (await _checkingLockoutUser.CheckAsync(User))
-            return Forbid("User is lockout");
 
         await _inventoryService.UpdateTagsToInventoryAsync(request);
 
@@ -124,11 +128,10 @@ public class InventoryController(IInventoryService inventoryService,
     [HttpPut("update-category")]
     public async Task<ActionResult> UpdateCategoryToInventory(UpdateInventoryCategoryRequest request)
     {
+        await _checkingLockoutUser.CheckAsync(User);
+        
         if (!await _checkingAccessPolicy.CheckAsync(User, request.InventoryId, "CanManageInventory"))
             return Forbid("User not has permission");
-
-        if (await _checkingLockoutUser.CheckAsync(User))
-            return Forbid("User is lockout");
 
         await _inventoryService.UpdateCategoryToInventoryAsync(request);
 
@@ -138,11 +141,10 @@ public class InventoryController(IInventoryService inventoryService,
     [HttpPut("update-custom-fields")]
     public async Task<ActionResult> UpdateCustomFieldsToInventory(UpdateCustomFieldsRequest request)
     {
+        await _checkingLockoutUser.CheckAsync(User);
+     
         if (!await _checkingAccessPolicy.CheckAsync(User, request.InventoryId, "CanManageInventory"))
             return Forbid("User not has permission");
-
-        if (await _checkingLockoutUser.CheckAsync(User))
-            return Forbid("User is lockout");
 
         await _inventoryService.UpdateCustomFieldsToInventoryAsync(request);
 
@@ -152,11 +154,10 @@ public class InventoryController(IInventoryService inventoryService,
     [HttpPut("update-custom-id-rule-parts")]
     public async Task<ActionResult> UpdateCustomIdRulePartsToInventory(UpdateCustomIdPartsRequest request)
     {
+        await _checkingLockoutUser.CheckAsync(User);
+
         if (!await _checkingAccessPolicy.CheckAsync(User, request.InventoryId, "CanManageInventory"))
             return Forbid("User not has permission");
-
-        if (await _checkingLockoutUser.CheckAsync(User))
-            return Forbid("User is lockout");
 
         await _inventoryService.UpdateCustomIdRulePartsToInventoryAsync(request);
 

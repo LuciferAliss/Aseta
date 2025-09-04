@@ -17,7 +17,8 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Aseta.Application.Services;
 
-public class InventoryService(IInventoryRepository inventoryRepository,
+public class InventoryService(
+    IInventoryRepository inventoryRepository,
     IItemRepository itemRepository,
     IInventoryUserRoleRepository inventoryUserRoleRepository,
     ICustomIdService customIdService,
@@ -25,7 +26,8 @@ public class InventoryService(IInventoryRepository inventoryRepository,
     ICategoryRepository categoryRepository,
     UserManager<UserApplication> userManager,
     IUnitOfWork unitOfWork,
-    IMapper mapper) : IInventoryService
+    IMapper mapper
+) : IInventoryService
 {
     private readonly IInventoryRepository _inventoryRepository = inventoryRepository;
     private readonly IItemRepository _itemRepository = itemRepository;
@@ -37,7 +39,7 @@ public class InventoryService(IInventoryRepository inventoryRepository,
     private readonly ICategoryRepository _categoryRepository = categoryRepository;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<IEnumerable<InventoryResponse>> GetAllInventoriesInPublicAsync(Guid inventoryId, Guid userId)
+    public async Task<IEnumerable<InventoryResponse>> GetAllInventoriesInPublicAsync(Guid userId)
     {
         Guid verifiedUserId;
 
@@ -104,17 +106,16 @@ public class InventoryService(IInventoryRepository inventoryRepository,
             ?? throw new Exception("Inventory not found");
 
         var oldFieldIds = inventory.CustomFields.Select(f => f.Id).ToHashSet();
-        var newFieldIdsFromRequest = request.CustomFields.Select(f => f.Id).ToHashSet();
+        var newFieldIdsFromRequest = request.CustomFields
+                                    .Where(f => f.Id.HasValue) // Берем только существующие поля
+                                    .Select(f => f.Id!.Value)
+                                    .ToHashSet();
 
         var deletedFieldIds = oldFieldIds.Where(id => !newFieldIdsFromRequest.Contains(id)).ToList();
 
         if (deletedFieldIds.Count != 0)
         {
-            var items = await _itemRepository.GetByItemsInventoryIdAsync(inventory.Id);
-            foreach (var item in items)
-            {
-                item.CustomFieldValues.RemoveAll(value => deletedFieldIds.Contains(value.FieldId));
-            }
+            await _inventoryRepository.DeleteByFieldIdsAsync(deletedFieldIds);
         }
 
         var newCustomFields = request.CustomFields.Select(c =>
@@ -243,10 +244,16 @@ public class InventoryService(IInventoryRepository inventoryRepository,
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task GetItemAsync(Guid itemId)
+    public async Task<List<ItemResponse>> GetItemAsync(Guid inventoryId)
     {
-        var item = await _itemRepository.GetByIdAsync(itemId)
-            ?? throw new Exception("Item not found");
+        var inventory = await _inventoryRepository.GetByIdAsync(inventoryId)
+            ?? throw new Exception("Inventory not found");
+
+        var items = await _itemRepository.GetByItemsInventoryIdAsync(inventory.Id);
+
+        List<ItemResponse> itemResponses = _mapper.Map<List<ItemResponse>>(items);
+
+        return itemResponses;
     }
 
     public async Task UpdateInventoryAsync(UpdateInventoryRequest request)
@@ -259,27 +266,3 @@ public class InventoryService(IInventoryRepository inventoryRepository,
         await _unitOfWork.SaveChangesAsync();
     }
 }
-
-public record InventoryResponse
-(
-    Guid Id,
-    string Name,
-    string Description,
-    string ImageUrl,
-    CategoryResponse? Category,
-    List<TagResponse> Tags
-);
-
-public record CustomIdRulePartResponse(string Type, string Value);
-
-public record CustomFieldDefinitionResponse
-(
-    Guid Id, 
-    string Name,
-    string Type,
-    bool ShowInTableView
-);
-
-public record TagResponse(int Id, string Name);
-
-public record CategoryResponse(int Id, string Name);
