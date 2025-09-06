@@ -40,7 +40,7 @@ public class InventoryService(
     private readonly ICategoryRepository _categoryRepository = categoryRepository;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<PaginatedResult<InventoryResponse>> GetPublicInventoriesAsync(InventoryViewRequest request, Guid UserId)
+    public async Task<PaginatedResult<ViewInventoryResponse>> GetPublicInventoriesAsync(InventoryViewRequest request, Guid UserId)
     {
         Guid verifiedUserId;
 
@@ -53,15 +53,23 @@ public class InventoryService(
 
         var inventories = await _inventoryRepository.GetPublicInventoriesPageAsync(verifiedUserId, request.PageNumber, request.PageSize);
 
-        List<InventoryResponse> items = _mapper.Map<List<InventoryResponse>>(inventories);
+        var items = _mapper.Map<List<ViewInventoryResponse>>(inventories);
 
-        return new PaginatedResult<InventoryResponse>(
+        return new PaginatedResult<ViewInventoryResponse>(
             items,
             request.PageNumber,
             request.PageSize,
             totalCount,
             request.PageNumber * request.PageSize < totalCount
         );
+    }
+
+    public async Task<InventoryResponse> GetInventoryAsync(Guid inventoryId)
+    {
+        var inventory = await _inventoryRepository.GetByIdAsync(inventoryId)
+            ?? throw new Exception("Inventory not found");
+        
+        return _mapper.Map<InventoryResponse>(inventory);
     }
 
     public async Task RemoveInventoryAsync(Guid inventoryId)

@@ -24,6 +24,17 @@ public class InventoryController(
     private readonly ICheckingAccessPolicy _checkingAccessPolicy = checkingAccessPolicy;
     private readonly ICheckingLockoutUser _checkingLockoutUser = checkingLockoutUser;
 
+    [HttpGet("get-inventory{InventoryId}")]
+    public async Task<ActionResult> GetInventories(Guid InventoryId)
+    {
+        await _checkingLockoutUser.CheckAsync(User);
+
+        if (!await _checkingAccessPolicy.CheckAsync(User, InventoryId, "CanViewInventory"))
+            return Forbid("User not has permission");
+        
+        return Ok(await _inventoryService.GetInventoryAsync(InventoryId));
+    }
+
     [HttpPost("create-item")]
     public async Task<ActionResult> CreateItem(CrateItemRequest request)
     {

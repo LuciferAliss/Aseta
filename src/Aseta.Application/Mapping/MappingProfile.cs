@@ -32,6 +32,12 @@ public class MappingProfile : Profile
                 )
             );
 
+        CreateMap<Inventory, ViewInventoryResponse>()
+            .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags))
+            .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
+            .ForMember(dest => dest.UserCreator, opt =>
+                opt.MapFrom(src => new UserInventoryInfoResponse(src.Creator.Id, src.Creator.UserName!, src.CreatedAt)));
+
         CreateMap<Inventory, InventoryResponse>()
             .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags))
             .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
