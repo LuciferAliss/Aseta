@@ -92,9 +92,9 @@ public static class DependencyInjection
             };
 
             options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
-            options.Cookie.SameSite = SameSiteMode.None;
+            options.Cookie.SameSite = SameSiteMode.Lax;
             options.Cookie.HttpOnly = true;
-            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.None;
         });
 
         return services;

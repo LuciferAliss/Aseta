@@ -1,4 +1,5 @@
 using Aseta.Application.Abstractions.Services;
+using Aseta.Application.DTO;
 using Aseta.Application.DTO.Category;
 using Aseta.Application.DTO.CustomField;
 using Aseta.Application.DTO.CustomId;
@@ -39,20 +40,28 @@ public class InventoryService(
     private readonly ICategoryRepository _categoryRepository = categoryRepository;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<IEnumerable<InventoryResponse>> GetAllInventoriesInPublicAsync(Guid userId)
+    public async Task<PaginatedResult<InventoryResponse>> GetPublicInventoriesAsync(InventoryViewRequest request, Guid UserId)
     {
         Guid verifiedUserId;
 
-        var user = await _userManager.FindByIdAsync(userId.ToString());
+        var user = await _userManager.FindByIdAsync(UserId.ToString());
 
         if (user != null) verifiedUserId = user.Id;
         else verifiedUserId = Guid.Empty;
 
-        var inventories = await _inventoryRepository.GetAllPublicInventoriesAsync(verifiedUserId);
+        int totalCount = await _inventoryRepository.CountPublicInventoriesAsync();
 
-        List<InventoryResponse> inventoryResponses = _mapper.Map<List<InventoryResponse>>(inventories);
+        var inventories = await _inventoryRepository.GetPublicInventoriesPageAsync(verifiedUserId, request.PageNumber, request.PageSize);
 
-        return inventoryResponses;
+        List<InventoryResponse> items = _mapper.Map<List<InventoryResponse>>(inventories);
+
+        return new PaginatedResult<InventoryResponse>(
+            items,
+            request.PageNumber,
+            request.PageSize,
+            totalCount,
+            request.PageNumber * request.PageSize < totalCount
+        );
     }
 
     public async Task RemoveInventoryAsync(Guid inventoryId)
@@ -244,16 +253,23 @@ public class InventoryService(
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task<List<ItemResponse>> GetItemAsync(Guid inventoryId)
+    public async Task<PaginatedResult<ItemResponse>> GetItemAsync(ItemViewRequest request, Guid UserId)
     {
-        var inventory = await _inventoryRepository.GetByIdAsync(inventoryId)
+        var inventory = await _inventoryRepository.GetByIdAsync(request.InventoryId)
             ?? throw new Exception("Inventory not found");
 
-        var items = await _itemRepository.GetByItemsInventoryIdAsync(inventory.Id);
+        int totalCount = await _itemRepository.CountItems(inventory.Id);
+
+        var items = await _itemRepository.GetItemsPageAsync(inventory.Id, request.PageNumber, request.PageSize);
 
         List<ItemResponse> itemResponses = _mapper.Map<List<ItemResponse>>(items);
 
-        return itemResponses;
+        return new PaginatedResult<ItemResponse>(
+            itemResponses,
+            request.PageNumber,
+            request.PageSize,
+            totalCount,
+            request.PageNumber * request.PageSize < totalCount);
     }
 
     public async Task UpdateInventoryAsync(UpdateInventoryRequest request)

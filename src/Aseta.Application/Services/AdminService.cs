@@ -27,7 +27,7 @@ public class AdminService(
         if (await _userManager.IsLockedOutAsync(user))
             throw new Exception("User already blocked");
 
-        await _userManager.SetLockoutEndDateAsync(user, DateTime.Now.AddYears(100));
+        await _userManager.SetLockoutEndDateAsync(user, DateTime.UtcNow.AddYears(100));
     }
 
     public async Task<PaginatedResult<UserAdminViewResponse>> GetUsersAsync(int pageNumber, int pageSize)

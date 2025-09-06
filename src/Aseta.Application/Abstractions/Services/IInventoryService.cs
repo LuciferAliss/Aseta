@@ -1,3 +1,4 @@
+using Aseta.Application.DTO;
 using Aseta.Application.DTO.Category;
 using Aseta.Application.DTO.CustomField;
 using Aseta.Application.DTO.CustomId;
@@ -9,7 +10,7 @@ namespace Aseta.Application.Abstractions.Services;
 
 public interface IInventoryService
 {
-    Task<IEnumerable<InventoryResponse>> GetAllInventoriesInPublicAsync(Guid userId);
+    Task<PaginatedResult<InventoryResponse>> GetPublicInventoriesAsync(InventoryViewRequest request, Guid UserId);
     Task AddItemAsync(CrateItemRequest request, Guid userId);
     Task CreateInventoryAsync(CreateInventoryRequest request, Guid userId);
     Task UpdateInventoryAsync(UpdateInventoryRequest request);
@@ -20,4 +21,5 @@ public interface IInventoryService
     Task UpdateCustomIdRulePartsToInventoryAsync(UpdateCustomIdPartsRequest request);
     Task UpdateItemAsync(UpdateItemRequest request, Guid userId);
     Task UpdateTagsToInventoryAsync(UpdateInventoryTagsRequest request);
+    Task<PaginatedResult<ItemResponse>> GetItemAsync(ItemViewRequest request, Guid UserId);
 }

@@ -14,9 +14,11 @@ namespace Aseta.API.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class InventoryController(IInventoryService inventoryService,
+public class InventoryController(
+    IInventoryService inventoryService,
     ICheckingAccessPolicy checkingAccessPolicy,
-    ICheckingLockoutUser checkingLockoutUser) : ControllerBase
+    ICheckingLockoutUser checkingLockoutUser
+) : ControllerBase
 {
     private readonly IInventoryService _inventoryService = inventoryService;
     private readonly ICheckingAccessPolicy _checkingAccessPolicy = checkingAccessPolicy;
@@ -64,15 +66,26 @@ public class InventoryController(IInventoryService inventoryService,
         return Ok();
     }
 
-    [HttpGet("get-all-inventory")]
-    public async Task<ActionResult> GetAllInventory()
+    [HttpGet("get-items")]
+    public async Task<ActionResult> GetInventory(ItemViewRequest request)
     {
         await _checkingLockoutUser.CheckAsync(User);
-            
-        var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
-            ?? throw new Exception("User not found");
 
-        return Ok(await _inventoryService.GetAllInventoriesInPublicAsync(Guid.Parse(userId)));
+         var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
+            ?? Guid.Empty.ToString();
+
+        return Ok(await _inventoryService.GetItemAsync(request, Guid.Parse(userId)));
+    }
+
+    [HttpGet("get-inventories")]
+    public async Task<ActionResult> GetInventories(InventoryViewRequest request)
+    {
+        await _checkingLockoutUser.CheckAsync(User);
+
+        var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
+            ?? Guid.Empty.ToString();
+
+        return Ok(await _inventoryService.GetPublicInventoriesAsync(request, Guid.Parse(userId)));
     }
 
     [HttpDelete("remove-inventory{InventoryId}")]

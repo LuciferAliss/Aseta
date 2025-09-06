@@ -37,8 +37,6 @@ if (app.Environment.IsDevelopment())
 
 await app.ApplyMigrations();
 
-app.MapGroup("/auth").MapIdentityApi<UserApplication>();
-
 app.UseCors("CorsPolicy");
 
 app.UseExceptionHandler();
@@ -48,6 +46,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.MapGroup("/auth").MapIdentityApi<UserApplication>();
 
 app.MapControllers();
 
