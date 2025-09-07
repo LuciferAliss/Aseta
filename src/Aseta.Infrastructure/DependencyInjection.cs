@@ -91,7 +91,7 @@ public static class DependencyInjection
                 return Task.CompletedTask;
             };
 
-            options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+            options.ExpireTimeSpan = TimeSpan.FromHours(1);
             options.Cookie.SameSite = SameSiteMode.Lax;
             options.Cookie.HttpOnly = true;
             options.Cookie.SecurePolicy = CookieSecurePolicy.None;

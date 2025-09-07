@@ -33,26 +33,26 @@ public class MappingProfile : Profile
             );
 
         CreateMap<Inventory, ViewInventoryResponse>()
-            .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags))
-            .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
-            .ForMember(dest => dest.UserCreator, opt =>
-                opt.MapFrom(src => new UserInventoryInfoResponse(src.Creator.Id, src.Creator.UserName!, src.CreatedAt)));
+            .ForMember(dest => dest.Creator, opt =>
+                opt.MapFrom(src => new UserInventoryInfoResponse(src.Creator.Id, src.Creator.UserName)));
 
         CreateMap<Inventory, InventoryResponse>()
             .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags))
             .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
             .ForMember(dest => dest.UserCreator, opt =>
-                opt.MapFrom(src => new UserInventoryInfoResponse(src.Creator.Id, src.Creator.UserName!, src.CreatedAt)));
+                opt.MapFrom(src => new UserInventoryInfoResponse(src.Creator.Id, src.Creator.UserName)));
 
         CreateMap<Item, ItemResponse>()
             .ForMember(dest => dest.CustomFields, opt => opt.MapFrom(src => src.CustomFieldValues))
             .ForMember(dest => dest.UserCreate, opt =>
-                opt.MapFrom(src => new UserInventoryInfoResponse(src.Creator.Id, src.Creator.UserName!, src.CreatedAt)))
+                opt.MapFrom(src => new UserInventoryInfoResponse(src.Creator.Id, src.Creator.UserName)))
             .ForMember(dest => dest.UserUpdate, opt =>
-                opt.MapFrom(src => new UserInventoryInfoResponse(src.Updater.Id, src.Updater.UserName!, src.UpdatedAt)));
+                opt.MapFrom(src => new UserInventoryInfoResponse(src.Updater.Id, src.Updater.UserName)));
 
         CreateMap<Category, CategoryResponse>();
-        CreateMap<Tag, TagResponse>();
+        CreateMap<Tag, TagResponse>()
+            .ForMember(dest => dest.Weight, opt => opt.MapFrom(src => src.Inventories.Count));
+
         CreateMap<CustomFieldValue, CustomFieldValueResponse>();
         
         CreateMap<CustomFieldDefinition, CustomFieldDefinitionResponse>()

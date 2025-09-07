@@ -5,7 +5,8 @@ namespace Aseta.Domain.Abstractions.Repository;
 
 public interface IInventoryRepository : IRepository<Inventory, Guid>
 {
-    Task<int> CountPublicInventoriesAsync();
+    Task<int> CountAsync();
+    Task<List<Inventory>> GetLastInventoriesPageAsync(int pageNumber, int pageSize);
     Task DeleteByFieldIdsAsync(List<Guid> deletedFieldIds);
-    Task<List<Inventory>> GetPublicInventoriesPageAsync(Guid userId, int pageNumber, int pageSize);
+    Task<List<Inventory>> GetMostPopularInventoriesAsync(int itemCount);
 }

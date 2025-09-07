@@ -88,15 +88,20 @@ public class InventoryController(
         return Ok(await _inventoryService.GetItemAsync(request, Guid.Parse(userId)));
     }
 
-    [HttpGet("get-inventories")]
-    public async Task<ActionResult> GetInventories(InventoryViewRequest request)
+    [HttpGet("get-last-inventories")]
+    public async Task<ActionResult> GetLatsInventories([FromQuery] ViewLatestInventoryRequest request)
     {
         await _checkingLockoutUser.CheckAsync(User);
 
-        var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
-            ?? Guid.Empty.ToString();
+        return Ok(await _inventoryService.GetLastInventoriesAsync(request));
+    }
 
-        return Ok(await _inventoryService.GetPublicInventoriesAsync(request, Guid.Parse(userId)));
+    [HttpGet("get-most-popular-inventory/{count}")]
+    public async Task<ActionResult> GetMostPopularInventories(int count)
+    {
+        await _checkingLockoutUser.CheckAsync(User);
+
+        return Ok(await _inventoryService.GetMostPopularInventoriesAsync(count));
     }
 
     [HttpDelete("remove-inventory{InventoryId}")]
@@ -111,6 +116,14 @@ public class InventoryController(
         return Ok();
     }
 
+    [HttpGet("get-categories")]
+    public async Task<ActionResult> GetAllCategories()
+    {
+        await _checkingLockoutUser.CheckAsync(User);
+        
+        return Ok(await _inventoryService.GetAllCategoryAsync());
+    }
+
     [Authorize]
     [HttpPost("create-inventory")]
     public async Task<ActionResult> CreateInventory(CreateInventoryRequest request)
@@ -120,8 +133,7 @@ public class InventoryController(
         var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
             ?? throw new Exception("User not found");
 
-        await _inventoryService.CreateInventoryAsync(request, Guid.Parse(userId));
-        return Ok();
+        return Ok(await _inventoryService.CreateInventoryAsync(request, Guid.Parse(userId)));
     }
 
     [HttpPut("update-inventory")]
@@ -147,6 +159,14 @@ public class InventoryController(
         await _inventoryService.UpdateTagsToInventoryAsync(request);
 
         return Ok();
+    }
+
+    [HttpGet("get-tags-cloud")]
+    public async Task<ActionResult> GeTagsCloud()
+    {
+        await _checkingLockoutUser.CheckAsync(User);
+        
+        return Ok(await _inventoryService.GetTagsCloudAsync());
     }
 
     [HttpPut("update-category")]

@@ -7,9 +7,9 @@ namespace Aseta.Infrastructure.Repository;
 
 public class InventoryRepository(AppDbContext context) : Repository<Inventory, Guid>(context), IInventoryRepository
 {
-    public Task<int> CountPublicInventoriesAsync()
+    public async Task<int> CountAsync()
     {
-        return _dbSet.CountAsync(i => i.IsPublic);
+        return await _dbSet.CountAsync();
     }
 
     public Task DeleteByFieldIdsAsync(List<Guid> deletedFieldIds)
@@ -17,24 +17,18 @@ public class InventoryRepository(AppDbContext context) : Repository<Inventory, G
         return _dbSet.Where(f => deletedFieldIds.Contains(f.Id)).ExecuteDeleteAsync();
     }
 
-    public async Task<List<Inventory>> GetAllPublicInventoriesAsync(Guid userId)
+    public async Task<List<Inventory>> GetLastInventoriesPageAsync(int pageNumber, int pageSize)
     {
-        return await _dbSet
-            .Include(i => i.Category)
-            .Include(i => i.Tags)
-            .Include(i => i.Creator)
-            .Where(i => i.IsPublic || i.CreatorId == userId).ToListAsync();
+        return await _dbSet.OrderByDescending(i => i.CreatedAt).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
     }
 
-    public Task<List<Inventory>> GetPublicInventoriesPageAsync(Guid userId, int pageNumber, int pageSize)
+    public Task<int> CountPublicInventoriesAsync()
     {
-        return _dbSet
-            .Include(i => i.Category)
-            .Include(i => i.Tags)
-            .Include(i => i.Creator)
-            .Where(i => i.IsPublic || i.CreatorId == userId)
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
+        return _dbSet.CountAsync(i => i.IsPublic);
+    }
+
+    public async Task<List<Inventory>> GetMostPopularInventoriesAsync(int itemCount)
+    {
+        return await _dbSet.OrderByDescending(i => i.Items.Count).Take(itemCount).ToListAsync();
     }
 }

@@ -17,4 +17,9 @@ public class TagRepository(AppDbContext context) : Repository<Tag, int>(context)
     {
         return await _dbSet.AnyAsync(t => t.Name == name);
     }
+
+    public IQueryable<Tag> GetAllAsQueryable()
+    {
+        return _dbSet.AsQueryable();
+    }
 }

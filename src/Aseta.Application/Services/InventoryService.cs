@@ -14,7 +14,10 @@ using Aseta.Domain.Entities.Items;
 using Aseta.Domain.Entities.Tags;
 using Aseta.Domain.Entities.Users;
 using AutoMapper;
+using AutoMapper.Configuration.Annotations;
+using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Aseta.Application.Services;
 
@@ -40,18 +43,21 @@ public class InventoryService(
     private readonly ICategoryRepository _categoryRepository = categoryRepository;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<PaginatedResult<ViewInventoryResponse>> GetPublicInventoriesAsync(InventoryViewRequest request, Guid UserId)
+    public async Task<CollectionResponse<CategoryResponse>> GetAllCategoryAsync()
     {
-        Guid verifiedUserId;
+        var category = await _categoryRepository.GetAllAsync()
+            ?? throw new Exception("Category not found");
 
-        var user = await _userManager.FindByIdAsync(UserId.ToString());
+        var response = _mapper.Map<List<CategoryResponse>>(category);
 
-        if (user != null) verifiedUserId = user.Id;
-        else verifiedUserId = Guid.Empty;
+        return new CollectionResponse<CategoryResponse>(response);
+    }
 
-        int totalCount = await _inventoryRepository.CountPublicInventoriesAsync();
+    public async Task<PaginatedResult<ViewInventoryResponse>> GetLastInventoriesAsync(ViewLatestInventoryRequest request)
+    {
+        int totalCount = await _inventoryRepository.CountAsync();
 
-        var inventories = await _inventoryRepository.GetPublicInventoriesPageAsync(verifiedUserId, request.PageNumber, request.PageSize);
+        var inventories = await _inventoryRepository.GetLastInventoriesPageAsync(request.PageNumber, request.PageSize);
 
         var items = _mapper.Map<List<ViewInventoryResponse>>(inventories);
 
@@ -64,11 +70,20 @@ public class InventoryService(
         );
     }
 
+    public async Task<CollectionResponse<ViewInventoryResponse>> GetMostPopularInventoriesAsync(int count)
+    {
+        var inventories = await _inventoryRepository.GetMostPopularInventoriesAsync(count);
+
+        var items = _mapper.Map<List<ViewInventoryResponse>>(inventories);
+
+        return new CollectionResponse<ViewInventoryResponse>(items);
+    }
+
     public async Task<InventoryResponse> GetInventoryAsync(Guid inventoryId)
     {
         var inventory = await _inventoryRepository.GetByIdAsync(inventoryId)
             ?? throw new Exception("Inventory not found");
-        
+
         return _mapper.Map<InventoryResponse>(inventory);
     }
 
@@ -82,7 +97,7 @@ public class InventoryService(
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task CreateInventoryAsync(CreateInventoryRequest request, Guid userId)
+    public async Task<CreatedInventoryResponse> CreateInventoryAsync(CreateInventoryRequest request, Guid userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString())
             ?? throw new Exception("User not found");
@@ -94,6 +109,8 @@ public class InventoryService(
         await _inventoryUserRoleRepository.AddAsync(InventoryUserRole.Create(user.Id, inventory.Id, InventoryRole.Owner));
 
         await _unitOfWork.SaveChangesAsync();
+
+        return new CreatedInventoryResponse(inventory.Id);
     }
 
     public async Task UpdateTagsToInventoryAsync(UpdateInventoryTagsRequest request)
@@ -288,5 +305,18 @@ public class InventoryService(
         inventory.Update(request.Name, request.Description, request.ImageUrl, request.IsPublic);
 
         await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task<CollectionResponse<TagResponse>> GetTagsCloudAsync()
+    {
+        var tags = _tagRepository.GetAllAsQueryable();
+
+        var tagResponses = await tags
+            .ProjectTo<TagResponse>(_mapper.ConfigurationProvider)
+            .OrderByDescending(t => t.Weight)
+            .Take(50)
+            .ToListAsync();
+
+        return new CollectionResponse<TagResponse>(tagResponses);
     }
 }

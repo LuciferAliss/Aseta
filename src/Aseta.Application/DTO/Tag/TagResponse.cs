@@ -1,3 +1,8 @@
 namespace Aseta.Application.DTO.Tag;
 
-public record TagResponse(int Id, string Name);
+public record TagResponse
+{
+    public int Id { get; init; }
+    public required string Name { get; init; }
+    public int Weight { get; init; }
+}
