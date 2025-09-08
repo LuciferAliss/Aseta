@@ -9,4 +9,5 @@ public interface IInventoryRepository : IRepository<Inventory, Guid>
     Task<List<Inventory>> GetLastInventoriesPageAsync(int pageNumber, int pageSize);
     Task DeleteByFieldIdsAsync(List<Guid> deletedFieldIds);
     Task<List<Inventory>> GetMostPopularInventoriesAsync(int itemCount);
+    Task<Inventory?> GetByIdWithTagsAsync(Guid id);
 }

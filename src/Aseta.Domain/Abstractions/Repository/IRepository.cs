@@ -4,6 +4,7 @@ namespace Aseta.Domain.Abstractions.Repository;
 
 public interface IRepository<T, TId> where T : class
 {
+    IQueryable<T> GetQueryable();
     Task<T> AddAsync(T entity);
     Task DeleteAsync(T entity);
     Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);

@@ -9,5 +9,7 @@ public record ItemResponse
     string CustomId,
     List<CustomFieldValueResponse> CustomFields, 
     UserInventoryInfoResponse UserUpdate,
-    UserInventoryInfoResponse UserCreate
+    UserInventoryInfoResponse UserCreate,
+    DateTime CreatedAt,
+    DateTime UpdatedAt
 );

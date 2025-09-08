@@ -7,4 +7,6 @@ public interface ITagRepository : IRepository<Tag, int>
     Task<Tag?> GetByNameAsync(string name);
     Task<bool> ExistsByNameAsync(string name);
     IQueryable<Tag> GetAllAsQueryable();
+    Task<List<Tag>> GetByNamesAsync(List<string> requestedTagNames);
+    Task AddTagsAsync(List<Tag> tags);
 }

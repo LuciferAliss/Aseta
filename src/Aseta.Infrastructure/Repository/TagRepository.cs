@@ -22,4 +22,14 @@ public class TagRepository(AppDbContext context) : Repository<Tag, int>(context)
     {
         return _dbSet.AsQueryable();
     }
+
+    public async Task<List<Tag>> GetByNamesAsync(List<string> requestedTagNames)
+    {
+        return await _dbSet.Where(t => requestedTagNames.Contains(t.Name)).ToListAsync();
+    }
+
+    public async Task AddTagsAsync(List<Tag> tags)
+    {
+        await _dbSet.AddRangeAsync(tags);
+    }
 }

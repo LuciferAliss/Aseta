@@ -12,6 +12,11 @@ public class InventoryRepository(AppDbContext context) : Repository<Inventory, G
         return await _dbSet.CountAsync();
     }
 
+    public override Task<Inventory?> GetByIdAsync(Guid id)
+    {
+        return _dbSet.Include(i => i.Creator).Include(i => i.Category).FirstOrDefaultAsync(i => i.Id == id);
+    }
+
     public Task DeleteByFieldIdsAsync(List<Guid> deletedFieldIds)
     {
         return _dbSet.Where(f => deletedFieldIds.Contains(f.Id)).ExecuteDeleteAsync();
@@ -19,7 +24,7 @@ public class InventoryRepository(AppDbContext context) : Repository<Inventory, G
 
     public async Task<List<Inventory>> GetLastInventoriesPageAsync(int pageNumber, int pageSize)
     {
-        return await _dbSet.OrderByDescending(i => i.CreatedAt).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+        return await _dbSet.Include(i => i.Creator).OrderByDescending(i => i.CreatedAt).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
     }
 
     public Task<int> CountPublicInventoriesAsync()
@@ -29,6 +34,11 @@ public class InventoryRepository(AppDbContext context) : Repository<Inventory, G
 
     public async Task<List<Inventory>> GetMostPopularInventoriesAsync(int itemCount)
     {
-        return await _dbSet.OrderByDescending(i => i.Items.Count).Take(itemCount).ToListAsync();
+        return await _dbSet.Include(i => i.Creator).OrderByDescending(i => i.Items.Count).Take(itemCount).ToListAsync();
+    }
+
+    public async Task<Inventory?> GetByIdWithTagsAsync(Guid id)
+    {
+        return await _dbSet.Include(i => i.Tags).FirstOrDefaultAsync(i => i.Id == id);
     }
 }

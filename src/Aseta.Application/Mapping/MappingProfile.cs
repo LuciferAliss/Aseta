@@ -40,7 +40,8 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags))
             .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
             .ForMember(dest => dest.UserCreator, opt =>
-                opt.MapFrom(src => new UserInventoryInfoResponse(src.Creator.Id, src.Creator.UserName)));
+                opt.MapFrom(src => new UserInventoryInfoResponse(src.Creator.Id, src.Creator.UserName)))
+            .ForMember(dest => dest.CustomFieldsDefinition, opt => opt.MapFrom(src => src.CustomFields));
 
         CreateMap<Item, ItemResponse>()
             .ForMember(dest => dest.CustomFields, opt => opt.MapFrom(src => src.CustomFieldValues))
@@ -54,10 +55,8 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Weight, opt => opt.MapFrom(src => src.Inventories.Count));
 
         CreateMap<CustomFieldValue, CustomFieldValueResponse>();
-        
-        CreateMap<CustomFieldDefinition, CustomFieldDefinitionResponse>()
-            .ForMember(dest => dest.Type, opt => 
-                opt.MapFrom(src => src.Type.ToString()));
+
+        CreateMap<CustomFieldDefinition, CustomFieldDefinitionResponse>();
 
         CreateMap<FixedTextRule, CustomIdRulePartResponse>()
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "fixed_text"))

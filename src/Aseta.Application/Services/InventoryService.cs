@@ -81,10 +81,19 @@ public class InventoryService(
 
     public async Task<InventoryResponse> GetInventoryAsync(Guid inventoryId)
     {
-        var inventory = await _inventoryRepository.GetByIdAsync(inventoryId)
+        var inventoryQuery = _inventoryRepository.GetQueryable();
+
+        var inventoryEntity = await inventoryQuery
+            .Where(i => i.Id == inventoryId)
+            .Include(i => i.Creator)
+            .Include(i => i.Category)
+            .Include(i => i.Tags)
+            .FirstOrDefaultAsync()
             ?? throw new Exception("Inventory not found");
 
-        return _mapper.Map<InventoryResponse>(inventory);
+        var response = _mapper.Map<InventoryResponse>(inventoryEntity);
+
+        return response;
     }
 
     public async Task RemoveInventoryAsync(Guid inventoryId)
@@ -115,21 +124,34 @@ public class InventoryService(
 
     public async Task UpdateTagsToInventoryAsync(UpdateInventoryTagsRequest request)
     {
-        var inventory = await _inventoryRepository.GetByIdAsync(request.InventoryId)
+        var inventory = await _inventoryRepository.GetByIdWithTagsAsync(request.InventoryId)
             ?? throw new Exception("Inventory not found");
 
-        var tags = request.Tags.Select(t => Tag.Create(t.Name)).ToList();
-
-        var checkTasks = tags.Select(async t => new { Tag = t, Exists = await _tagRepository.ExistsByNameAsync(t.Name) }).ToList();
-        var results = await Task.WhenAll(checkTasks);
-        var notExistingTags = results.Where(r => !r.Exists).Select(r => r.Tag).ToList();
-
-        foreach (var tag in notExistingTags)
+        if (request.Tags == null || request.Tags.Count == 0)
         {
-            await _tagRepository.AddAsync(tag);
+            inventory.UpdateTags([]);
+            await _unitOfWork.SaveChangesAsync();
+            return;
         }
 
-        inventory.UpdateTags(tags);
+        var requestedTag = request.Tags
+            .Distinct()
+            .Select(t => t.Name)
+            .ToList();
+
+        var existingTags = await _tagRepository.GetByNamesAsync(requestedTag);
+        var existingTagNames = existingTags.Select(t => t.Name.ToLowerInvariant()).ToList();
+
+        var newTagNames = requestedTag.Except(existingTagNames);
+
+        var newTags = newTagNames.Select(Tag.Create).ToList();
+        if (newTags.Count != 0)
+        {
+            await _tagRepository.AddTagsAsync(newTags);
+        }
+
+        var allTagsForInventory = existingTags.Concat(newTags).ToList();
+        inventory.UpdateTags(allTagsForInventory);
 
         await _unitOfWork.SaveChangesAsync();
     }

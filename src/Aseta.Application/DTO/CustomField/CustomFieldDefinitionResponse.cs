@@ -1,9 +1,9 @@
 namespace Aseta.Application.DTO.CustomField;
 
 public record CustomFieldDefinitionResponse
-(
-    Guid Id, 
-    string Name,
-    string Type,
-    bool ShowInTableView
-);
+{
+    public Guid Id { get; init; }
+    public string Name { get; init; }
+    public string Type { get; init; }
+    public bool ShowInTableView { get; init; }
+}
