@@ -26,15 +26,15 @@ public static class DependencyInjection
 {
     public static async Task<IServiceCollection> AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        return services
+        return await services
             .AddRepositories()
             .AddAuthenticationInternal(configuration)
             .AddEmailSender(configuration)
             .ConfigureCookies()
             .AddDatabase(configuration)
             .AddPolicies()
-            .AddCheckers();
-            // .AddRoleAdmin();
+            .AddCheckers()
+            .AddRoleAdmin();
     }
 
     private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)

@@ -16,8 +16,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Aseta.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250902004555_update_entity2")]
-    partial class update_entity2
+    [Migration("20250908142313_inicial")]
+    partial class inicial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -120,10 +120,10 @@ namespace Aseta.Infrastructure.Database.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("custom_fields");
 
-                    b.Property<List<CustomIdRuleBase>>("CustomIdRuleBase")
+                    b.Property<List<CustomIdRuleBase>>("CustomIdRules")
                         .IsRequired()
                         .HasColumnType("jsonb")
-                        .HasColumnName("custom_id_parts");
+                        .HasColumnName("custom_id_rules");
 
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
