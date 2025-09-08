@@ -163,7 +163,7 @@ public class InventoryService(
 
         var oldFieldIds = inventory.CustomFields.Select(f => f.Id).ToHashSet();
         var newFieldIdsFromRequest = request.CustomFields
-                                    .Where(f => f.Id.HasValue) // Берем только существующие поля
+                                    .Where(f => f.Id.HasValue)
                                     .Select(f => f.Id!.Value)
                                     .ToHashSet();
 
@@ -300,9 +300,9 @@ public class InventoryService(
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task<PaginatedResult<ItemResponse>> GetItemAsync(ItemViewRequest request, Guid UserId)
+    public async Task<PaginatedResult<ItemResponse>> GetItemAsync(ItemViewRequest request, Guid inventoryId)
     {
-        var inventory = await _inventoryRepository.GetByIdAsync(request.InventoryId)
+        var inventory = await _inventoryRepository.GetByIdAsync(inventoryId)
             ?? throw new Exception("Inventory not found");
 
         int totalCount = await _itemRepository.CountItems(inventory.Id);
@@ -340,5 +340,17 @@ public class InventoryService(
             .ToListAsync();
 
         return new CollectionResponse<TagResponse>(tagResponses);
+    }
+
+    public async Task<string> GetUserRoleInventoryAsync(Guid inventoryId, Guid userId)
+    {
+        var roleEntity = await _inventoryUserRoleRepository.GetUserRoleInventoryAsync(inventoryId, userId);
+
+        if (roleEntity == null)
+        {
+            return "Viewer"; 
+        }
+
+        return roleEntity.Role.ToString();
     }
 }

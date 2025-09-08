@@ -6,5 +6,5 @@ public enum CustomFieldType
     MultiLineText,
     Number,
     Checkbox,
-    Image
+    Date
 }

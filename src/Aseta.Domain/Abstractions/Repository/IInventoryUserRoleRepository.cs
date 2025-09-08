@@ -6,4 +6,5 @@ public interface IInventoryUserRoleRepository : IRepository<InventoryUserRole, G
 {
     Task<InventoryUserRole?> GetUserGrantToInventoryAsync(Guid userId, Guid inventoryId, InventoryRole role);
     Task<bool> UserHasRoleAsync(Guid userId, Guid inventoryId, InventoryRole role);
+    Task<InventoryUserRole?> GetUserRoleInventoryAsync(Guid userId, Guid inventoryId);
 }

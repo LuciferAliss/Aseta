@@ -10,6 +10,7 @@ namespace Aseta.Application.Abstractions.Services;
 
 public interface IInventoryService
 {
+    Task<string> GetUserRoleInventoryAsync(Guid inventoryId, Guid userId);
     Task<CollectionResponse<CategoryResponse>> GetAllCategoryAsync();
     Task<PaginatedResult<ViewInventoryResponse>> GetLastInventoriesAsync(ViewLatestInventoryRequest request);
     Task<CollectionResponse<ViewInventoryResponse>> GetMostPopularInventoriesAsync(int count);
@@ -24,6 +25,6 @@ public interface IInventoryService
     Task UpdateCustomIdRulePartsToInventoryAsync(UpdateCustomIdPartsRequest request);
     Task UpdateItemAsync(UpdateItemRequest request, Guid userId);
     Task UpdateTagsToInventoryAsync(UpdateInventoryTagsRequest request);
-    Task<PaginatedResult<ItemResponse>> GetItemAsync(ItemViewRequest request, Guid UserId);
+    Task<PaginatedResult<ItemResponse>> GetItemAsync(ItemViewRequest request, Guid inventoryId);
     Task<CollectionResponse<TagResponse>> GetTagsCloudAsync();
 }

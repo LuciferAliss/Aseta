@@ -12,7 +12,8 @@ public static class DependencyInjection
         services.AddScoped<IInventoryService, InventoryService>();
         services.AddScoped<IInventoryPermissionService, InventoryPermissionService>();
         services.AddScoped<IAdminService, AdminService>();
-
+        services.AddScoped<IAuthService, AuthService>();
+        
         services.AddAutoMapper(opt =>
             opt.AddProfile<MappingProfile>()
         );

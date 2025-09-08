@@ -56,7 +56,8 @@ public class MappingProfile : Profile
 
         CreateMap<CustomFieldValue, CustomFieldValueResponse>();
 
-        CreateMap<CustomFieldDefinition, CustomFieldDefinitionResponse>();
+        CreateMap<CustomFieldDefinition, CustomFieldDefinitionResponse>()
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => (int)src.Type));
 
         CreateMap<FixedTextRule, CustomIdRulePartResponse>()
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "fixed_text"))

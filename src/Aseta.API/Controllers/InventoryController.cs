@@ -75,14 +75,11 @@ public class InventoryController(
     }
 
     [HttpGet("get-items/{InventoryId}")]
-    public async Task<ActionResult> GetInventory([FromRoute] string InventoryId, [FromQuery] ItemViewRequest request)
+    public async Task<ActionResult> GetInventory([FromRoute] Guid InventoryId, [FromQuery] ItemViewRequest request)
     {
         await _checkingLockoutUser.CheckAsync(User);
 
-         var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
-            ?? Guid.Empty.ToString();
-
-        return Ok(await _inventoryService.GetItemAsync(request, Guid.Parse(userId)));
+        return Ok(await _inventoryService.GetItemAsync(request, InventoryId));
     }
 
     [HttpGet("get-last-inventories")]
@@ -131,6 +128,18 @@ public class InventoryController(
             ?? throw new Exception("User not found");
 
         return Ok(await _inventoryService.CreateInventoryAsync(request, Guid.Parse(userId)));
+    }
+
+    [HttpGet("get-user-role-inventory/{id}")]
+    [Authorize]
+    public async Task<ActionResult> GetUserRoleInventory(Guid id)
+    {
+        await _checkingLockoutUser.CheckAsync(User);
+
+        var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
+            ?? throw new Exception("User not found");
+
+        return Ok(await _inventoryService.GetUserRoleInventoryAsync(id, Guid.Parse(userId)));
     }
 
     [HttpPut("update-inventory")]

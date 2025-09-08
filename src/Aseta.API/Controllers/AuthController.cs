@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using System.Threading.Tasks;
+using Aseta.Application.Abstractions.Services;
 using Aseta.Domain.Entities.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -8,23 +10,28 @@ namespace Aseta.API.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class AuthController(SignInManager<UserApplication> signInManager) : ControllerBase
+public class AuthController(IAuthService authService, SignInManager<UserApplication> signInManager) : ControllerBase
 {
-    private readonly SignInManager<UserApplication> signInManager = signInManager;
+    private readonly IAuthService _authService = authService;
+    private readonly SignInManager<UserApplication> _signInManager = signInManager;
 
     [HttpGet("pingauth")]
     [Authorize]
-    public ActionResult PingAuth()
+    public async Task<ActionResult> PingAuth()
     {
-        var email = User.FindFirstValue(ClaimTypes.Email);
-        return Ok(new { Email = email });
+        var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
+            ?? throw new Exception("User not found");
+
+        var response = await _authService.GetCurrentUserAsync(Guid.Parse(userId));
+
+        return Ok(response);
     }
 
     [HttpPost("logout")]
     [Authorize]
     public async Task<ActionResult> Logout()
     {
-        await signInManager.SignOutAsync();
+        await _signInManager.SignOutAsync();
         return Ok();
     }
 }
