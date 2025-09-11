@@ -59,6 +59,31 @@ public class Inventory
 
     public void UpdateCustomFields(List<CustomFieldDefinition> newFields)
     {
+        var fieldCountsByType = newFields
+                .GroupBy(field => field.Type)
+                .ToDictionary(group => group.Key, group => group.Count());
+
+        int maxFieldsPerType = 3;
+
+        foreach (var entry in fieldCountsByType)
+        {
+            switch (entry.Key)
+            {
+                case CustomFieldType.SingleLineText:
+                case CustomFieldType.Checkbox:
+                case CustomFieldType.Date:
+                case CustomFieldType.MultiLineText:
+                case CustomFieldType.Number:
+                if (entry.Value > maxFieldsPerType)
+                {
+                    throw new InvalidOperationException(
+                        $"Cannot have more than {maxFieldsPerType} custom fields of type '{entry.Key}'. Found {entry.Value}."
+                    );
+                }
+                break;
+            }
+        }
+
         CustomFields = newFields;
     }
 
