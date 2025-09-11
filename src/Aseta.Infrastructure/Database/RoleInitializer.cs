@@ -11,9 +11,9 @@ public class RoleInitializer
         string adminEmail = "admin@aseta.com";
         string password = "_Aa123456!";
         
-        if (await roleManager.FindByNameAsync("admin") == null)
+        if (await roleManager.FindByNameAsync("Admin") == null)
         {
-            await roleManager.CreateAsync(new IdentityRole<Guid>("admin"));
+            await roleManager.CreateAsync(new IdentityRole<Guid>("Admin"));
         }
         
         if (await userManager.FindByNameAsync(adminEmail) == null)
@@ -22,7 +22,7 @@ public class RoleInitializer
             IdentityResult result = await userManager.CreateAsync(admin, password);
             if (result.Succeeded)
             {
-                await userManager.AddToRoleAsync(admin, "admin");
+                await userManager.AddToRoleAsync(admin, "Admin");
             }
         }
     }

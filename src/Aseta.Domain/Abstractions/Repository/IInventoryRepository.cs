@@ -10,4 +10,5 @@ public interface IInventoryRepository : IRepository<Inventory, Guid>
     Task DeleteByFieldIdsAsync(List<Guid> deletedFieldIds);
     Task<List<Inventory>> GetMostPopularInventoriesAsync(int itemCount);
     Task<Inventory?> GetByIdWithTagsAsync(Guid id);
+    Task<bool> ExistsAsync(Guid id);
 }

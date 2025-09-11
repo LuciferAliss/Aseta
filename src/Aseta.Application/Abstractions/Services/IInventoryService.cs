@@ -19,7 +19,7 @@ public interface IInventoryService
     Task<CreatedInventoryResponse> CreateInventoryAsync(CreateInventoryRequest request, Guid userId);
     Task UpdateInventoryAsync(UpdateInventoryRequest request);
     Task RemoveInventoryAsync(Guid inventoryId);
-    Task RemoveItemAsync(RemoveItemRequest request);
+    Task RemoveItemsAsync(RemoveItemsRequest request, Guid inventoryId);
     Task UpdateCategoryToInventoryAsync(UpdateInventoryCategoryRequest request);
     Task UpdateCustomFieldsToInventoryAsync(UpdateCustomFieldsRequest request);
     Task UpdateCustomIdRulePartsToInventoryAsync(UpdateCustomIdPartsRequest request);

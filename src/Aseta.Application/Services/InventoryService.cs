@@ -230,27 +230,21 @@ public class InventoryService(
             };
         }).ToList();
 
-        var item = Item.Create("", inventory.Id, user.Id, customFieldValues);
+        var item = Item.Create(customId, inventory.Id, user.Id, customFieldValues);
 
         await _itemRepository.AddAsync(item);
 
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task RemoveItemAsync(RemoveItemRequest request)
+    public async Task RemoveItemsAsync(RemoveItemsRequest request, Guid inventoryId)
     {
-        var inventory = await _inventoryRepository.GetByIdAsync(request.InventoryId)
-            ?? throw new Exception("Inventory not found");
+        if (!await _inventoryRepository.ExistsAsync(inventoryId))
+        {
+            throw new Exception("Inventory not found.");
+        }
 
-        var item = await _itemRepository.GetByIdAsync(request.ItemId)
-            ?? throw new Exception("Item not found");
-
-        if (item.InventoryId != inventory.Id)
-            throw new Exception("Item not found in inventory");
-
-        await _itemRepository.DeleteAsync(item);
-
-        await _unitOfWork.SaveChangesAsync();
+        await _itemRepository.DeleteByItemIdsAsync(request.ItemIds, inventoryId);
     }
 
     public async Task UpdateItemAsync(UpdateItemRequest request, Guid userId)
@@ -263,9 +257,6 @@ public class InventoryService(
 
         var inventory = await _inventoryRepository.GetByIdAsync(request.InventoryId)
             ?? throw new Exception("Inventory not found");
-
-        if (item.InventoryId != inventory.Id)
-            throw new Exception("Item not found in inventory");
 
         string customId = "";
 
@@ -309,7 +300,7 @@ public class InventoryService(
 
         var items = await _itemRepository.GetItemsPageAsync(inventory.Id, request.PageNumber, request.PageSize);
 
-        List<ItemResponse> itemResponses = _mapper.Map<List<ItemResponse>>(items);
+        List<ItemResponse> itemResponses = items.Select(i => _mapper.Map<ItemResponse>(i)).ToList();
 
         return new PaginatedResult<ItemResponse>(
             itemResponses,

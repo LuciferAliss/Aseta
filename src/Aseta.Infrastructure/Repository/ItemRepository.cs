@@ -12,6 +12,11 @@ public class ItemRepository(AppDbContext context) : Repository<Item, Guid>(conte
         return await _dbSet.CountAsync(i => i.InventoryId == inventoryId);
     }
 
+    public async Task DeleteByItemIdsAsync(List<Guid> itemIdsToRemove, Guid inventoryId)
+    {
+        await _dbSet.Where(item => item.InventoryId == inventoryId && itemIdsToRemove.Contains(item.Id)).ExecuteDeleteAsync();
+    }
+
     public async Task<List<Item>> GetByItemsInventoryIdAsync(Guid inventoryId)
     {
         return await _dbSet.Where(i => i.InventoryId == inventoryId).ToListAsync();

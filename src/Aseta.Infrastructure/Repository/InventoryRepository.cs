@@ -41,4 +41,9 @@ public class InventoryRepository(AppDbContext context) : Repository<Inventory, G
     {
         return await _dbSet.Include(i => i.Tags).FirstOrDefaultAsync(i => i.Id == id);
     }
+
+    public async Task<bool> ExistsAsync(Guid id)
+    {
+        return await _dbSet.AnyAsync(i => i.Id == id);
+    }
 }

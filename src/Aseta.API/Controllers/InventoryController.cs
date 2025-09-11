@@ -24,12 +24,12 @@ public class InventoryController(
     private readonly ICheckingAccessPolicy _checkingAccessPolicy = checkingAccessPolicy;
     private readonly ICheckingLockoutUser _checkingLockoutUser = checkingLockoutUser;
 
-    [HttpGet("get-inventory/{InventoryId}")]
-    public async Task<ActionResult> GetInventories(Guid InventoryId)
+    [HttpGet("get-inventory/{inventoryId}")]
+    public async Task<ActionResult> GetInventories(Guid inventoryId)
     {
         await _checkingLockoutUser.CheckAsync(User);
         
-        return Ok(await _inventoryService.GetInventoryAsync(InventoryId));
+        return Ok(await _inventoryService.GetInventoryAsync(inventoryId));
     }
 
     [HttpPost("create-item")]
@@ -62,24 +62,24 @@ public class InventoryController(
         return Ok();
     }
 
-    [HttpDelete("remove-item")]
-    public async Task<ActionResult> RemoveItem(RemoveItemRequest request)
+    [HttpDelete("remove-item/{inventoryId}")]
+    public async Task<ActionResult> RemoveItem([FromRoute] Guid inventoryId, [FromBody] RemoveItemsRequest request)
     {
         await _checkingLockoutUser.CheckAsync(User);
         
-        if (!await _checkingAccessPolicy.CheckAsync(User, request.InventoryId, "CanEditInventory"))
+        if (!await _checkingAccessPolicy.CheckAsync(User, inventoryId, "CanEditInventory"))
             return Forbid("User not has permission");
 
-        await _inventoryService.RemoveItemAsync(request);
+        await _inventoryService.RemoveItemsAsync(request, inventoryId);
         return Ok();
     }
 
-    [HttpGet("get-items/{InventoryId}")]
-    public async Task<ActionResult> GetInventory([FromRoute] Guid InventoryId, [FromQuery] ItemViewRequest request)
+    [HttpGet("get-items/{inventoryId}")]
+    public async Task<ActionResult> GetInventory([FromRoute] Guid inventoryId, [FromQuery] ItemViewRequest request)
     {
         await _checkingLockoutUser.CheckAsync(User);
 
-        return Ok(await _inventoryService.GetItemAsync(request, InventoryId));
+        return Ok(await _inventoryService.GetItemAsync(request, inventoryId));
     }
 
     [HttpGet("get-last-inventories")]
@@ -98,15 +98,15 @@ public class InventoryController(
         return Ok(await _inventoryService.GetMostPopularInventoriesAsync(count));
     }
 
-    [HttpDelete("remove-inventory/{InventoryId}")]
-    public async Task<ActionResult> RemoveInventory(Guid InventoryId)
+    [HttpDelete("remove-inventory/{inventoryId}")]
+    public async Task<ActionResult> RemoveInventory(Guid inventoryId)
     {
         await _checkingLockoutUser.CheckAsync(User);
         
-        if (!await _checkingAccessPolicy.CheckAsync(User, InventoryId, "CanManageInventory"))
+        if (!await _checkingAccessPolicy.CheckAsync(User, inventoryId, "CanManageInventory"))
             return Forbid("User not has permission");
 
-        await _inventoryService.RemoveInventoryAsync(InventoryId);
+        await _inventoryService.RemoveInventoryAsync(inventoryId);
         return Ok();
     }
 
