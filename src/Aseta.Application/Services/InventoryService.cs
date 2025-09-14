@@ -9,6 +9,7 @@ using Aseta.Application.DTO.Tag;
 using Aseta.Domain.Abstractions;
 using Aseta.Domain.Abstractions.Repository;
 using Aseta.Domain.Abstractions.Services;
+using Aseta.Domain.Entities.CustomId;
 using Aseta.Domain.Entities.Inventories;
 using Aseta.Domain.Entities.Items;
 using Aseta.Domain.Entities.Tags;
@@ -186,12 +187,14 @@ public class InventoryService(
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task UpdateCustomIdRulePartsToInventoryAsync(UpdateCustomIdPartsRequest request)
+    public async Task UpdateCustomIdRulePartsToInventoryAsync(UpdateCustomIdPartsRequest request, Guid inventoryId)
     {
-        var inventory = await _inventoryRepository.GetByIdAsync(request.InventoryId)
+        var inventory = await _inventoryRepository.GetByIdAsync(inventoryId)
             ?? throw new Exception("Inventory not found");
 
-        inventory.UpdateCustomIdRuleParts(request.CustomIdParts);
+        var domainRules = _mapper.Map<List<CustomIdRuleBase>>(request.CustomIdRuleParts);
+
+        inventory.UpdateCustomIdRuleParts(domainRules);
 
         await _unitOfWork.SaveChangesAsync();
     }
@@ -247,7 +250,7 @@ public class InventoryService(
         await _itemRepository.DeleteByItemIdsAsync(request.ItemIds, inventoryId);
     }
 
-    public async Task UpdateItemAsync(UpdateItemRequest request, Guid userId)
+    public async Task UpdateItemAsync(UpdateItemRequest request, Guid inventoryId, Guid userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString())
             ?? throw new Exception("User not found");
@@ -255,7 +258,7 @@ public class InventoryService(
         var item = await _itemRepository.GetByIdAsync(request.ItemId)
             ?? throw new Exception("Item not found");
 
-        var inventory = await _inventoryRepository.GetByIdAsync(request.InventoryId)
+        var inventory = await _inventoryRepository.GetByIdAsync(inventoryId)
             ?? throw new Exception("Inventory not found");
 
         string customId = "";

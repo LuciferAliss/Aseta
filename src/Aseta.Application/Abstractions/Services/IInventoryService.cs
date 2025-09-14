@@ -22,8 +22,8 @@ public interface IInventoryService
     Task RemoveItemsAsync(RemoveItemsRequest request, Guid inventoryId);
     Task UpdateCategoryToInventoryAsync(UpdateInventoryCategoryRequest request);
     Task UpdateCustomFieldsToInventoryAsync(UpdateCustomFieldsRequest request);
-    Task UpdateCustomIdRulePartsToInventoryAsync(UpdateCustomIdPartsRequest request);
-    Task UpdateItemAsync(UpdateItemRequest request, Guid userId);
+    Task UpdateCustomIdRulePartsToInventoryAsync(UpdateCustomIdPartsRequest request, Guid inventoryId);
+    Task UpdateItemAsync(UpdateItemRequest request, Guid inventoryId, Guid userId);
     Task UpdateTagsToInventoryAsync(UpdateInventoryTagsRequest request);
     Task<PaginatedResult<ItemResponse>> GetItemAsync(ItemViewRequest request, Guid inventoryId);
     Task<CollectionResponse<TagResponse>> GetTagsCloudAsync();

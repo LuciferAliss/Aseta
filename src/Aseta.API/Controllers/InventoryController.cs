@@ -47,18 +47,18 @@ public class InventoryController(
         return Ok();
     }
 
-    [HttpPut("update-item")]
-    public async Task<ActionResult> UpdateItem(UpdateItemRequest request)
+    [HttpPut("update-item/{inventoryId}")]
+    public async Task<ActionResult> UpdateItem(Guid inventoryId, UpdateItemRequest request)
     {
         await _checkingLockoutUser.CheckAsync(User);
         
-        if (!await _checkingAccessPolicy.CheckAsync(User, request.InventoryId, "CanEditInventory"))
+        if (!await _checkingAccessPolicy.CheckAsync(User, inventoryId, "CanEditInventory"))
             return Forbid("User not has permission");
 
         var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
             ?? throw new Exception("User not found");
 
-        await _inventoryService.UpdateItemAsync(request, Guid.Parse(userId));
+        await _inventoryService.UpdateItemAsync(request, inventoryId, Guid.Parse(userId));
         return Ok();
     }
 
@@ -201,15 +201,15 @@ public class InventoryController(
         return Ok();
     }
 
-    [HttpPut("update-custom-id-rule-parts")]
-    public async Task<ActionResult> UpdateCustomIdRulePartsToInventory(UpdateCustomIdPartsRequest request)
+    [HttpPut("update-custom-id-rules/{inventoryId}")]
+    public async Task<ActionResult> UpdateCustomIdRulePartsToInventory([FromRoute] Guid inventoryId, [FromBody] UpdateCustomIdPartsRequest request)
     {
         await _checkingLockoutUser.CheckAsync(User);
 
-        if (!await _checkingAccessPolicy.CheckAsync(User, request.InventoryId, "CanManageInventory"))
+        if (!await _checkingAccessPolicy.CheckAsync(User, inventoryId, "CanManageInventory"))
             return Forbid("User not has permission");
 
-        await _inventoryService.UpdateCustomIdRulePartsToInventoryAsync(request);
+        await _inventoryService.UpdateCustomIdRulePartsToInventoryAsync(request, inventoryId);
 
         return Ok();
     }

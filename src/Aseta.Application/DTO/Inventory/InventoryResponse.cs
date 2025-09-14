@@ -1,5 +1,6 @@
 using Aseta.Application.DTO.Category;
 using Aseta.Application.DTO.CustomField;
+using Aseta.Application.DTO.CustomId;
 using Aseta.Application.DTO.Tag;
 using Aseta.Application.DTO.User;
 
@@ -17,4 +18,5 @@ public record InventoryResponse
     public bool IsPublic { get; init; }
     public DateTime CreatedAt { get; init; }
     public List<CustomFieldDefinitionResponse> CustomFieldsDefinition { get; init; }
+    public List<CustomIdRulePartResponse> CustomIdRules { get; init; }
 };

@@ -22,7 +22,7 @@ public class MappingProfile : Profile
             .ForMember(
                 dest => dest.IsAdmin,
                 opt => opt.MapFrom(src =>
-                    src.InventoryUserRoles.Any(r => r.Role.ToString() == "Admin") 
+                    src.InventoryUserRoles.Any(r => r.Role.ToString() == "Admin")
                 )
             )
             .ForMember(
@@ -41,7 +41,8 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
             .ForMember(dest => dest.UserCreator, opt =>
                 opt.MapFrom(src => new UserInventoryInfoResponse(src.Creator.Id, src.Creator.UserName)))
-            .ForMember(dest => dest.CustomFieldsDefinition, opt => opt.MapFrom(src => src.CustomFields));
+            .ForMember(dest => dest.CustomFieldsDefinition, opt => opt.MapFrom(src => src.CustomFields))
+            .ForMember(dest => dest.CustomIdRules, opt => opt.MapFrom(src => src.CustomIdRules));
 
         CreateMap<Item, ItemResponse>()
             .ForMember(dest => dest.CustomFields, opt => opt.MapFrom(src => src.CustomFieldValues))
@@ -59,28 +60,31 @@ public class MappingProfile : Profile
         CreateMap<CustomFieldDefinition, CustomFieldDefinitionResponse>()
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => (int)src.Type));
 
-        CreateMap<FixedTextRule, CustomIdRulePartResponse>()
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "fixed_text"))
-            .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Text));
+        CreateMap<CustomIdRuleBase, CustomIdRulePartResponse>()
+            .Include<DateRule, DateRuleResponse>()
+            .Include<GuidRule, GuidRuleResponse>()
+            .Include<FixedTextRule, FixedTextRuleResponse>()
+            .Include<RandomDigitsRule, RandomDigitsRuleResponse>()
+            .Include<RandomNumberBitRule, RandomNumberBitRuleResponse>()
+            .Include<SequenceRule, SequenceRuleResponse>();
 
-        CreateMap<SequenceRule, CustomIdRulePartResponse>()
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "sequence"))
-            .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Padding.ToString()));
+        CreateMap<DateRule, DateRuleResponse>()
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "date"));
 
-        CreateMap<DateRule, CustomIdRulePartResponse>()
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "date"))
-            .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Format));
+        CreateMap<GuidRule, GuidRuleResponse>()
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "guid"));
 
-        CreateMap<GuidRule, CustomIdRulePartResponse>()
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "guid"))
-            .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Format));
-            
-        CreateMap<RandomDigitsRule, CustomIdRulePartResponse>()
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "random_digits"))
-            .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Length.ToString()));
+        CreateMap<FixedTextRule, FixedTextRuleResponse>()
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "fixed_text"));
 
-        CreateMap<RandomNumberBitRule, CustomIdRulePartResponse>()
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "random_bits"))
-            .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.CountBits.ToString()));
+        CreateMap<RandomDigitsRule, RandomDigitsRuleResponse>()
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "random_digits"));
+
+        CreateMap<RandomNumberBitRule, RandomNumberBitRuleResponse>()
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "random_bits"));
+
+        CreateMap<SequenceRule, SequenceRuleResponse>()
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "sequence"));
+
     }
 }
