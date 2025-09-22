@@ -1,5 +1,3 @@
-using System;
-
 namespace Aseta.Domain.Abstractions;
 
 public interface IUnitOfWork

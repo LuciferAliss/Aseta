@@ -1,10 +1,11 @@
-using Aseta.Application.DTO.Category;
-using Aseta.Application.DTO.CustomField;
-using Aseta.Application.DTO.CustomId;
-using Aseta.Application.DTO.Inventory;
-using Aseta.Application.DTO.Item;
-using Aseta.Application.DTO.Tag;
-using Aseta.Application.DTO.User;
+using Aseta.Domain.DTO.Category;
+using Aseta.Domain.DTO.CustomField;
+using Aseta.Domain.DTO.CustomId;
+using Aseta.Domain.DTO.Inventory;
+using Aseta.Domain.DTO.Item;
+using Aseta.Domain.DTO.Tag;
+using Aseta.Domain.DTO.User;
+using Aseta.Domain.Entities.CustomField;
 using Aseta.Domain.Entities.CustomId;
 using Aseta.Domain.Entities.Inventories;
 using Aseta.Domain.Entities.Items;
@@ -56,6 +57,10 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Weight, opt => opt.MapFrom(src => src.Inventories.Count));
 
         CreateMap<CustomFieldValue, CustomFieldValueResponse>();
+
+        CreateMap<CustomFieldDefinition, CustomFieldValue>()
+            .ForMember(dest => dest.FieldId, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Value, opt => opt.MapFrom<CustomFieldValueResolver>());
 
         CreateMap<CustomFieldDefinition, CustomFieldDefinitionResponse>()
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => (int)src.Type));

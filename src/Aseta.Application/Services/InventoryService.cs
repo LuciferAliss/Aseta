@@ -1,21 +1,18 @@
-using Aseta.Application.Abstractions.Services;
-using Aseta.Application.DTO;
-using Aseta.Application.DTO.Category;
-using Aseta.Application.DTO.CustomField;
-using Aseta.Application.DTO.CustomId;
-using Aseta.Application.DTO.Inventory;
-using Aseta.Application.DTO.Item;
-using Aseta.Application.DTO.Tag;
 using Aseta.Domain.Abstractions;
 using Aseta.Domain.Abstractions.Repository;
 using Aseta.Domain.Abstractions.Services;
+using Aseta.Domain.DTO;
+using Aseta.Domain.DTO.Category;
+using Aseta.Domain.DTO.CustomField;
+using Aseta.Domain.DTO.CustomId;
+using Aseta.Domain.DTO.Inventory;
+using Aseta.Domain.DTO.Tag;
+using Aseta.Domain.Entities.CustomField;
 using Aseta.Domain.Entities.CustomId;
 using Aseta.Domain.Entities.Inventories;
-using Aseta.Domain.Entities.Items;
 using Aseta.Domain.Entities.Tags;
 using Aseta.Domain.Entities.Users;
 using AutoMapper;
-using AutoMapper.Configuration.Annotations;
 using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +23,6 @@ public class InventoryService(
     IInventoryRepository inventoryRepository,
     IItemRepository itemRepository,
     IInventoryUserRoleRepository inventoryUserRoleRepository,
-    ICustomIdService customIdService,
     ITagRepository tagRepository,
     ICategoryRepository categoryRepository,
     UserManager<UserApplication> userManager,
@@ -37,7 +33,6 @@ public class InventoryService(
     private readonly IInventoryRepository _inventoryRepository = inventoryRepository;
     private readonly IItemRepository _itemRepository = itemRepository;
     private readonly IInventoryUserRoleRepository _inventoryUserRoleRepository = inventoryUserRoleRepository;
-    private readonly ICustomIdService _customIdService = customIdService;
     private readonly UserManager<UserApplication> _userManager = userManager;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly ITagRepository _tagRepository = tagRepository;
@@ -116,7 +111,7 @@ public class InventoryService(
 
         await _inventoryRepository.AddAsync(inventory);
 
-        await _inventoryUserRoleRepository.AddAsync(InventoryUserRole.Create(user.Id, inventory.Id, InventoryRole.Owner));
+        await _inventoryUserRoleRepository.AddAsync(InventoryUserRole.Create(user.Id, inventory.Id, InventoryRoleType.Owner));
 
         await _unitOfWork.SaveChangesAsync();
 
@@ -177,9 +172,9 @@ public class InventoryService(
 
         var newCustomFields = request.CustomFields.Select(c =>
         {
-            return (c.Id == Guid.Empty)
-                ? CustomFieldDefinition.Create(c.Name, c.Type, c.ShowInTableView)
-                : CustomFieldDefinition.Create(c.Id, c.Name, c.Type, c.ShowInTableView);
+            return c.Id == Guid.Empty
+                ? CustomFieldDefinition.Create(c.Name, c.Type)
+                : CustomFieldDefinition.Create(c.Id, c.Name, c.Type);
         }).ToList();
 
         inventory.UpdateCustomFields(newCustomFields);
@@ -210,107 +205,6 @@ public class InventoryService(
         inventory.UpdateCategory(category.Id);
 
         await _unitOfWork.SaveChangesAsync();
-    }
-
-    public async Task AddItemAsync(CrateItemRequest request, Guid userId)
-    {
-        var user = await _userManager.FindByIdAsync(userId.ToString())
-            ?? throw new Exception("User not found");
-
-        var inventory = await _inventoryRepository.GetByIdAsync(request.InventoryId)
-            ?? throw new Exception("Inventory not found");
-
-        string customId = _customIdService.GenerateAsync(inventory.CustomIdRules, inventory.Id);
-
-        var customFieldValues = inventory.CustomFields.Select(d =>
-        {
-            var requestValue = request.CustomFields.FirstOrDefault(f => f.FieldId == d.Id);
-
-            return new CustomFieldValue
-            {
-                FieldId = d.Id,
-                Value = requestValue?.Value
-            };
-        }).ToList();
-
-        var item = Item.Create(customId, inventory.Id, user.Id, customFieldValues);
-
-        await _itemRepository.AddAsync(item);
-
-        await _unitOfWork.SaveChangesAsync();
-    }
-
-    public async Task RemoveItemsAsync(RemoveItemsRequest request, Guid inventoryId)
-    {
-        if (!await _inventoryRepository.ExistsAsync(inventoryId))
-        {
-            throw new Exception("Inventory not found.");
-        }
-
-        await _itemRepository.DeleteByItemIdsAsync(request.ItemIds, inventoryId);
-    }
-
-    public async Task UpdateItemAsync(UpdateItemRequest request, Guid inventoryId, Guid userId)
-    {
-        var user = await _userManager.FindByIdAsync(userId.ToString())
-            ?? throw new Exception("User not found");
-
-        var item = await _itemRepository.GetByIdAsync(request.ItemId)
-            ?? throw new Exception("Item not found");
-
-        var inventory = await _inventoryRepository.GetByIdAsync(inventoryId)
-            ?? throw new Exception("Inventory not found");
-
-        string customId = "";
-
-        if (request.CustomId != item.CustomId)
-        {
-            if (!_customIdService.IsValid(request.CustomId, inventory.CustomIdRules))
-                throw new Exception("Invalid custom id");
-            else
-                customId = request.CustomId;
-        }
-        else
-        {
-            if (!_customIdService.IsValid(request.CustomId, inventory.CustomIdRules))
-                customId = _customIdService.GenerateAsync(inventory.CustomIdRules, item.InventoryId);
-            else
-                customId = item.CustomId;
-        }
-
-        var customFieldValues = inventory.CustomFields.Select(d =>
-        {
-            var requestValue = request.CustomFields.FirstOrDefault(f => f.FieldId == d.Id);
-
-            return new CustomFieldValue
-            {
-                FieldId = d.Id,
-                Value = requestValue?.Value
-            };
-        }).ToList();
-
-        item.Update(customId, user.Id, customFieldValues);
-
-        await _unitOfWork.SaveChangesAsync();
-    }
-
-    public async Task<PaginatedResult<ItemResponse>> GetItemAsync(ItemViewRequest request, Guid inventoryId)
-    {
-        var inventory = await _inventoryRepository.GetByIdAsync(inventoryId)
-            ?? throw new Exception("Inventory not found");
-
-        int totalCount = await _itemRepository.CountItems(inventory.Id);
-
-        var items = await _itemRepository.GetItemsPageAsync(inventory.Id, request.PageNumber, request.PageSize);
-
-        List<ItemResponse> itemResponses = items.Select(i => _mapper.Map<ItemResponse>(i)).ToList();
-
-        return new PaginatedResult<ItemResponse>(
-            itemResponses,
-            request.PageNumber,
-            request.PageSize,
-            totalCount,
-            request.PageNumber * request.PageSize < totalCount);
     }
 
     public async Task UpdateInventoryAsync(UpdateInventoryRequest request)

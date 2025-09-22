@@ -5,9 +5,9 @@ namespace Aseta.Infrastructure.Requirements;
 
 public class InventoryRoleRequirement : IAuthorizationRequirement
 {
-    public InventoryRole RequiredRole { get; }
+    public InventoryRoleType RequiredRole { get; }
 
-    public InventoryRoleRequirement(InventoryRole requiredRole)
+    public InventoryRoleRequirement(InventoryRoleType requiredRole)
     {
         RequiredRole = requiredRole;
     }

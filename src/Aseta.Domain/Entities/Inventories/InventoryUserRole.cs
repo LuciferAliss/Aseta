@@ -10,16 +10,16 @@ public class InventoryUserRole
     public Guid InventoryId { get; private set; }
     public virtual Inventory Inventory { get; private set; }
 
-    public InventoryRole Role { get; private set; }
+    public InventoryRoleType Role { get; private set; }
 
     private InventoryUserRole() { }
 
-    private InventoryUserRole(Guid userId, Guid inventoryId, InventoryRole role)
+    private InventoryUserRole(Guid userId, Guid inventoryId, InventoryRoleType role)
     {
         UserId = userId;
         InventoryId = inventoryId;
         Role = role;
     }
 
-    public static InventoryUserRole Create(Guid userId, Guid inventoryId, InventoryRole role) => new(userId, inventoryId, role);
+    public static InventoryUserRole Create(Guid userId, Guid inventoryId, InventoryRoleType role) => new(userId, inventoryId, role);
 }

@@ -1,6 +1,5 @@
 using System.Security.Claims;
-using System.Threading.Tasks;
-using Aseta.Application.Abstractions.Services;
+using Aseta.Domain.Abstractions.Services;
 using Aseta.Domain.Entities.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

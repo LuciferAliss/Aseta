@@ -1,3 +1,4 @@
+using Aseta.Domain.Entities.CustomField;
 using Aseta.Domain.Entities.CustomId;
 using Aseta.Domain.Entities.Items;
 using Aseta.Domain.Entities.Tags;

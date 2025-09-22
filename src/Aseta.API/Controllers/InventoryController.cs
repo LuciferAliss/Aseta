@@ -1,12 +1,12 @@
 using System.Security.Claims;
 using Aseta.Application.Abstractions.Checkers;
-using Aseta.Application.Abstractions.Services;
-using Aseta.Application.DTO.Category;
-using Aseta.Application.DTO.CustomField;
-using Aseta.Application.DTO.CustomId;
-using Aseta.Application.DTO.Inventory;
-using Aseta.Application.DTO.Item;
-using Aseta.Application.DTO.Tag;
+using Aseta.Domain.Abstractions.Services;
+using Aseta.Domain.DTO.Category;
+using Aseta.Domain.DTO.CustomField;
+using Aseta.Domain.DTO.CustomId;
+using Aseta.Domain.DTO.Inventory;
+using Aseta.Domain.DTO.Item;
+using Aseta.Domain.DTO.Tag;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

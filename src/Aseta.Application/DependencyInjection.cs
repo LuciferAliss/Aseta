@@ -1,6 +1,6 @@
-﻿using Aseta.Application.Abstractions.Services;
-using Aseta.Application.Mapping;
+﻿using Aseta.Application.Mapping;
 using Aseta.Application.Services;
+using Aseta.Domain.Abstractions.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Aseta.Application;

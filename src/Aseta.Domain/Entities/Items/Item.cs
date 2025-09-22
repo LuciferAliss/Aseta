@@ -1,3 +1,5 @@
+using Aseta.Domain.Abstractions;
+using Aseta.Domain.Entities.CustomField;
 using Aseta.Domain.Entities.Inventories;
 using Aseta.Domain.Entities.Users;
 
@@ -25,7 +27,7 @@ public class Item
 
     private Item(Guid id,
         string customId,
-        List<CustomFieldValue> сustomFieldValues,
+        List<CustomFieldValue> customFieldValues,
         Guid inventoryId,
         DateTime createdAt,
         Guid creatorId,
@@ -34,7 +36,7 @@ public class Item
     {
         Id = id;
         CustomId = customId;
-        CustomFieldValues = сustomFieldValues;
+        CustomFieldValues = customFieldValues;
         InventoryId = inventoryId;
         CreatedAt = createdAt;
         CreatorId = creatorId;
@@ -44,15 +46,23 @@ public class Item
 
     private Item() { }
 
-    public static Item Create(string customId,
+    public static Result<Item> Create(
+        string customId,
         Guid inventoryId,
         Guid creatorId,
-        List<CustomFieldValue> сustomFieldValues)
+        List<CustomFieldValue> customFieldValues
+    )
     {
+        if (inventoryId == Guid.Empty) return ItemErrors.InventoryIdEmpty;
+
+        if (string.IsNullOrWhiteSpace(customId)) return ItemErrors.CustomIdEmpty;
+
+        if (creatorId == Guid.Empty) return ItemErrors.CreatorIdEmpty;
+
         return new Item(
             Guid.NewGuid(),
             customId,
-            сustomFieldValues,
+            customFieldValues,
             inventoryId,
             DateTime.UtcNow,
             creatorId,
@@ -68,4 +78,11 @@ public class Item
         CustomId = customId;
         CustomFieldValues = customFieldValues;
     }
+}
+
+public static class ItemErrors
+{
+    public static readonly Error InventoryIdEmpty = new("ItemError.InventoryIdEmpty", "Inventory id is empty.");
+    public static readonly Error CustomIdEmpty = new("ItemError.CustomIdEmpty", "Custom id is empty.");
+    public static readonly Error CreatorIdEmpty = new("ItemError.CreatorIdEmpty", "Creator id is empty.");
 }
