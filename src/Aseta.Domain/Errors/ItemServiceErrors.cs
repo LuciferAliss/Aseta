@@ -1,7 +1,6 @@
-using System;
 using Aseta.Domain.Abstractions;
 
-namespace Aseta.Application.Errors;
+namespace Aseta.Domain.Errors;
 
 public class ItemServiceErrors
 {

@@ -1,4 +1,4 @@
-namespace Aseta.Application.Errors;
+namespace Aseta.Domain.Errors;
 
 public static class InventoryServiceErrors
 {

@@ -1,4 +1,3 @@
-using Aseta.Application.Errors;
 using Aseta.Domain.Abstractions;
 using Aseta.Domain.Abstractions.Repository;
 using Aseta.Domain.Abstractions.Services;
@@ -8,6 +7,7 @@ using Aseta.Domain.Entities.CustomField;
 using Aseta.Domain.Entities.Inventories;
 using Aseta.Domain.Entities.Items;
 using Aseta.Domain.Entities.Users;
+using Aseta.Domain.Errors;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 

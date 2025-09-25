@@ -1,5 +1,5 @@
-﻿using Aseta.Application.Abstractions.Checkers;
-using Aseta.Domain.Abstractions;
+﻿using Aseta.Domain.Abstractions;
+using Aseta.Domain.Abstractions.Checkers;
 using Aseta.Domain.Abstractions.Repository;
 using Aseta.Domain.Entities.Inventories;
 using Aseta.Domain.Entities.Users;

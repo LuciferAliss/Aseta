@@ -2,9 +2,8 @@ using Aseta.Domain.Abstractions;
 using Aseta.Domain.Abstractions.Repository;
 using Aseta.Domain.Abstractions.Services;
 using Aseta.Domain.Entities.CustomId;
-using Aseta.Domain.Errors;
 
-namespace Aseta.Domain.Services;
+namespace Aseta.Domain.Services.CustomId;
 
 public class CustomIdService(IItemRepository itemRepository) : ICustomIdService
 {

@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace Aseta.Application.Abstractions.Checkers;
+namespace Aseta.Domain.Abstractions.Checkers;
 
 public interface ICheckingLockoutUser
 {
