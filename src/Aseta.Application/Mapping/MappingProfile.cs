@@ -1,8 +1,9 @@
+using Aseta.Application.Items.GetItems;
+using Aseta.Application.Items.GetView;
 using Aseta.Domain.DTO.Category;
 using Aseta.Domain.DTO.CustomField;
 using Aseta.Domain.DTO.CustomId;
 using Aseta.Domain.DTO.Inventory;
-using Aseta.Domain.DTO.Item;
 using Aseta.Domain.DTO.Tag;
 using Aseta.Domain.DTO.User;
 using Aseta.Domain.Entities.CustomField;

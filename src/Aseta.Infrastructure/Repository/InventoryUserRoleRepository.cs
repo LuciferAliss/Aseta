@@ -1,4 +1,3 @@
-using System;
 using Aseta.Domain.Abstractions.Repository;
 using Aseta.Domain.Entities.Inventories;
 using Aseta.Infrastructure.Database;
@@ -6,20 +5,43 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aseta.Infrastructure.Repository;
 
-public class InventoryUserRoleRepository(AppDbContext context) : Repository<InventoryUserRole, Guid>(context), IInventoryUserRoleRepository
+public class InventoryUserRoleRepository(AppDbContext context) 
+: Repository<InventoryUserRole>(context), IInventoryUserRoleRepository
 {
-    public async Task<InventoryUserRole?> GetUserGrantToInventoryAsync(Guid userId, Guid inventoryId, InventoryRoleType role)
+    public async Task<InventoryUserRole?> GetUserGrantToInventoryAsync(
+        Guid userId,
+        Guid inventoryId,
+        InventoryRoleType role,
+        CancellationToken cancellationToken = default)
     {
-        return await _dbSet.FirstOrDefaultAsync(iur => iur.InventoryId == inventoryId && iur.UserId == userId && iur.Role == role);
+        return await _dbSet.FirstOrDefaultAsync(iur =>
+            iur.InventoryId == inventoryId &&
+            iur.UserId == userId &&
+            iur.Role == role,
+            cancellationToken);
     }
 
-    public async Task<InventoryUserRole?> GetUserRoleInventoryAsync(Guid inventoryId, Guid userId)
+    public async Task<InventoryUserRole?> GetUserRoleInventoryAsync(
+        Guid inventoryId,
+        Guid userId,
+        CancellationToken cancellationToken = default)
     {
-        return await _dbSet.FirstOrDefaultAsync(iur => iur.UserId == userId && iur.InventoryId == inventoryId);
+        return await _dbSet.FirstOrDefaultAsync(iur =>
+            iur.UserId == userId &&
+            iur.InventoryId == inventoryId,
+            cancellationToken);
     }
 
-    public async Task<bool> UserHasRoleAsync(Guid userId, Guid inventoryId, InventoryRoleType role)
+    public async Task<bool> UserHasRoleAsync(
+        Guid userId,
+        Guid inventoryId,
+        InventoryRoleType role,
+        CancellationToken cancellationToken = default)
     {
-        return await _dbSet.AnyAsync(iur => iur.UserId == userId && iur.InventoryId == inventoryId && (iur.Role == role || iur.Role == InventoryRoleType.Owner));
+        return await _dbSet.AnyAsync(iur =>
+            iur.UserId == userId &&
+            iur.InventoryId == inventoryId &&
+            (iur.Role == role || iur.Role == InventoryRoleType.Owner),
+            cancellationToken);
     }
 }

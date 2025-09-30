@@ -1,13 +1,12 @@
+using Aseta.Application.Items.GetItems;
 using Aseta.Domain.Abstractions;
 using Aseta.Domain.Abstractions.Repository;
 using Aseta.Domain.Abstractions.Services;
-using Aseta.Domain.DTO;
 using Aseta.Domain.DTO.Item;
 using Aseta.Domain.Entities.CustomField;
 using Aseta.Domain.Entities.Inventories;
 using Aseta.Domain.Entities.Items;
 using Aseta.Domain.Entities.Users;
-using Aseta.Domain.Errors;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 
@@ -38,44 +37,7 @@ public class ItemService(
     private readonly ICustomIdService _customIdService = customIdService;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<Result> AddItemAsync(
-        CrateItemRequest request,
-        Guid inventoryId, Guid userId
-    )
-    {
-        var userResult = await GetUserByIdAsync(userId);
-        if (userResult.IsFailure) return userResult.Error;
-
-        var inventoryResult = await GetInventoryByIdAsync(inventoryId);
-        if (inventoryResult.IsFailure) return inventoryResult.Error;
-
-        var user = userResult.Value;
-        var inventory = inventoryResult.Value;
-
-        var customIdResult = await _customIdService
-            .GenerateAsync(inventory.CustomIdRules, inventory.Id);
-        if (customIdResult.IsFailure) return customIdResult.Error;
-
-        var customFieldValues = _mapper.Map<List<CustomFieldValue>>(
-            inventory.CustomFields,
-            opts => opts.Items["requestedFields"] = request.CustomFields
-        );
-
-        var createItemResult = Item.Create(
-            customIdResult.Value,
-            inventory.Id,
-            user.Id,
-            customFieldValues
-        );
-        if (createItemResult.IsFailure) return createItemResult.Error;
-
-        await _itemRepository.AddAsync(createItemResult.Value);
-        await _unitOfWork.SaveChangesAsync();
-
-        return Result.Success();
-    }
-
-    public async Task<Result> RemoveItemsAsync(
+    public async Task<Result> DeleteItemsAsync(
         RemoveItemsRequest request,
         Guid inventoryId
     )

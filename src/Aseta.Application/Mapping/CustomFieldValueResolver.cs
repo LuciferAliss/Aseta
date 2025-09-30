@@ -17,7 +17,7 @@ public class CustomFieldValueResolver
         if (!context.Items.TryGetValue("requestedFields", out var requestedFieldsObject))
             return null;
 
-        if (requestedFieldsObject is not List<CustomFieldValueRequest> requestedFields)
+        if (requestedFieldsObject is not ICollection<CustomFieldValueRequest> requestedFields)
             return null;
 
         var requestValue = requestedFields.FirstOrDefault(f => f.FieldId == source.Id);

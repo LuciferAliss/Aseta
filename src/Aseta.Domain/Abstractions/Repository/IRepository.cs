@@ -2,12 +2,19 @@ using System.Linq.Expressions;
 
 namespace Aseta.Domain.Abstractions.Repository;
 
-public interface IRepository<T, TId> where T : class
+public interface IRepository<T> where T : class
 {
     IQueryable<T> GetQueryable();
-    Task<T> AddAsync(T entity);
+
+    Task AddAsync(T entity, CancellationToken cancellationToken = default);
+
     Task DeleteAsync(T entity);
-    Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
-    Task<IEnumerable<T>> GetAllAsync();
-    Task<T?> GetByIdAsync(TId id);
+
+    Task<IEnumerable<T>> FindAsync(
+        Expression<Func<T, bool>> predicate,
+        CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default);
+
+    Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 }

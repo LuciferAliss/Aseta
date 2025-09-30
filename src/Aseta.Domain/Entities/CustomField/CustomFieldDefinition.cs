@@ -12,30 +12,17 @@ public class CustomFieldDefinition
     private CustomFieldDefinition() { }
 
     [JsonConstructor]
-    private CustomFieldDefinition(Guid id, string name, CustomFieldType type)
+    public CustomFieldDefinition(Guid id, string name, CustomFieldType type)
     {
         Id = id;
         Name = name;
         Type = type;
     }
 
-    public static CustomFieldDefinition Create(string name, CustomFieldType type)
+    public CustomFieldDefinition(string name, CustomFieldType type)
     {
-        return new CustomFieldDefinition
-        (
-            Guid.NewGuid(),
-            name,
-            type
-        );
-    }
-    
-    public static CustomFieldDefinition Create(Guid? id, string name, CustomFieldType type)
-    {
-        return new CustomFieldDefinition
-        (
-            id ?? Guid.NewGuid(),
-            name,
-            type
-        );
+        Id = Guid.NewGuid();
+        Name = name;
+        Type = type;
     }
 }

@@ -1,14 +1,29 @@
-using System;
 using Aseta.Domain.Entities.Inventories;
 
 namespace Aseta.Domain.Abstractions.Repository;
 
-public interface IInventoryRepository : IRepository<Inventory, Guid>
+public interface IInventoryRepository : IRepository<Inventory>
 {
-    Task<int> CountAsync();
-    Task<List<Inventory>> GetLastInventoriesPageAsync(int pageNumber, int pageSize);
-    Task DeleteByFieldIdsAsync(List<Guid> deletedFieldIds);
-    Task<List<Inventory>> GetMostPopularInventoriesAsync(int itemCount);
-    Task<Inventory?> GetByIdWithTagsAsync(Guid id);
-    Task<bool> ExistsAsync(Guid id);
+    Task<int> CountAsync(CancellationToken cancellationToken = default);
+
+    Task<ICollection<Inventory>> GetLastInventoriesPageAsync(
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default);
+
+    Task DeleteByFieldIdsAsync(
+        ICollection<Guid> deletedFieldIds,
+        CancellationToken cancellationToken = default);
+
+    Task<ICollection<Inventory>> GetMostPopularInventoriesAsync(
+        int itemCount,
+        CancellationToken cancellationToken = default);
+
+    Task<Inventory?> GetByIdWithTagsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
 }

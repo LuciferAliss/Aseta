@@ -4,6 +4,6 @@ namespace Aseta.Domain.Abstractions.Services;
 
 public interface ICustomIdService
 {
-    Task<Result<string>> GenerateAsync(List<CustomIdRuleBase> customIdRule, Guid itemId);
-    Result<bool> IsValid(string customId, List<CustomIdRuleBase> customIdRule);
+    Task<Result<string>> GenerateAsync(ICollection<CustomIdRuleBase> customIdRule, Guid itemId);
+    Result<bool> IsValid(string customId, ICollection<CustomIdRuleBase> customIdRule);
 }

@@ -2,6 +2,7 @@ using Aseta.Domain.Abstractions;
 using Aseta.Domain.Abstractions.Repository;
 using Aseta.Domain.Abstractions.Services;
 using Aseta.Domain.Entities.CustomId;
+using Aseta.Domain.Entities.Inventories;
 
 namespace Aseta.Domain.Services.CustomId;
 
@@ -9,11 +10,11 @@ public class CustomIdService(IItemRepository itemRepository) : ICustomIdService
 {
     private readonly IItemRepository _itemRepository = itemRepository;
 
-    public async Task<Result<string>> GenerateAsync(List<CustomIdRuleBase> customIdRule, Guid inventoryId)
+    public async Task<Result<string>> GenerateAsync(ICollection<CustomIdRuleBase> customIdRule, Guid inventoryId)
     {
         if (customIdRule.Count == 0) return Guid.NewGuid().ToString();
 
-        if (inventoryId == Guid.Empty) return Result.Failure<string>(CustomIdServiceErrors.InventoryIdEmpty);
+        if (inventoryId == Guid.Empty) return Result.Failure<string>(InventoryErrors.NotFound(inventoryId));
 
         var customIdParts = await Task.WhenAll(customIdRule.Select(r => r.Generation(_itemRepository, inventoryId)));
         var customId = string.Join("-", customIdParts);
@@ -23,7 +24,7 @@ public class CustomIdService(IItemRepository itemRepository) : ICustomIdService
         return Result.Success(customId); 
     }
 
-    public Result<bool> IsValid(string customId, List<CustomIdRuleBase> customIdRule)
+    public Result<bool> IsValid(string customId, ICollection<CustomIdRuleBase> customIdRule)
     {
         if (string.IsNullOrWhiteSpace(customId)) return CustomIdServiceErrors.CustomIdEmpty;
 

@@ -5,45 +5,56 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aseta.Infrastructure.Repository;
 
-public class InventoryRepository(AppDbContext context) : Repository<Inventory, Guid>(context), IInventoryRepository
+public class InventoryRepository(AppDbContext context) 
+: Repository<Inventory>(context), IInventoryRepository
 {
-    public async Task<int> CountAsync()
+    public async Task<int> CountAsync(CancellationToken cancellationToken = default)
     {
-        return await _dbSet.CountAsync();
+        return await _dbSet.CountAsync(cancellationToken);
     }
 
-    public override Task<Inventory?> GetByIdAsync(Guid id)
+    public async Task<ICollection<Inventory>> GetLastInventoriesPageAsync(
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default)
     {
-        return _dbSet.Include(i => i.Creator).Include(i => i.Category).FirstOrDefaultAsync(i => i.Id == id);
+        return await _dbSet.Include(i => i.Creator)
+            .OrderByDescending(i => i.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
     }
 
-    public Task DeleteByFieldIdsAsync(List<Guid> deletedFieldIds)
+    public async Task DeleteByFieldIdsAsync(
+        ICollection<Guid> deletedFieldIds,
+        CancellationToken cancellationToken = default)
     {
-        return _dbSet.Where(f => deletedFieldIds.Contains(f.Id)).ExecuteDeleteAsync();
+        await _dbSet.Where(f => deletedFieldIds.Contains(f.Id))
+            .ExecuteDeleteAsync(cancellationToken);
     }
 
-    public async Task<List<Inventory>> GetLastInventoriesPageAsync(int pageNumber, int pageSize)
+    public async Task<ICollection<Inventory>> GetMostPopularInventoriesAsync(
+        int itemCount,
+        CancellationToken cancellationToken = default)
     {
-        return await _dbSet.Include(i => i.Creator).OrderByDescending(i => i.CreatedAt).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+        return await _dbSet.Include(i => i.Creator)
+            .OrderByDescending(i => i.Items.Count)
+            .Take(itemCount)
+            .ToListAsync(cancellationToken);
     }
 
-    public Task<int> CountPublicInventoriesAsync()
+    public async Task<Inventory?> GetByIdWithTagsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
     {
-        return _dbSet.CountAsync(i => i.IsPublic);
+        return await _dbSet.Include(i => i.Tags)
+            .FirstOrDefaultAsync(i => i.Id == id, cancellationToken);
     }
 
-    public async Task<List<Inventory>> GetMostPopularInventoriesAsync(int itemCount)
+    public async Task<bool> ExistsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
     {
-        return await _dbSet.Include(i => i.Creator).OrderByDescending(i => i.Items.Count).Take(itemCount).ToListAsync();
-    }
-
-    public async Task<Inventory?> GetByIdWithTagsAsync(Guid id)
-    {
-        return await _dbSet.Include(i => i.Tags).FirstOrDefaultAsync(i => i.Id == id);
-    }
-
-    public async Task<bool> ExistsAsync(Guid id)
-    {
-        return await _dbSet.AnyAsync(i => i.Id == id);
+        return await _dbSet.AnyAsync(i => i.Id == id, cancellationToken);
     }
 }

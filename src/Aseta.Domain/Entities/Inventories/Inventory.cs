@@ -8,35 +8,41 @@ namespace Aseta.Domain.Entities.Inventories;
 
 public class Inventory
 {
-    public Guid Id { get; private set; }
-    public string Name { get; private set; }
-    public string Description { get; private set; }
-    public string ImageUrl { get; private set; }
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public string ImageUrl { get; set; }
+    public bool IsPublic { get; set; }
+    public ICollection<CustomFieldDefinition> CustomFields { get; set; } = [];
+    public virtual ICollection<Item> Items { get; set; } = [];
 
-    public bool IsPublic { get; private set; }
+    public int CategoryId { get; set; }
+    public virtual Category Category { get; set; } = null!;
 
-    public List<CustomFieldDefinition> CustomFields { get; private set; } = [];
+    public virtual ICollection<Tag> Tags { get; set; } = [];
+    public ICollection<CustomIdRuleBase> CustomIdRules { get; set; } = [];
+    public DateTime CreatedAt { get; set; }
 
-    public virtual List<Item> Items { get; private set; } = [];
+    public Guid CreatorId { get; set; }
+    public virtual UserApplication Creator { get; set; } = null!;
 
-    public int CategoryId { get; private set; }
-    public virtual Category Category { get; private set; }
-
-    public virtual List<Tag> Tags { get; private set; } = [];
-    
-    public List<CustomIdRuleBase> CustomIdRules { get; set; } = [];
-
-    public DateTime CreatedAt { get; private set; }
-
-    public Guid CreatorId { get; private set; }
-    public virtual UserApplication Creator { get; private set; }
-
-    public virtual List<InventoryUserRole> UserRoles { get; private set; } = [];
-
-    private Inventory() { }
+    public virtual ICollection<InventoryUserRole> UserRoles { get; set; } = [];
 
     public Inventory(string name, string description, string imageUrl, bool isPublic, int categoryId, Guid creatorId)
     {
+        Id = Guid.NewGuid();
+        Name = name;
+        Description = description;
+        ImageUrl = imageUrl;
+        IsPublic = isPublic;
+        CategoryId = categoryId;
+        CreatedAt = DateTime.UtcNow;
+        CreatorId = creatorId;
+    }
+    
+    public Inventory(Guid id, string name, string description, string imageUrl, bool isPublic, int categoryId, Guid creatorId)
+    {
+        Id = id;
         Name = name;
         Description = description;
         ImageUrl = imageUrl;
@@ -46,19 +52,7 @@ public class Inventory
         CreatorId = creatorId;
     }
 
-    public static Inventory Create(string name, string description, string imageUrl, int categoryId, Guid creatorId, bool isPublic = false)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(name));
-
-        return new Inventory(name, description, imageUrl, isPublic, categoryId, creatorId);
-    }
-
-    public void UpdateTags(List<Tag> tags)
-    {
-        Tags = tags;
-    }
-
-    public void UpdateCustomFields(List<CustomFieldDefinition> newFields)
+    public void UpdateCustomFields(ICollection<CustomFieldDefinition> newFields)
     {
         var fieldCountsByType = newFields
                 .GroupBy(field => field.Type)
@@ -75,34 +69,16 @@ public class Inventory
                 case CustomFieldType.Date:
                 case CustomFieldType.MultiLineText:
                 case CustomFieldType.Number:
-                if (entry.Value > maxFieldsPerType)
-                {
-                    throw new InvalidOperationException(
-                        $"Cannot have more than {maxFieldsPerType} custom fields of type '{entry.Key}'. Found {entry.Value}."
-                    );
-                }
-                break;
+                    if (entry.Value > maxFieldsPerType)
+                    {
+                        throw new InvalidOperationException(
+                            $"Cannot have more than {maxFieldsPerType} custom fields of type '{entry.Key}'. Found {entry.Value}."
+                        );
+                    }
+                    break;
             }
         }
 
         CustomFields = newFields;
-    }
-
-    public void UpdateCategory(int categoryId)
-    {
-        CategoryId = categoryId;
-    }
-
-    public void UpdateCustomIdRuleParts(List<CustomIdRuleBase> customIdParts)
-    {
-        CustomIdRules = customIdParts;
-    }
-
-    public void Update(string name, string description, string imageUrl, bool isPublic)
-    {
-        Name = name;
-        Description = description;
-        ImageUrl = imageUrl;
-        IsPublic = isPublic;
     }
 }

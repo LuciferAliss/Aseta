@@ -1,4 +1,4 @@
-namespace Aseta.Domain.DTO;
+namespace Aseta.Domain.Abstractions;
 
 public record PaginatedResult<T>(
     List<T> Items,

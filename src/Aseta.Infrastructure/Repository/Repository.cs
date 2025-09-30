@@ -5,40 +5,46 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aseta.Infrastructure.Repository;
 
-public class Repository<T, TId>(AppDbContext context) : IRepository<T, TId> where T : class
+public class Repository<T>(AppDbContext context) 
+: IRepository<T> where T : class
 {
     protected readonly AppDbContext _context = context;
     protected readonly DbSet<T> _dbSet = context.Set<T>();
 
-    public IQueryable<T> GetQueryable()
+    public IQueryable<T> GetQueryable() => _dbSet.AsQueryable();
+
+    public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return _dbSet.AsQueryable();
+        return await _dbSet.ToListAsync(cancellationToken);
     }
 
-    public virtual async Task<IEnumerable<T>> GetAllAsync()
+    public async Task<IEnumerable<T>> FindAsync(
+        Expression<Func<T, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        return await _dbSet.ToListAsync();
+        return await _dbSet.Where(predicate).ToListAsync(cancellationToken);
     }
 
-    public virtual async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
+    public async Task<T?> GetByIdAsync(
+        CancellationToken cancellationToken = default,
+        params object[] keyValues)
     {
-        return await _dbSet.Where(predicate).ToListAsync();
+        return await _dbSet.FindAsync(keyValues, cancellationToken);
     }
 
-    public virtual async Task<T?> GetByIdAsync(TId id)
+    public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        return await _dbSet.FindAsync(id);
+        return await _dbSet.FindAsync(id, cancellationToken);
     }
-
-    public virtual async Task<T> AddAsync(T entity)
-    {
-        await _dbSet.AddAsync(entity);
-        return entity;
-    }
-
-    public virtual Task DeleteAsync(T entity)
+    
+    public Task DeleteAsync(T entity)
     {
         _dbSet.Remove(entity);
         return Task.CompletedTask;
+    }
+
+    public async Task AddAsync(T entity, CancellationToken cancellationToken = default)
+    {
+        await _dbSet.AddAsync(entity, cancellationToken);
     }
 }

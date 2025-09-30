@@ -3,7 +3,7 @@ using Aseta.Domain.Entities.Inventories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Aseta.Infrastructure.Configurations;
+namespace Aseta.Infrastructure.ConfigurationsDB;
 
 public class InventoryUserRoleConfiguration : IEntityTypeConfiguration<InventoryUserRole>
 {

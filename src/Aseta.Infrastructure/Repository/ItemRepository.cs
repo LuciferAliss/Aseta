@@ -5,34 +5,55 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aseta.Infrastructure.Repository;
 
-public class ItemRepository(AppDbContext context) : Repository<Item, Guid>(context), IItemRepository
+public class ItemRepository(AppDbContext context) 
+: Repository<Item>(context), IItemRepository
 {
-    public async Task<int> CountItems(Guid inventoryId)
+    public async Task<int> CountItems(
+        Guid inventoryId,
+        CancellationToken cancellationToken = default)
     {
-        return await _dbSet.CountAsync(i => i.InventoryId == inventoryId);
+        return await _dbSet.CountAsync(i => i.InventoryId == inventoryId, cancellationToken);
     }
 
-    public async Task DeleteByItemIdsAsync(List<Guid> itemIdsToRemove, Guid inventoryId)
+    public async Task DeleteByItemIdsAsync(
+        ICollection<Guid> itemIdsToRemove,
+        Guid inventoryId,
+        CancellationToken cancellationToken = default)
     {
-        await _dbSet.Where(item => item.InventoryId == inventoryId && itemIdsToRemove.Contains(item.Id)).ExecuteDeleteAsync();
+        await _dbSet.Where(item =>
+            item.InventoryId == inventoryId &&
+            itemIdsToRemove.Contains(item.Id))
+            .ExecuteDeleteAsync(cancellationToken);
     }
 
-    public async Task<List<Item>> GetByItemsInventoryIdAsync(Guid inventoryId)
+    public async Task<List<Item>> GetByItemsInventoryIdAsync(
+        Guid inventoryId,
+        CancellationToken cancellationToken = default)
     {
-        return await _dbSet.Where(i => i.InventoryId == inventoryId).ToListAsync();
+        return await _dbSet.Where(i =>
+            i.InventoryId == inventoryId)
+            .ToListAsync(cancellationToken);
     }
 
-    public Task<List<Item>> GetItemsPageAsync(Guid inventoryId, int pageNumber, int pageSize)
+    public async Task<ICollection<Item>> GetItemsPageAsync(
+        Guid inventoryId,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default)
     {
-        return _dbSet
+        return await _dbSet
             .Where(i => i.InventoryId == inventoryId)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<int> LastItemPosition(Guid inventoryId)
+    public async Task<int> LastItemPosition(
+        Guid inventoryId,
+        CancellationToken cancellationToken = default)
     {
-        return await _dbSet.CountAsync(i => i.InventoryId == inventoryId);
+        return await _dbSet.CountAsync(i =>
+            i.InventoryId == inventoryId,
+            cancellationToken);
     }
 }
