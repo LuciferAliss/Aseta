@@ -1,15 +1,12 @@
 using System.Globalization;
 using System.Security.Cryptography;
-using Aseta.Domain.Abstractions.Repository;
+using Aseta.Domain.Abstractions.Persistence;
 
 namespace Aseta.Domain.Entities.CustomId;
 
-public class RandomNumberBitRule : CustomIdRuleBase
+public record RandomNumberBitRule(int CountBits, string Format) : CustomIdRuleBase
 {
-    public int CountBits { get; set; }
-    public string Format { get; set; }
-
-    public override Task<string> Generation(IItemRepository itemRepository, Guid inventoryId)
+    public override Task<string> Generation(GenerationContext context)
     {
         if (CountBits == 32)
         {

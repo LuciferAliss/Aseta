@@ -1,4 +1,4 @@
-using Aseta.Domain.Abstractions.Messaging;
+using Aseta.Application.Abstractions.Messaging;
 using Aseta.Domain.Entities.CustomField;
 
 namespace Aseta.Application.Items.Update;
@@ -8,5 +8,4 @@ public sealed record UpdateCommand(
     string CustomId,
     ICollection<CustomFieldValue> CustomFieldsValue,
     Guid InventoryId,
-    Guid UserId
-) : ICommand;
+    Guid UserId) : ICommand;

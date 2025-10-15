@@ -8,39 +8,29 @@ namespace Aseta.Domain.Entities.Inventories;
 
 public class Inventory
 {
-    public Guid Id { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public string ImageUrl { get; set; }
-    public bool IsPublic { get; set; }
-    public ICollection<CustomFieldDefinition> CustomFields { get; set; } = [];
-    public virtual ICollection<Item> Items { get; set; } = [];
+    public Guid Id { get; private set; }
+    public string Name { get; private set; } = null!;
+    public string Description { get; private set; } = null!;
+    public string ImageUrl { get; private set; } = null!;
+    public bool IsPublic { get; private set; }
+    public ICollection<CustomFieldDefinition> CustomFields { get; private set; } = [];
+    public virtual ICollection<Item> Items { get; private set; } = [];
 
-    public int CategoryId { get; set; }
-    public virtual Category Category { get; set; } = null!;
+    public int CategoryId { get; private set; }
+    public virtual Category Category { get; private set; } = null!;
 
-    public virtual ICollection<Tag> Tags { get; set; } = [];
-    public ICollection<CustomIdRuleBase> CustomIdRules { get; set; } = [];
-    public DateTime CreatedAt { get; set; }
+    public virtual ICollection<Tag> Tags { get; private set; } = [];
+    public ICollection<CustomIdRuleBase> CustomIdRules { get; private set; } = [];
+    public DateTime CreatedAt { get; private set; }
 
-    public Guid CreatorId { get; set; }
-    public virtual UserApplication Creator { get; set; } = null!;
+    public Guid CreatorId { get; private set; }
+    public virtual UserApplication Creator { get; private set; } = null!;
 
-    public virtual ICollection<InventoryUserRole> UserRoles { get; set; } = [];
+    public virtual ICollection<InventoryUserRole> UserRoles { get; private set; } = [];
 
-    public Inventory(string name, string description, string imageUrl, bool isPublic, int categoryId, Guid creatorId)
-    {
-        Id = Guid.NewGuid();
-        Name = name;
-        Description = description;
-        ImageUrl = imageUrl;
-        IsPublic = isPublic;
-        CategoryId = categoryId;
-        CreatedAt = DateTime.UtcNow;
-        CreatorId = creatorId;
-    }
-    
-    public Inventory(Guid id, string name, string description, string imageUrl, bool isPublic, int categoryId, Guid creatorId)
+    private Inventory() { }
+
+    private Inventory(Guid id, string name, string description, string imageUrl, bool isPublic, int categoryId, Guid creatorId)
     {
         Id = id;
         Name = name;
@@ -51,6 +41,12 @@ public class Inventory
         CreatedAt = DateTime.UtcNow;
         CreatorId = creatorId;
     }
+
+    public static Inventory Create(string name, string description, string imageUrl, bool isPublic, int categoryId, Guid creatorId) =>
+        new(Guid.NewGuid(), name, description, imageUrl, isPublic, categoryId, creatorId);
+
+    public void Update(string name, string description, string imageUrl, bool isPublic) =>
+        (Name, Description, ImageUrl, IsPublic) = (name, description, imageUrl, isPublic);
 
     public void UpdateCustomFields(ICollection<CustomFieldDefinition> newFields)
     {

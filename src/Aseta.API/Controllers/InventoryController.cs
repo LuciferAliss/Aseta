@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using Aseta.Domain.Abstractions.Checkers;
+using Aseta.Application.Abstractions.Checkers;
 using Aseta.Domain.Abstractions.Services;
 using Aseta.Domain.DTO.Category;
 using Aseta.Domain.DTO.CustomField;

@@ -1,13 +1,11 @@
 using System.Security.Cryptography;
-using Aseta.Domain.Abstractions.Repository;
+using Aseta.Domain.Abstractions.Persistence;
 
 namespace Aseta.Domain.Entities.CustomId;
 
-public class RandomDigitsRule : CustomIdRuleBase
+public record RandomDigitsRule(int Length) : CustomIdRuleBase
 {
-    public int Length { get; set; }
-
-    public override Task<string> Generation(IItemRepository itemRepository, Guid inventoryId)
+    public override Task<string> Generation(GenerationContext context)
     {
         int number = (int)Math.Pow(10, Length);
         return Task.FromResult(RandomNumberGenerator.GetInt32(0, number).ToString($"D{Length}"));

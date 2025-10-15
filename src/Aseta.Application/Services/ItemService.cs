@@ -1,6 +1,6 @@
 using Aseta.Application.Items.GetItems;
-using Aseta.Domain.Abstractions;
-using Aseta.Domain.Abstractions.Repository;
+using Aseta.Domain.Abstractions.Persistence;
+using Aseta.Domain.Abstractions.Primitives;
 using Aseta.Domain.Abstractions.Services;
 using Aseta.Domain.DTO.Item;
 using Aseta.Domain.Entities.CustomField;
@@ -124,13 +124,13 @@ public class ItemService(
 
     private async Task<Result<Item>> GetItemByIdAsync(Guid itemId)
     {
-        var item = await _itemRepository.GetByIdAsync(itemId);
+        var item = await _itemRepository.FirstOrDefaultAsync(itemId);
         return item is not null ? item : ItemServiceErrors.NotFoundItem;
     }
 
     private async Task<Result<Inventory>> GetInventoryByIdAsync(Guid inventoryId)
     {
-        var inventory = await _inventoryRepository.GetByIdAsync(inventoryId);
+        var inventory = await _inventoryRepository.FirstOrDefaultAsync(inventoryId);
         return inventory is not null ? inventory : ItemServiceErrors.NotFoundInventory;
     }
 

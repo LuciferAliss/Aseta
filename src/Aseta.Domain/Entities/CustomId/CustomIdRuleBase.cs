@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using Aseta.Domain.Abstractions.Repository;
 
 namespace Aseta.Domain.Entities.CustomId;
 
@@ -9,9 +8,9 @@ namespace Aseta.Domain.Entities.CustomId;
 [JsonDerivedType(typeof(GuidRule), typeDiscriminator: "guid")]
 [JsonDerivedType(typeof(RandomDigitsRule), typeDiscriminator: "random_digits")]
 [JsonDerivedType(typeof(RandomNumberBitRule), typeDiscriminator: "random_bits")]
-public abstract class CustomIdRuleBase
+public abstract record CustomIdRuleBase
 {
-    public int Order { get; set; }
-    abstract public Task<string> Generation(IItemRepository itemRepository, Guid inventoryId);
+    public int Order { get; init; }
+    abstract public Task<string> Generation(GenerationContext context);
     abstract public bool IsValid(string value);
 }

@@ -1,5 +1,5 @@
-using Aseta.Domain.Abstractions;
-using Aseta.Domain.Abstractions.Repository;
+using Aseta.Domain.Abstractions.Persistence;
+using Aseta.Domain.Abstractions.Primitives;
 using Aseta.Domain.Abstractions.Services;
 using Aseta.Domain.DTO.User;
 using Aseta.Domain.Entities.Users;

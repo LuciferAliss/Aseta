@@ -5,7 +5,7 @@ namespace Aseta.Domain.Entities.Tags;
 public class Tag
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public virtual ICollection<Inventory> Inventories { get; private set; } = [];
 

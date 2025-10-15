@@ -1,4 +1,4 @@
-using Aseta.Domain.Abstractions.Services;
+using Aseta.Domain.Abstractions;
 using Aseta.Domain.Services.CustomId;
 using Microsoft.Extensions.DependencyInjection;
 

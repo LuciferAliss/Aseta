@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using Aseta.Domain.Abstractions.Checkers;
+using Aseta.Application.Abstractions.Checkers;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Aseta.Infrastructure.Checkers;

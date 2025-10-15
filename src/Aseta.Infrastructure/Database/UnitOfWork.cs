@@ -1,5 +1,5 @@
 using System;
-using Aseta.Domain.Abstractions;
+using Aseta.Domain.Abstractions.Persistence;
 
 namespace Aseta.Infrastructure.Database;
 

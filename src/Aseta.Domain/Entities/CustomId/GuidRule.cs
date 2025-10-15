@@ -1,13 +1,11 @@
-using Aseta.Domain.Abstractions.Repository;
+using Aseta.Domain.Abstractions.Persistence;
 
 namespace Aseta.Domain.Entities.CustomId;
 
-public class GuidRule : CustomIdRuleBase
+public record GuidRule(string Format) : CustomIdRuleBase
 {
     // GUID: "N", "D", "B", "P", "X"
-    public string Format { get; set; }
-
-    public override Task<string> Generation(IItemRepository itemRepository, Guid inventoryId)
+    public override Task<string> Generation(GenerationContext context)
     {
         return Task.FromResult(Guid.NewGuid().ToString(Format));
     }

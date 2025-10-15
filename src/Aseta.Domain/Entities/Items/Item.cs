@@ -1,4 +1,4 @@
-using Aseta.Domain.Abstractions;
+using Aseta.Domain.Abstractions.Primitives;
 using Aseta.Domain.Entities.CustomField;
 using Aseta.Domain.Entities.Inventories;
 using Aseta.Domain.Entities.Users;
@@ -27,15 +27,18 @@ public class Item
 
     private Item() { }
 
-    public Item(string customId, Guid inventoryId, ICollection<CustomFieldValue> customFieldValues, Guid creatorId)
+    private Item(Guid id, string customId, Guid inventoryId, ICollection<CustomFieldValue> customFieldValues, Guid creatorId)
     {
-        Id = Guid.NewGuid();
+        Id = id;
         CustomId = customId;
         InventoryId = inventoryId;
         CustomFieldValues = customFieldValues;
         CreatedAt = DateTime.UtcNow;
         CreatorId = creatorId;
     }
+
+    public static Item Create(string customId, Guid inventoryId, ICollection<CustomFieldValue> customFieldValues, Guid creatorId) =>
+        new(Guid.NewGuid(), customId, inventoryId, customFieldValues, creatorId);
 
     public Result Update(
         Guid updaterId,

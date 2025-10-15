@@ -1,10 +1,9 @@
-using Aseta.Domain.Abstractions;
-using Aseta.Domain.Abstractions.Messaging;
+using Aseta.Application.Abstractions.Messaging;
+using Aseta.Domain.Abstractions.Primitives;
 
 namespace Aseta.Application.Items.GetView;
 
 public sealed record GetViewItemQuery(
     Guid InventoryId,
     int PageNumber,
-    int PageSize
-) : IQuery<PaginatedResult<ItemViewResponse>>;
+    int PageSize) : IQuery<PaginatedResult<ItemResponse>>;

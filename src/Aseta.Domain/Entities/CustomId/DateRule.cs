@@ -1,12 +1,10 @@
-using Aseta.Domain.Abstractions.Repository;
+using Aseta.Domain.Abstractions.Persistence;
 
 namespace Aseta.Domain.Entities.CustomId;
 
-public class DateRule : CustomIdRuleBase
+public record DateRule(string Format) : CustomIdRuleBase
 {
-    public string Format { get; set; }
-
-    public override Task<string> Generation(IItemRepository itemRepository, Guid inventoryId)
+    public override Task<string> Generation(GenerationContext context)
     {
         return Task.FromResult(DateTime.Now.ToString(Format));
     }

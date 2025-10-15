@@ -1,10 +1,10 @@
-﻿using Aseta.Domain.Abstractions;
-using Aseta.Domain.Abstractions.Checkers;
-using Aseta.Domain.Abstractions.Repository;
-using Aseta.Domain.Entities.Inventories;
+﻿using Aseta.Application.Abstractions.Checkers;
+using Aseta.Domain.Abstractions.Persistence;
 using Aseta.Domain.Entities.Users;
+using Aseta.Domain.Enums;
 using Aseta.Infrastructure.Checkers;
 using Aseta.Infrastructure.Database;
+using Aseta.Infrastructure.InventoryRole;
 using Aseta.Infrastructure.Options;
 using Aseta.Infrastructure.Repository;
 using Aseta.Infrastructure.Requirements;
@@ -130,10 +130,10 @@ public static class DependencyInjection
     {
         services.AddAuthorization(options =>
         {
-            options.AddPolicy("CanManageInventory", policy =>
-                policy.Requirements.Add(new InventoryRoleRequirement(InventoryRoleType.Owner)));
-            options.AddPolicy("CanEditInventory", policy =>
-                policy.Requirements.Add(new InventoryRoleRequirement(InventoryRoleType.Editor)));
+            options.AddPolicy(Permission.Manage.ToString(), policy =>
+                policy.Requirements.Add(new InventoryRoleRequirement(Role.Owner)));
+            options.AddPolicy(Permission.Edit.ToString(), policy =>
+                policy.Requirements.Add(new InventoryRoleRequirement(Role.Editor)));
         });
         
         services.AddSingleton<IAuthorizationHandler, InventoryRoleHandler>();

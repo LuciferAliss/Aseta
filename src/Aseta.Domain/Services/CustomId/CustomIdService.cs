@@ -1,35 +1,45 @@
-using Aseta.Domain.Abstractions;
-using Aseta.Domain.Abstractions.Repository;
+using Aseta.Domain.Abstractions.Persistence;
+using Aseta.Domain.Abstractions.Primitives;
 using Aseta.Domain.Abstractions.Services;
 using Aseta.Domain.Entities.CustomId;
 using Aseta.Domain.Entities.Inventories;
 
 namespace Aseta.Domain.Services.CustomId;
 
-public class CustomIdService(IItemRepository itemRepository) : ICustomIdService
+public class CustomIdService() : ICustomIdService
 {
-    private readonly IItemRepository _itemRepository = itemRepository;
-
     public async Task<Result<string>> GenerateAsync(ICollection<CustomIdRuleBase> customIdRule, Guid inventoryId)
     {
         if (customIdRule.Count == 0) return Guid.NewGuid().ToString();
 
-        if (inventoryId == Guid.Empty) return Result.Failure<string>(InventoryErrors.NotFound(inventoryId));
+        if (inventoryId == Guid.Empty) return InventoryErrors.NotFound(inventoryId);
 
-        var customIdParts = await Task.WhenAll(customIdRule.Select(r => r.Generation(_itemRepository, inventoryId)));
+        var customIdParts = await Task.WhenAll(customIdRule.Select(r => r.Generation(itemRepository, inventoryId)));
         var customId = string.Join("-", customIdParts);
 
-        if (string.IsNullOrWhiteSpace(customId)) return Result.Failure<string>(CustomIdServiceErrors.CustomIdEmpty);
+        if (string.IsNullOrWhiteSpace(customId)) return CustomIdServiceErrors.CustomIdEmpty();
 
-        return Result.Success(customId); 
+        return customId;
     }
 
     public Result<bool> IsValid(string customId, ICollection<CustomIdRuleBase> customIdRule)
     {
-        if (string.IsNullOrWhiteSpace(customId)) return CustomIdServiceErrors.CustomIdEmpty;
+        if (string.IsNullOrWhiteSpace(customId))
+            return CustomIdServiceErrors.CustomIdEmpty();
 
-        if (customIdRule.Count == 0) return true;
+        if (customIdRule.Count == 0)
+            return Result.Success(true);
 
-        return customIdRule.Any(r => r.IsValid(customId));
+        var parts = customId.Split('-');
+        if (parts.Length != customIdRule.Count)
+        {
+            return CustomIdServiceErrors.TemplateMismatch();
+        }
+
+        var allPartsValid = customIdRule
+            .Zip(parts, (rule, part) => rule.IsValid(part))
+            .All(isValid => isValid);
+
+        return Result.Success(allPartsValid);
     }
 }

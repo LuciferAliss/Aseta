@@ -1,9 +1,8 @@
-using System;
 using FluentValidation;
 
 namespace Aseta.Application.Items.Update;
 
-public class UpdateCommandValidator : AbstractValidator<UpdateCommand>
+internal sealed class UpdateCommandValidator : AbstractValidator<UpdateCommand>
 {
     public UpdateCommandValidator()
     {

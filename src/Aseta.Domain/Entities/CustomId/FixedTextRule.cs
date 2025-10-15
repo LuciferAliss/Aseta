@@ -1,18 +1,16 @@
-using Aseta.Domain.Abstractions.Repository;
+using Aseta.Domain.Abstractions.Persistence;
 
 namespace Aseta.Domain.Entities.CustomId;
 
-public class FixedTextRule : CustomIdRuleBase
+public record FixedTextRule(string Text) : CustomIdRuleBase
 {
-    public string Text { get; set; }
-
-    public override Task<string> Generation(IItemRepository itemRepository, Guid inventoryId)
+    public override Task<string> Generation(GenerationContext context)
     {
         return Task.FromResult(Text);
     }
 
     public override bool IsValid(string value)
     {
-        return true;
+        return value == Text;
     }
 }

@@ -1,14 +1,26 @@
 using Aseta.Domain.Entities.Users;
+using Aseta.Domain.Enums;
 
 namespace Aseta.Domain.Entities.Inventories;
 
-public class InventoryUserRole(Guid userId, Guid inventoryId, InventoryRoleType role)
+public class InventoryUserRole
 {
-    public Guid UserId { get; private set; } = userId;
+    public Guid UserId { get; private set; }
     public virtual UserApplication User { get; private set; } = null!;
 
-    public Guid InventoryId { get; private set; } = inventoryId;
+    public Guid InventoryId { get; private set; }
     public virtual Inventory Inventory { get; private set; } = null!;
 
-    public InventoryRoleType Role { get; private set; } = role;
+    public Role Role { get; private set; }
+
+    private InventoryUserRole() { }
+
+    private InventoryUserRole(Guid userId, Guid inventoryId, Role role)
+    {
+        UserId = userId;
+        InventoryId = inventoryId;
+        Role = role;
+    }
+
+    public static InventoryUserRole Create(Guid userId, Guid inventoryId, Role role) => new(userId, inventoryId, role);
 }

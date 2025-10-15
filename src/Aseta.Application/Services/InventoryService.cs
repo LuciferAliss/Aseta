@@ -1,5 +1,5 @@
-using Aseta.Domain.Abstractions;
-using Aseta.Domain.Abstractions.Repository;
+using Aseta.Domain.Abstractions.Persistence;
+using Aseta.Domain.Abstractions.Primitives;
 using Aseta.Domain.Abstractions.Services;
 using Aseta.Domain.DTO;
 using Aseta.Domain.DTO.Category;
@@ -12,6 +12,7 @@ using Aseta.Domain.Entities.CustomId;
 using Aseta.Domain.Entities.Inventories;
 using Aseta.Domain.Entities.Tags;
 using Aseta.Domain.Entities.Users;
+using Aseta.Domain.Enums;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Identity;
@@ -94,7 +95,7 @@ public class InventoryService(
 
     public async Task RemoveInventoryAsync(Guid inventoryId)
     {
-        var inventory = await _inventoryRepository.GetByIdAsync(inventoryId)
+        var inventory = await _inventoryRepository.FirstOrDefaultAsync(inventoryId)
             ?? throw new Exception("Inventory not found");
 
         await _inventoryRepository.DeleteAsync(inventory);
@@ -111,7 +112,7 @@ public class InventoryService(
 
         await _inventoryRepository.AddAsync(inventory);
 
-        await _inventoryUserRoleRepository.AddAsync(InventoryUserRole.Create(user.Id, inventory.Id, InventoryRoleType.Owner));
+        await _inventoryUserRoleRepository.AddAsync(InventoryUserRole.Create(user.Id, inventory.Id, Role.Owner));
 
         await _unitOfWork.SaveChangesAsync();
 
@@ -154,7 +155,7 @@ public class InventoryService(
 
     public async Task UpdateCustomFieldsToInventoryAsync(UpdateCustomFieldsRequest request)
     {
-        var inventory = await _inventoryRepository.GetByIdAsync(request.InventoryId)
+        var inventory = await _inventoryRepository.FirstOrDefaultAsync(request.InventoryId)
             ?? throw new Exception("Inventory not found");
 
         var oldFieldIds = inventory.CustomFields.Select(f => f.Id).ToHashSet();
@@ -184,7 +185,7 @@ public class InventoryService(
 
     public async Task UpdateCustomIdRulePartsToInventoryAsync(UpdateCustomIdPartsRequest request, Guid inventoryId)
     {
-        var inventory = await _inventoryRepository.GetByIdAsync(inventoryId)
+        var inventory = await _inventoryRepository.FirstOrDefaultAsync(inventoryId)
             ?? throw new Exception("Inventory not found");
 
         var domainRules = _mapper.Map<List<CustomIdRuleBase>>(request.CustomIdRuleParts);
@@ -196,7 +197,7 @@ public class InventoryService(
 
     public async Task UpdateCategoryToInventoryAsync(UpdateInventoryCategoryRequest request)
     {
-        var inventory = await _inventoryRepository.GetByIdAsync(request.InventoryId)
+        var inventory = await _inventoryRepository.FirstOrDefaultAsync(request.InventoryId)
             ?? throw new Exception("Inventory not found");
 
         var category = await _categoryRepository.GetByIdAsync(request.CategoryId)
@@ -209,7 +210,7 @@ public class InventoryService(
 
     public async Task UpdateInventoryAsync(UpdateInventoryRequest request)
     {
-        var inventory = await _inventoryRepository.GetByIdAsync(request.InventoryId)
+        var inventory = await _inventoryRepository.FirstOrDefaultAsync(request.InventoryId)
             ?? throw new Exception("Inventory not found");
 
         inventory.Update(request.Name, request.Description, request.ImageUrl, request.IsPublic);

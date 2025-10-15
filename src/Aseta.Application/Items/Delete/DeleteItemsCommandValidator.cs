@@ -1,10 +1,8 @@
-using System;
 using FluentValidation;
 
 namespace Aseta.Application.Items.Delete;
 
-public class DeleteItemsCommandValidator
-: AbstractValidator<DeleteItemsCommand>
+internal sealed class DeleteItemsCommandValidator : AbstractValidator<DeleteItemsCommand>
 {
     public DeleteItemsCommandValidator()
     {

@@ -1,4 +1,4 @@
-using Aseta.Domain.Abstractions;
+using Aseta.Domain.Abstractions.Primitives;
 
 namespace Aseta.Domain.Entities.Inventories;
 

@@ -1,34 +1,43 @@
-using Aseta.Domain.Abstractions;
-using Aseta.Domain.Abstractions.Messaging;
-using Aseta.Domain.Abstractions.Repository;
+using Aseta.Application.Abstractions.Messaging;
+using Aseta.Domain.Abstractions.Persistence;
+using Aseta.Domain.Abstractions.Primitives;
 using Aseta.Domain.Abstractions.Services;
-using Aseta.Domain.Entities.CustomField;
 using Aseta.Domain.Entities.Inventories;
 using Aseta.Domain.Entities.Items;
-using AutoMapper;
-
 namespace Aseta.Application.Items.Update;
 
 internal sealed class UpdateCommandHandler(
     IItemRepository itemRepository,
     IInventoryRepository inventoryRepository,
     ICustomIdService customIdService,
-    IUnitOfWork unitOfWork
-) : ICommandHandler<UpdateCommand>
+    IUnitOfWork unitOfWork) : ICommandHandler<UpdateCommand>
 {
-    public async Task<Result> Handle(UpdateCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(
+        UpdateCommand command,
+        CancellationToken cancellationToken)
     {
-        var item = await itemRepository.GetByIdAsync(command.ItemId, cancellationToken);
-        if (item is null) return Result.Failure(ItemErrors.NotFound(command.ItemId));
+        var item = await itemRepository.FirstOrDefaultAsync(
+            i => i.Id == command.ItemId,
+            cancellationToken);
+        if (item is null)
+            return ItemErrors.NotFound(command.ItemId);
 
-        var inventory = await inventoryRepository.GetByIdAsync(item.InventoryId, cancellationToken);
-        if (inventory is null) return Result.Failure(InventoryErrors.NotFound(item.InventoryId));
+        var inventory = await inventoryRepository.FirstOrDefaultAsync(
+            i => i.Id == item.InventoryId,
+            cancellationToken);
+        if (inventory is null)
+            return InventoryErrors.NotFound(item.InventoryId);
 
-        var customIdResult = await DetermineNewCustomIdAsync(command.CustomId, item, inventory);
+        var customIdResult = await DetermineNewCustomIdAsync(
+            command.CustomId,
+            item, inventory);
         if (customIdResult.IsFailure)
             return Result.Failure(customIdResult.Error);
 
-        item.Update(command.UserId, customIdResult.Value, command.CustomFieldsValue);
+        item.Update(
+            command.UserId,
+            customIdResult.Value,
+            command.CustomFieldsValue);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

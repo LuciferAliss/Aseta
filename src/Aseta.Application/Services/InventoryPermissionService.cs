@@ -1,8 +1,8 @@
-using Aseta.Domain.Abstractions;
-using Aseta.Domain.Abstractions.Repository;
+using Aseta.Domain.Abstractions.Persistence;
 using Aseta.Domain.Abstractions.Services;
 using Aseta.Domain.Entities.Inventories;
 using Aseta.Domain.Entities.Users;
+using Aseta.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 
 namespace Aseta.Application.Services;
@@ -21,26 +21,26 @@ public class InventoryPermissionService(
 
     public async Task GrantEditorAccessAsync(Guid inventoryId, Guid userId)
     {
-        var inventory = await _inventoryRepository.GetByIdAsync(inventoryId)
+        var inventory = await _inventoryRepository.FirstOrDefaultAsync(inventoryId)
             ?? throw new Exception("Inventory not found");
 
         var user = await _userManager.FindByIdAsync(userId.ToString())
             ?? throw new Exception("User not found");
 
-        await _inventoryUserRoleRepository.AddAsync(InventoryUserRole.Create(user.Id, inventory.Id, InventoryRoleType.Editor));
+        await _inventoryUserRoleRepository.AddAsync(InventoryUserRole.Create(user.Id, inventory.Id, Role.Editor));
 
         await _unitOfWork.SaveChangesAsync();
     }
 
     public async Task RevokeEditorAccessAsync(Guid inventoryId, Guid userId)
     {
-        var inventory = await _inventoryRepository.GetByIdAsync(inventoryId)
+        var inventory = await _inventoryRepository.FirstOrDefaultAsync(inventoryId)
             ?? throw new Exception("Inventory not found");
 
         var user = await _userManager.FindByIdAsync(userId.ToString())
             ?? throw new Exception("User not found");
 
-        var userRole = await _inventoryUserRoleRepository.GetUserGrantToInventoryAsync(user.Id, inventory.Id, InventoryRoleType.Editor)
+        var userRole = await _inventoryUserRoleRepository.GetUserGrantToInventoryAsync(user.Id, inventory.Id, Role.Editor)
             ?? throw new Exception("Role not found");
 
         await _inventoryUserRoleRepository.DeleteAsync(userRole);

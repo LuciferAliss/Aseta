@@ -4,6 +4,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72
 	ProjectSection(SolutionItems) = preProject
 		Dockerfile = Dockerfile
 		docker-compose.yml = docker-compose.yml
+		GEMINI.md = GEMINI.md
+		.gitignore = .gitignore
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aseta.Domain", "src\Aseta.Domain\Aseta.Domain.csproj", "{2C756805-CE24-4E8B-BF12-62CF55C8FC54}"
