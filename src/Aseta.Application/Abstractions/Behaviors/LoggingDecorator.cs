@@ -1,4 +1,3 @@
-using System;
 using Aseta.Application.Abstractions.Messaging;
 using Aseta.Domain.Abstractions.Primitives;
 using Microsoft.Extensions.Logging;

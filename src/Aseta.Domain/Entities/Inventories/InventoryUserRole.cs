@@ -3,7 +3,7 @@ using Aseta.Domain.Enums;
 
 namespace Aseta.Domain.Entities.Inventories;
 
-public class InventoryUserRole
+public class InventoryRole
 {
     public Guid UserId { get; private set; }
     public virtual UserApplication User { get; private set; } = null!;
@@ -13,14 +13,14 @@ public class InventoryUserRole
 
     public Role Role { get; private set; }
 
-    private InventoryUserRole() { }
+    private InventoryRole() { }
 
-    private InventoryUserRole(Guid userId, Guid inventoryId, Role role)
+    private InventoryRole(Guid userId, Guid inventoryId, Role role)
     {
         UserId = userId;
         InventoryId = inventoryId;
         Role = role;
     }
 
-    public static InventoryUserRole Create(Guid userId, Guid inventoryId, Role role) => new(userId, inventoryId, role);
+    public static InventoryRole Create(Guid userId, Guid inventoryId, Role role) => new(userId, inventoryId, role);
 }

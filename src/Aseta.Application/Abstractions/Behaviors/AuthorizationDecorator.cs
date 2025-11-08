@@ -1,11 +1,8 @@
 using System.Reflection;
 using Aseta.Application.Abstractions.Authorization;
-using Aseta.Application.Abstractions.Checkers;
 using Aseta.Application.Abstractions.Messaging;
 using Aseta.Domain.Abstractions.Primitives;
 using Aseta.Domain.Entities.Users;
-using Aseta.Domain.Enums;
-using Microsoft.AspNetCore.Http;
 
 namespace Aseta.Application.Abstractions.Behaviors;
 
@@ -13,49 +10,24 @@ internal static class AuthorizationDecorator
 {
     internal sealed class CommandHandler<TCommand, TResponse>(
         ICommandHandler<TCommand, TResponse> innerHandler,
-        IHttpContextAccessor httpContextAccessor,
-        ICheckingAccessPolicy accessPolicyChecker)
+        ICurrentUserService currentUserService,
+        IPermissionChecker permissionChecker)
         : ICommandHandler<TCommand, TResponse>
         where TCommand : ICommand<TResponse>
     {
-        public async Task<Result<TResponse>> Handle(TCommand command, CancellationToken cancellationToken)
+        public async Task<Result<TResponse>> Handle(
+            TCommand command,
+            CancellationToken cancellationToken)
         {
-            var authorizeAttribute = typeof(TCommand).GetCustomAttribute<AuthorizeAttribute>();
+            var authorizationResult = await AuthorizeRequestAsync(
+                command,
+                currentUserService,
+                permissionChecker,
+                cancellationToken);
 
-            if (authorizeAttribute is null)
+            if (authorizationResult.IsFailure)
             {
-                return await innerHandler.Handle(command, cancellationToken);
-            }
-
-            var user = httpContextAccessor.HttpContext?.User;
-
-            if (user is null || !user.Identity?.IsAuthenticated == true)
-            {
-                return Result.Failure<TResponse>(UserErrors.NotFound());
-            }
-            
-            if (authorizeAttribute.Role != Role.None)
-            {
-                var userRoles = Enum.GetValues<Role>()
-                                    .Where(r => user.IsInRole(r.ToString()));
-
-                if (!userRoles.Contains(authorizeAttribute.Role))
-                {
-                    return Result.Failure<TResponse>(UserErrors.NotPermission(Guid.Empty));
-                }
-            }
-            
-            if (command is IResourceBasedRequest resourceRequest)
-            {
-                bool hasAccess = await accessPolicyChecker.CheckAsync(
-                    user,
-                    resourceRequest.ResourceId,
-                    authorizeAttribute.Permission);
-
-                if (!hasAccess)
-                {
-                    return Result.Failure<TResponse>(UserErrors.NotPermission(Guid.Empty));
-                }
+                return Result.Failure<TResponse>(authorizationResult.Error);
             }
 
             return await innerHandler.Handle(command, cancellationToken);
@@ -63,24 +35,85 @@ internal static class AuthorizationDecorator
     }
 
     internal sealed class CommandBaseHandler<TCommand>(
-        ICommandHandler<TCommand> innerHandler)
+        ICommandHandler<TCommand> innerHandler,
+        ICurrentUserService currentUserService,
+        IPermissionChecker permissionChecker)
         : ICommandHandler<TCommand>
         where TCommand : ICommand
     {
         public async Task<Result> Handle(TCommand command, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var authorizationResult = await AuthorizeRequestAsync(
+                command,
+                currentUserService,
+                permissionChecker,
+                cancellationToken);
+
+            if (authorizationResult.IsFailure)
+            {
+                return authorizationResult;
+            }
+
+            return await innerHandler.Handle(command, cancellationToken);
         }
     }
 
     internal sealed class QueryHandler<TQuery, TResponse>(
-        IQueryHandler<TQuery, TResponse> innerHandler)
+        IQueryHandler<TQuery, TResponse> innerHandler,
+        ICurrentUserService currentUserService,
+        IPermissionChecker permissionChecker)
         : IQueryHandler<TQuery, TResponse>
         where TQuery : IQuery<TResponse>
     {
-        public Task<Result<TResponse>> Handle(TQuery query, CancellationToken cancellationToken)
+        public async Task<Result<TResponse>> Handle(TQuery query, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var authorizationResult = await AuthorizeRequestAsync(
+                query,
+                currentUserService,
+                permissionChecker,
+                cancellationToken);
+
+            if (authorizationResult.IsFailure)
+            {
+                return Result.Failure<TResponse>(authorizationResult.Error);
+            }
+
+            return await innerHandler.Handle(query, cancellationToken);
         }
+    }
+
+    private static async Task<Result> AuthorizeRequestAsync<TRequest>(
+        TRequest request,
+        ICurrentUserService currentUserService,
+        IPermissionChecker permissionChecker,
+        CancellationToken cancellationToken)
+    {
+        var authorizeAttribute = typeof(TRequest).GetCustomAttribute<AuthorizeAttribute>();
+
+        if (authorizeAttribute is null)
+        {
+            return Result.Success();
+        }
+
+        if (currentUserService.UserId is null || !currentUserService.IsAuthenticated)
+        {
+            return Result.Failure(UserErrors.NotAuthenticated());
+        }
+
+        if (request is IInventoryScopedRequest inventoryScopedRequest)
+        {
+            var permissionResult = await permissionChecker.HasPermissionAsync(
+                currentUserService.UserId,
+                inventoryScopedRequest.InventoryId,
+                authorizeAttribute.Role,
+                cancellationToken);
+
+            if (permissionResult.IsFailure)
+            {
+                return Result.Failure(UserErrors.NotPermission(Guid.Empty));
+            }
+        }
+
+        return Result.Success();
     }
 }

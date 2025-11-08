@@ -1,12 +1,10 @@
-using Aseta.Domain.Abstractions.Persistence;
-
 namespace Aseta.Domain.Entities.CustomId;
 
 public record DateRule(string Format) : CustomIdRuleBase
 {
-    public override Task<string> Generation(GenerationContext context)
+    public override string Generation(GenerationContext context)
     {
-        return Task.FromResult(DateTime.Now.ToString(Format));
+        return context.GenerationTime.ToString(Format);
     }
 
     public override bool IsValid(string value)

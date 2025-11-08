@@ -8,11 +8,8 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services
-    .AddDomain()
+builder.Services.AddDomain()
     .AddInfrastructure(builder.Configuration)
-        .GetAwaiter()
-        .GetResult()
     .AddApplication()
     .AddPresentation(builder.Configuration);
 
@@ -39,13 +36,13 @@ await app.ApplyMigrations();
 
 app.UseCors("CorsPolicy");
 
-app.UseExceptionHandler();
-
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseExceptionHandler();
 
 app.MapGroup("/auth").MapIdentityApi<UserApplication>();
 

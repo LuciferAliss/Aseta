@@ -8,13 +8,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aseta.Infrastructure.Database;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<UserApplication, IdentityRole<Guid>, Guid>(options)
+public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<UserApplication>(options)
 {
     public DbSet<Inventory> Inventories { get; set; }
     public DbSet<Item> Items { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<Tag> Tags { get; set; }
-    public DbSet<InventoryUserRole> InventoryUserRoles { get; set; }
+    public DbSet<Domain.Entities.Inventories.InventoryRole> InventoryUserRoles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -1,13 +1,10 @@
-using Aseta.Domain.Abstractions.Persistence;
-
 namespace Aseta.Domain.Entities.CustomId;
 
 public record SequenceRule(int Padding) : CustomIdRuleBase
 {
-    public override async Task<string> Generation(GenerationContext context)
+    public override string Generation(GenerationContext context)
     {
-        int count = await context.ItemRepository.LastItemPosition(context.InventoryId) + 1;
-        return count.ToString($"D{Padding}");
+        return context.ItemSequence.ToString($"D{Padding}");
     }
 
     public override bool IsValid(string value)

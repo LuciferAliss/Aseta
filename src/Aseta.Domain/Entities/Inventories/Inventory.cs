@@ -26,7 +26,7 @@ public class Inventory
     public Guid CreatorId { get; private set; }
     public virtual UserApplication Creator { get; private set; } = null!;
 
-    public virtual ICollection<InventoryUserRole> UserRoles { get; private set; } = [];
+    public virtual ICollection<InventoryRole> UserRoles { get; private set; } = [];
 
     private Inventory() { }
 

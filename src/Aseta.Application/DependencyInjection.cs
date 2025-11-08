@@ -7,7 +7,23 @@ namespace Aseta.Application;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddApplication(this IServiceCollection services)
+    public static IServiceCollection AddApplication(
+        this IServiceCollection services)
+    {
+        services.AddHandlerFromAssembly()
+            .AddDecorateFromAssembly()
+            .AddAutoMapper(
+                cfg => { },
+                typeof(DependencyInjection).Assembly)
+            .AddValidatorsFromAssembly(
+                typeof(DependencyInjection).Assembly,
+                includeInternalTypes: true);
+
+        return services;
+    }
+
+    private static IServiceCollection AddHandlerFromAssembly(
+        this IServiceCollection services)
     {
         services.Scan(scan => scan.FromAssembliesOf(typeof(DependencyInjection))
             .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)), publicOnly: false)
@@ -20,21 +36,41 @@ public static class DependencyInjection
                 .AsImplementedInterfaces()
                 .WithScopedLifetime());
 
-        services.Decorate(typeof(ICommandHandler<,>), typeof(ValidationDecorator.CommandHandler<,>));
-        services.Decorate(typeof(ICommandHandler<>), typeof(ValidationDecorator.CommandBaseHandler<>));
-        services.Decorate(typeof(IQueryHandler<,>), typeof(ValidationDecorator.QueryHandler<,>));
+        return services;
+    }
+            
+    private static IServiceCollection AddDecorateFromAssembly(
+        this IServiceCollection services)
+    {
+        services.Decorate(
+            typeof(ICommandHandler<,>),
+            typeof(ValidationDecorator.CommandHandler<,>));
+        services.Decorate(
+            typeof(ICommandHandler<>),
+            typeof(ValidationDecorator.CommandBaseHandler<>));
+        services.Decorate(
+            typeof(IQueryHandler<,>),
+            typeof(ValidationDecorator.QueryHandler<,>));
 
-        services.Decorate(typeof(ICommandHandler<,>), typeof(LoggingDecorator.CommandHandler<,>));
-        services.Decorate(typeof(ICommandHandler<>), typeof(LoggingDecorator.CommandBaseHandler<>));
-        services.Decorate(typeof(IQueryHandler<,>), typeof(LoggingDecorator.QueryHandler<,>));
-        
-        services.Decorate(typeof(ICommandHandler<,>), typeof(AuthorizationDecorator.CommandHandler<,>));
-        services.Decorate(typeof(ICommandHandler<>), typeof(AuthorizationDecorator.CommandBaseHandler<>));
-        services.Decorate(typeof(IQueryHandler<,>), typeof(AuthorizationDecorator.QueryHandler<,>));
-        
-        services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, includeInternalTypes: true);
+        services.Decorate(
+            typeof(ICommandHandler<,>), 
+            typeof(LoggingDecorator.CommandHandler<,>));
+        services.Decorate(
+            typeof(ICommandHandler<>),
+            typeof(LoggingDecorator.CommandBaseHandler<>));
+        services.Decorate(
+            typeof(IQueryHandler<,>),
+            typeof(LoggingDecorator.QueryHandler<,>));
 
-        services.AddAutoMapper(cfg => { }, typeof(DependencyInjection).Assembly);
+        services.Decorate(
+            typeof(ICommandHandler<,>),
+            typeof(AuthorizationDecorator.CommandHandler<,>));
+        services.Decorate(
+            typeof(ICommandHandler<>),
+            typeof(AuthorizationDecorator.CommandBaseHandler<>));
+        services.Decorate(
+            typeof(IQueryHandler<,>),
+            typeof(AuthorizationDecorator.QueryHandler<,>));
 
         return services;
     }

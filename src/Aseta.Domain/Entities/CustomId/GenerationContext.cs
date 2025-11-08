@@ -2,8 +2,9 @@ using Aseta.Domain.Abstractions.Persistence;
 
 namespace Aseta.Domain.Entities.CustomId;
 
-public class GenerationContext(IItemRepository itemRepository, Guid inventoryId)
+public class GenerationContext(DateTime generationTime, int itemSequence)
 {
-    public Guid InventoryId { get; } = inventoryId;
-    public IItemRepository ItemRepository { get; } = itemRepository;
+
+    public DateTime GenerationTime { get; } = generationTime;
+    public int ItemSequence { get; } = itemSequence;
 }

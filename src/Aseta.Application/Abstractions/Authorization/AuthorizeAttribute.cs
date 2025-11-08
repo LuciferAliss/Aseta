@@ -5,6 +5,5 @@ namespace Aseta.Application.Abstractions.Authorization;
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public class AuthorizeAttribute : Attribute
 {
-    public Role Role { get; set; }
-    public Permission Permission { get; set; }
+    public Role Role { get; init; }
 }

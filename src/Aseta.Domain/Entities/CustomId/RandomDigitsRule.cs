@@ -1,18 +1,29 @@
 using System.Security.Cryptography;
-using Aseta.Domain.Abstractions.Persistence;
 
 namespace Aseta.Domain.Entities.CustomId;
 
-public record RandomDigitsRule(int Length) : CustomIdRuleBase
+public record RandomDigitsRule : CustomIdRuleBase
 {
-    public override Task<string> Generation(GenerationContext context)
+    public int Length { get; init; }
+
+    public RandomDigitsRule(int length)
+    {
+        if (length is 6 or 9)
+            throw new ArgumentOutOfRangeException(
+                nameof(length),
+                "Length must be between 1 and 9.");
+        
+        Length = length;
+    }
+
+    public override string Generation(GenerationContext context)
     {
         int number = (int)Math.Pow(10, Length);
-        return Task.FromResult(RandomNumberGenerator.GetInt32(0, number).ToString($"D{Length}"));
+        return RandomNumberGenerator.GetInt32(0, number).ToString($"D{Length}");
     }
 
     public override bool IsValid(string value)
     {
-        return int.TryParse(value, out _) && value.Length == Length;
+        return value.Length == Length && value.All(char.IsDigit);
     }
 }

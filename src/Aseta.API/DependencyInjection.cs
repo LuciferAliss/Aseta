@@ -1,4 +1,4 @@
-using Aseta.API.Extensions;
+using Aseta.API.Infrastructure;
 using Aseta.Infrastructure.Options;
 
 namespace Aseta.API;

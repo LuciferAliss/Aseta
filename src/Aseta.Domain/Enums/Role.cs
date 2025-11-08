@@ -3,6 +3,7 @@ namespace Aseta.Domain.Enums;
 public enum Role
 {
     None = 0,
-    Owner = 1,
-    Editor = 2
+    Editor = 1,
+    Owner = 2,
+    Admin = 3
 }

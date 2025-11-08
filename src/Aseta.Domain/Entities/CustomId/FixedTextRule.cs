@@ -1,12 +1,10 @@
-using Aseta.Domain.Abstractions.Persistence;
-
 namespace Aseta.Domain.Entities.CustomId;
 
 public record FixedTextRule(string Text) : CustomIdRuleBase
 {
-    public override Task<string> Generation(GenerationContext context)
+    public override string Generation(GenerationContext context)
     {
-        return Task.FromResult(Text);
+        return Text;
     }
 
     public override bool IsValid(string value)

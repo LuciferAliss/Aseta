@@ -1,20 +1,11 @@
-﻿using Aseta.Application.Abstractions.Checkers;
-using Aseta.Domain.Abstractions.Persistence;
 using Aseta.Domain.Entities.Users;
-using Aseta.Domain.Enums;
-using Aseta.Infrastructure.Checkers;
 using Aseta.Infrastructure.Database;
-using Aseta.Infrastructure.InventoryRole;
 using Aseta.Infrastructure.Options;
-using Aseta.Infrastructure.Repository;
-using Aseta.Infrastructure.Requirements;
 using Aseta.Infrastructure.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -23,55 +14,47 @@ namespace Aseta.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static async Task<IServiceCollection> AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        return await services
+        return services
             .AddRepositories()
             .AddAuthenticationInternal(configuration)
             .AddEmailSender(configuration)
             .ConfigureCookies()
             .AddDatabase(configuration)
-            .AddPolicies()
-            .AddCheckers()
-            .AddRoleAdmin();
+            .AddRedis(configuration);
     }
 
     private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
     {
-        DatabaseOptions options = new();
-        configuration.GetSection(DatabaseOptions.SectionName).Bind(options);
+        var connectionString = configuration.GetConnectionString("Database");
 
-        string connectionString = ConfigurationConnectionStringDb(options.Url);
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
         var dataSource = new NpgsqlDataSourceBuilder(connectionString)
             .EnableDynamicJson()
             .Build();
 
         services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(dataSource, npgsqlOptions =>
-                npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Default))
-                .UseSnakeCaseNamingConvention());
+            options.UseNpgsql(dataSource)
+            .UseSnakeCaseNamingConvention());
 
         return services;
-    }
+    } 
 
-    private static string ConfigurationConnectionStringDb(string? connUrl)
+    private static IServiceCollection AddRedis(this IServiceCollection services, IConfiguration configuration)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(connUrl);
+        var connectionString = configuration.GetConnectionString("Redis");
 
-        if (!Uri.TryCreate(connUrl, UriKind.Absolute, out var databaseUri))
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+
+        services.AddStackExchangeRedisCache(options =>
         {
-            return connUrl;
-        }
+            options.Configuration = connectionString;
+            options.InstanceName = "Aseta:";
+        });
 
-        var userInfo = databaseUri.UserInfo.Split(':');
-        var Host = databaseUri.Host;
-        var Port = databaseUri.Port;
-        var UserName = userInfo[0];
-        var Password = userInfo[1];
-        var Database = databaseUri.LocalPath.TrimStart('/');
-
-        return $"Server={Host};Port={Port};UserId={UserName};Password={Password};Database={Database};";
+        return services;
     }
 
     private static IServiceCollection ConfigureCookies(this IServiceCollection services)
@@ -126,20 +109,6 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddPolicies(this IServiceCollection services)
-    {
-        services.AddAuthorization(options =>
-        {
-            options.AddPolicy(Permission.Manage.ToString(), policy =>
-                policy.Requirements.Add(new InventoryRoleRequirement(Role.Owner)));
-            options.AddPolicy(Permission.Edit.ToString(), policy =>
-                policy.Requirements.Add(new InventoryRoleRequirement(Role.Editor)));
-        });
-        
-        services.AddSingleton<IAuthorizationHandler, InventoryRoleHandler>();
-        return services;
-    }
-
     private static IServiceCollection AddEmailSender(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<AuthMessageSenderOptions>(configuration.GetSection(AuthMessageSenderOptions.SectionName));
@@ -153,33 +122,14 @@ public static class DependencyInjection
         return services;
     }
 
-    private static async Task<IServiceCollection> AddRoleAdmin(this IServiceCollection services)
+    private static IServiceCollection AddRepositories(
+        this IServiceCollection services)
     {
-        var userManager = services.BuildServiceProvider().GetRequiredService<UserManager<UserApplication>>();
-        var roleManager = services.BuildServiceProvider().GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-        await RoleInitializer.InitializeAsync(userManager, roleManager);
-        
-        return services;
-    }
-
-    private static IServiceCollection AddCheckers(this IServiceCollection services)
-    {
-        services.AddScoped<ICheckingAccessPolicy, CheckingAccessPolicy>();
-        services.AddScoped<ICheckingLockoutUser, CheckingLockoutUser>();
-
-        return services;
-    }
-
-    private static IServiceCollection AddRepositories(this IServiceCollection services)
-    {
-        services.AddScoped<IInventoryRepository, InventoryRepository>();
-        services.AddScoped<IItemRepository, ItemRepository>();
-        services.AddScoped<IInventoryUserRoleRepository, InventoryUserRoleRepository>();
-        services.AddScoped<ICategoryRepository, CategoryRepository>();
-        services.AddScoped<ITagRepository, TagRepository>();
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-        return services;
-    }
+        return services.Scan(scan => scan.FromAssembliesOf(
+                typeof(DependencyInjection))
+            .AddClasses(classes => classes.Where(type =>
+                type.Name.EndsWith("Repository")))
+            .AsImplementedInterfaces()
+            .WithScopedLifetime());  
+    } 
 }

@@ -27,7 +27,7 @@ public class InventoryPermissionService(
         var user = await _userManager.FindByIdAsync(userId.ToString())
             ?? throw new Exception("User not found");
 
-        await _inventoryUserRoleRepository.AddAsync(InventoryUserRole.Create(user.Id, inventory.Id, Role.Editor));
+        await _inventoryUserRoleRepository.AddAsync(InventoryRole.Create(user.Id, inventory.Id, Role.Editor));
 
         await _unitOfWork.SaveChangesAsync();
     }

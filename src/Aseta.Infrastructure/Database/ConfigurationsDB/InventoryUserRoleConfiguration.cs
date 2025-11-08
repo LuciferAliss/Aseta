@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Aseta.Infrastructure.Database.ConfigurationsDB;
 
-public class InventoryUserRoleConfiguration : IEntityTypeConfiguration<InventoryUserRole>
+public class InventoryUserRoleConfiguration : IEntityTypeConfiguration<Domain.Entities.Inventories.InventoryRole>
 {
-    public void Configure(EntityTypeBuilder<InventoryUserRole> builder)
+    public void Configure(EntityTypeBuilder<Domain.Entities.Inventories.InventoryRole> builder)
     {
         builder.ToTable("InventoryUserRoles");
         builder.HasKey(i => new { i.UserId, i.InventoryId, i.Role });

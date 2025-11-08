@@ -112,7 +112,7 @@ public class InventoryService(
 
         await _inventoryRepository.AddAsync(inventory);
 
-        await _inventoryUserRoleRepository.AddAsync(InventoryUserRole.Create(user.Id, inventory.Id, Role.Owner));
+        await _inventoryUserRoleRepository.AddAsync(InventoryRole.Create(user.Id, inventory.Id, Role.Owner));
 
         await _unitOfWork.SaveChangesAsync();
 

@@ -3,10 +3,10 @@ using Aseta.Domain.Enums;
 
 namespace Aseta.Domain.Abstractions.Persistence;
 
-public interface IInventoryUserRoleRepository : IRepository<InventoryUserRole>
+public interface IInventoryUserRoleRepository : IRepository<InventoryRole>
 {
-    Task<bool> UserHasRoleAsync(
-        Guid userId,
+    Task<bool> HasUserRoleAsync(
+        string userId,
         Guid inventoryId,
         Role role,
         CancellationToken cancellationToken = default);

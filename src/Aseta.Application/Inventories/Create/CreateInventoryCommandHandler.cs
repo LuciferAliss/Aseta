@@ -26,7 +26,7 @@ internal sealed class CreateInventoryCommandHandler(
         await inventoryRepository.AddAsync(inventory, cancellationToken);
 
         await inventoryUserRoleRepository.AddAsync(
-            InventoryUserRole.Create(
+            InventoryRole.Create(
                 command.UserId,
                 inventory.Id,
                 Role.Owner), cancellationToken);
