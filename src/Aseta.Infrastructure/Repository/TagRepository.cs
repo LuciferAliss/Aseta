@@ -4,4 +4,4 @@ using Aseta.Infrastructure.Database;
 
 namespace Aseta.Infrastructure.Repository;
 
-public class TagRepository(AppDbContext context) : Repository<Tag>(context), ITagRepository;
+internal sealed class TagRepository(AppDbContext context) : Repository<Tag>(context), ITagRepository;

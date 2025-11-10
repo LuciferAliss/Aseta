@@ -18,7 +18,7 @@ internal sealed class DeleteItemsCommandHandler(IItemRepository IItemRepository)
             cancellationToken);
         if (!inventoryExists) return InventoryErrors.NotFound(command.InventoryId);
 
-        await IItemRepository.BulkDeleteAsync(
+        await IItemRepository.DeleteAsync(
             i => command.ItemIds.Contains(i.Id),
             cancellationToken);
             

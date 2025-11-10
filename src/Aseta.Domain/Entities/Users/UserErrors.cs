@@ -12,7 +12,11 @@ public class UserErrors
         "Users.NotAuthenticated",
         "User is not authenticated.");
 
-    public static Error NotPermission(Guid empty) => Error.Forbidden(
+    public static Error NotPermission(Guid inventoryId) => Error.Forbidden(
         "Users.NotPermission",
-        "");
+        $"User does not have required permission for inventory with id: {inventoryId}.");
+
+    public static Error AccountLocked(string userId) => Error.Forbidden(
+        "Users.AccountLocked",
+        $"User account with id: {userId} is locked.");
 }

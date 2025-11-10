@@ -1,3 +1,4 @@
+using Aseta.Domain.Abstractions.Primitives;
 using Aseta.Domain.Entities.CustomField;
 using Aseta.Domain.Entities.CustomId;
 using Aseta.Domain.Entities.Items;
@@ -42,11 +43,10 @@ public class Inventory
         CreatorId = creatorId;
     }
 
-    public static Inventory Create(string name, string description, string imageUrl, bool isPublic, int categoryId, Guid creatorId) =>
-        new(Guid.NewGuid(), name, description, imageUrl, isPublic, categoryId, creatorId);
-
-    public void Update(string name, string description, string imageUrl, bool isPublic) =>
-        (Name, Description, ImageUrl, IsPublic) = (name, description, imageUrl, isPublic);
+    public static Result<Inventory> Create(string name, string description, string imageUrl, bool isPublic, int categoryId, Guid creatorId)
+    {
+        return new Inventory(Guid.NewGuid(), name, description, imageUrl, isPublic, categoryId, creatorId);   
+    }
 
     public void UpdateCustomFields(ICollection<CustomFieldDefinition> newFields)
     {

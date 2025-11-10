@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Aseta.Infrastructure.Database.ConfigurationsDB;
 
-public class TagConfiguration : IEntityTypeConfiguration<Tag>
+internal sealed class TagConfiguration : IEntityTypeConfiguration<Tag>
 {
     public void Configure(EntityTypeBuilder<Tag> builder)
     {

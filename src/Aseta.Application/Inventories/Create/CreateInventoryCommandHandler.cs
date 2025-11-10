@@ -15,7 +15,7 @@ internal sealed class CreateInventoryCommandHandler(
         CreateInventoryCommand command,
         CancellationToken cancellationToken)
     {
-        var inventory = Inventory.Create(
+        var inventoryResult = Inventory.Create(
             command.Name,
             command.Description,
             command.ImageUrl,
@@ -23,16 +23,18 @@ internal sealed class CreateInventoryCommandHandler(
             command.CategoryId,
             command.UserId);
 
-        await inventoryRepository.AddAsync(inventory, cancellationToken);
+        if (inventoryResult.IsFailure) return inventoryResult.Error;
 
-        await inventoryUserRoleRepository.AddAsync(
-            InventoryRole.Create(
-                command.UserId,
-                inventory.Id,
-                Role.Owner), cancellationToken);
+        await inventoryRepository.AddAsync(inventoryResult.Value, cancellationToken);
+
+        var inventoryUserRoleResult = InventoryRole.Create(command.UserId, inventoryResult.Value.Id, Role.Owner);
+
+        if (inventoryUserRoleResult.IsFailure) return inventoryUserRoleResult.Error;
+
+        await inventoryUserRoleRepository.AddAsync(inventoryUserRoleResult.Value, cancellationToken);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new InventoryResponse(inventory.Id);
+        return new InventoryResponse(inventoryResult.Value.Id);
     }
 }

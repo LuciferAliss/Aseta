@@ -1,3 +1,4 @@
+using Aseta.Domain.Abstractions.Primitives;
 using Aseta.Domain.Entities.Users;
 using Aseta.Domain.Enums;
 
@@ -22,5 +23,8 @@ public class InventoryRole
         Role = role;
     }
 
-    public static InventoryRole Create(Guid userId, Guid inventoryId, Role role) => new(userId, inventoryId, role);
+    public static Result<InventoryRole> Create(Guid userId, Guid inventoryId, Role role)
+    {
+        return new InventoryRole(userId, inventoryId, role);
+    }
 }

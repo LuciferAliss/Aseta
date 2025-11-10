@@ -6,4 +6,8 @@ namespace Aseta.Application.Abstractions.Authorization;
 public class AuthorizeAttribute : Attribute
 {
     public Role Role { get; init; }
+
+    public AuthorizeAttribute(Role role) => Role = role;
+
+    public AuthorizeAttribute() => Role = Role.None;
 }

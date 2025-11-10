@@ -37,8 +37,10 @@ public class Item
         CreatorId = creatorId;
     }
 
-    public static Item Create(string customId, Guid inventoryId, ICollection<CustomFieldValue> customFieldValues, Guid creatorId) =>
-        new(Guid.NewGuid(), customId, inventoryId, customFieldValues, creatorId);
+    public static Result<Item> Create(string customId, Guid inventoryId, ICollection<CustomFieldValue> customFieldValues, Guid creatorId)
+    {
+        return new Item(Guid.NewGuid(), customId, inventoryId, customFieldValues, creatorId);
+    }
 
     public Result Update(
         Guid updaterId,

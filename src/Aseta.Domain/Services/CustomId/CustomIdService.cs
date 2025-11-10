@@ -1,4 +1,3 @@
-using Aseta.Domain.Abstractions.Persistence;
 using Aseta.Domain.Abstractions.Primitives;
 using Aseta.Domain.Abstractions.Services;
 using Aseta.Domain.Entities.CustomId;
@@ -6,10 +5,8 @@ using Aseta.Domain.Entities.Inventories;
 
 namespace Aseta.Domain.Services.CustomId;
 
-public class CustomIdService(IItemRepository itemRepository) : ICustomIdService
+public class CustomIdService : ICustomIdService
 {
-    private readonly IItemRepository _itemRepository = itemRepository;
-    
     public async Task<Result<string>> GenerateAsync(
         ICollection<CustomIdRuleBase> customIdRule,
         Guid inventoryId,
@@ -18,8 +15,6 @@ public class CustomIdService(IItemRepository itemRepository) : ICustomIdService
         if (customIdRule.Count == 0) return Guid.NewGuid().ToString();
 
         if (inventoryId == Guid.Empty) return InventoryErrors.NotFound(inventoryId);
-
-        
 
         var generationContext = new GenerationContext(
             DateTime.UtcNow,

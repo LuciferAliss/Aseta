@@ -4,4 +4,4 @@ using Aseta.Infrastructure.Database;
 
 namespace Aseta.Infrastructure.Repository;
 
-public class UserRepository(AppDbContext context) : Repository<UserApplication>(context), IUserRepository;
+internal sealed class UserRepository(AppDbContext context) : Repository<UserApplication>(context), IUserRepository;

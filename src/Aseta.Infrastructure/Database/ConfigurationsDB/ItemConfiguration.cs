@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Aseta.Infrastructure.Database.ConfigurationsDB;
 
-public class ItemConfiguration : IEntityTypeConfiguration<Item>
+internal sealed class ItemConfiguration : IEntityTypeConfiguration<Item>
 {
     public void Configure(EntityTypeBuilder<Item> builder)
     {

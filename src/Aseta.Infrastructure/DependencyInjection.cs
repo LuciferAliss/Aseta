@@ -18,7 +18,7 @@ public static class DependencyInjection
     {
         return services
             .AddRepositories()
-            .AddAuthenticationInternal(configuration)
+            .AddAuthenticationInternal()
             .AddEmailSender(configuration)
             .ConfigureCookies()
             .AddDatabase(configuration)
@@ -82,28 +82,13 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddAuthenticationInternal(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddAuthenticationInternal(this IServiceCollection services)
     {
-        var optionsFacebook = new FacebookOption();
-        configuration.GetSection(FacebookOption.SectionName).Bind(optionsFacebook);
-
-        if (string.IsNullOrWhiteSpace(optionsFacebook.Id) || string.IsNullOrWhiteSpace(optionsFacebook.Secret))
-        {
-            throw new ArgumentException("Null Facebook Id or Secret");
-        }
-
-        services.AddAuthentication()
-            .AddFacebook(options =>
-            {
-                options.AppId = optionsFacebook.Id;
-                options.AppSecret = optionsFacebook.Secret;
-            });
-
         services.AddIdentityApiEndpoints<UserApplication>(opts =>
         {
             opts.SignIn.RequireConfirmedEmail = true;
         })
-        .AddRoles<IdentityRole<Guid>>()
+        .AddRoles<IdentityRole>()
         .AddEntityFrameworkStores<AppDbContext>();
 
         return services;
@@ -115,6 +100,7 @@ public static class DependencyInjection
 
         var authOptions = new AuthMessageSenderOptions();
         configuration.GetSection(AuthMessageSenderOptions.SectionName).Bind(authOptions);
+        
         ArgumentException.ThrowIfNullOrWhiteSpace(authOptions.Key);
 
         services.AddTransient<IEmailSender, EmailSender>();

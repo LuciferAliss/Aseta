@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aseta.Infrastructure.Repository;
 
-public class Repository<T>(AppDbContext context) : IRepository<T> where T : class
+internal class Repository<T>(AppDbContext context) : IRepository<T> where T : class
 {
     protected readonly AppDbContext _context = context;
     protected readonly DbSet<T> _dbSet = context.Set<T>();
@@ -39,12 +39,6 @@ public class Repository<T>(AppDbContext context) : IRepository<T> where T : clas
         return await query.FirstOrDefaultAsync(predicate, cancellationToken);
     }
 
-    public Task DeleteAsync(T entity)
-    {
-        _dbSet.Remove(entity);
-        return Task.CompletedTask;
-    }
-
     public async Task AddAsync(T entity, CancellationToken cancellationToken = default)
     {
         await _dbSet.AddAsync(entity, cancellationToken);
@@ -54,9 +48,7 @@ public class Repository<T>(AppDbContext context) : IRepository<T> where T : clas
         Expression<Func<T, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
-        return await _dbSet.FirstOrDefaultAsync(
-            predicate,
-            cancellationToken: cancellationToken) is not null;
+        return await _dbSet.AnyAsync(predicate, cancellationToken);
     }
 
     private static IQueryable<T> ApplyIncludes(
@@ -67,11 +59,11 @@ public class Repository<T>(AppDbContext context) : IRepository<T> where T : clas
             current.Include(includeProperty));
     }
 
-    public Task BulkDeleteAsync(
+    public async Task<bool> DeleteAsync(
         Expression<Func<T, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
-        return _dbSet.Where(predicate).ExecuteDeleteAsync(cancellationToken);
+        return await _dbSet.Where(predicate).ExecuteDeleteAsync(cancellationToken) > 0;
     }
 
     public Task<int> CountAsync(

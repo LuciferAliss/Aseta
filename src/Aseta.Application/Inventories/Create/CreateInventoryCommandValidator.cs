@@ -7,11 +7,7 @@ internal sealed class CreateInventoryCommandValidator : AbstractValidator<Create
 {
     public CreateInventoryCommandValidator()
     {
-        RuleFor(x => x.CategoryId).NotEmpty();
-        RuleFor(x => x.Name).NotEmpty();
-        RuleFor(x => x.Description).NotEmpty();
-        RuleFor(x => x.ImageUrl).NotEmpty();
-        RuleFor(x => x.IsPublic).NotEmpty();
-        RuleFor(x => x.UserId).NotEmpty();
+        RuleFor(x => x.Name).NotEmpty().MinimumLength(3).MaximumLength(36);
+        RuleFor(x => x.Description).NotEmpty().MaximumLength(1000);
     }
 }

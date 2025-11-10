@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Aseta.Infrastructure.Database.ConfigurationsDB;
 
-public class InventoryConfiguration : IEntityTypeConfiguration<Inventory>
+internal sealed class InventoryConfiguration : IEntityTypeConfiguration<Inventory>
 {
     public void Configure(EntityTypeBuilder<Inventory> inventory)
     {

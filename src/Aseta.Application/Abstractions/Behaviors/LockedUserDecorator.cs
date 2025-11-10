@@ -1,0 +1,83 @@
+using Aseta.Application.Abstractions.Authorization;
+using Aseta.Application.Abstractions.Messaging;
+using Aseta.Domain.Abstractions.Primitives;
+using Aseta.Domain.DTO.User;
+using Aseta.Domain.Entities.Users;
+
+namespace Aseta.Application.Abstractions.Behaviors;
+
+internal static class LockedUserDecorator
+{
+    internal sealed class CommandHandler<TCommand, TResponse>(
+        ICommandHandler<TCommand, TResponse> innerHandler,
+        IUserContext currentUserService,
+        ILockedUserChecker lockedUserChecker)
+        : ICommandHandler<TCommand, TResponse>
+        where TCommand : ICommand<TResponse>
+    {
+        public async Task<Result<TResponse>> Handle(TCommand command, CancellationToken cancellationToken)
+        {
+            var lockedUserResult = await LockedUserRequestAsync(
+                currentUserService,
+                lockedUserChecker,
+                cancellationToken);
+                
+            return lockedUserResult.IsFailure 
+                ? lockedUserResult.Error 
+                : await innerHandler.Handle(command, cancellationToken);
+        }
+    }
+
+    internal sealed class CommandBaseHandler<TCommand>(
+        ICommandHandler<TCommand> innerHandler,
+        IUserContext currentUserService,
+        ILockedUserChecker lockedUserChecker)
+        : ICommandHandler<TCommand>
+        where TCommand : ICommand
+    {
+        public async Task<Result> Handle(TCommand command, CancellationToken cancellationToken)
+        {
+            var lockedUserResult = await LockedUserRequestAsync(
+                currentUserService,
+                lockedUserChecker,
+                cancellationToken);
+                
+            return lockedUserResult.IsFailure 
+                ? lockedUserResult.Error 
+                : await innerHandler.Handle(command, cancellationToken);
+        }
+    }
+
+    internal sealed class QueryHandler<TQuery, TResponse>(
+        IQueryHandler<TQuery, TResponse> innerHandler,
+        IUserContext currentUserService,
+        ILockedUserChecker lockedUserChecker)
+        : IQueryHandler<TQuery, TResponse>
+        where TQuery : IQuery<TResponse>
+    {
+        public async Task<Result<TResponse>> Handle(TQuery query, CancellationToken cancellationToken)
+        {
+            var lockedUserResult = await LockedUserRequestAsync(
+                currentUserService,
+                lockedUserChecker,
+                cancellationToken);
+                
+            return lockedUserResult.IsFailure 
+                ? lockedUserResult.Error 
+                : await innerHandler.Handle(query, cancellationToken);
+        }
+    }
+
+    private static async Task<Result> LockedUserRequestAsync(
+        IUserContext currentUserService,
+        ILockedUserChecker lockedUserChecker,
+        CancellationToken cancellationToken)
+    {
+        if (currentUserService.UserId is null || !currentUserService.IsAuthenticated) return Result.Success();
+
+        var userLocked = await lockedUserChecker.IsLockedAsync(currentUserService.UserId, cancellationToken);
+        if (userLocked) return UserErrors.AccountLocked(currentUserService.UserId);
+
+        return Result.Success();
+    }
+}   

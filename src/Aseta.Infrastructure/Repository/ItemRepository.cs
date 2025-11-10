@@ -4,4 +4,4 @@ using Aseta.Infrastructure.Database;
 
 namespace Aseta.Infrastructure.Repository;
 
-public class ItemRepository(AppDbContext context) : Repository<Item>(context), IItemRepository;
+internal sealed class ItemRepository(AppDbContext context) : Repository<Item>(context), IItemRepository;

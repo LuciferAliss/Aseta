@@ -1,17 +1,14 @@
-using System;
 using Aseta.Infrastructure.Options;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
 namespace Aseta.Infrastructure.Services;
 
-public class EmailSender(IOptions<AuthMessageSenderOptions> optionsAccessor,
-    ILogger<EmailSender> logger) : IEmailSender
+internal sealed class EmailSender(
+    IOptions<AuthMessageSenderOptions> optionsAccessor) : IEmailSender
 {
-    private readonly ILogger _logger = logger;
     private readonly AuthMessageSenderOptions _options = optionsAccessor.Value;
 
     public async Task SendEmailAsync(string toEmail, string subject, string message)
@@ -23,7 +20,7 @@ public class EmailSender(IOptions<AuthMessageSenderOptions> optionsAccessor,
         await Execute(_options.Key, subject, message, toEmail);
     }
 
-    public async Task Execute(string apiKey, string subject, string message, string toEmail)
+    private static async Task Execute(string apiKey, string subject, string message, string toEmail)
     {
         var client = new SendGridClient(apiKey);
         var msg = new SendGridMessage()
@@ -36,7 +33,6 @@ public class EmailSender(IOptions<AuthMessageSenderOptions> optionsAccessor,
         msg.AddTo(new EmailAddress(toEmail));
 
         msg.SetClickTracking(false, false);
-        var response = await client.SendEmailAsync(msg);
-        _logger.LogInformation(response.IsSuccessStatusCode ? $"Email to {toEmail} queued successfully!" : $"Failure Email to {toEmail}");
+        await client.SendEmailAsync(msg);
     }
 }
