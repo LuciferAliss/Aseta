@@ -1,4 +1,5 @@
 using Aseta.Application.Abstractions.Messaging;
+using Aseta.Application.Inventories.Get.Contracts;
 using Aseta.Domain.Abstractions.Persistence;
 using Aseta.Domain.Abstractions.Primitives;
 using Aseta.Domain.Entities.Inventories;
@@ -14,12 +15,12 @@ internal sealed class GetInventoryQueryHandler(
         GetInventoryQuery query,
         CancellationToken cancellationToken)
     {
-        var inventory = await inventoryRepository.FirstOrDefaultAsync(
-            i => i.Id == query.InventoryId,
+        var inventory = await inventoryRepository.GetByIdAsync(
+            query.InventoryId,
+            false,
             cancellationToken,
             i => i.Tags,
             i => i.UserRoles,
-            i => i.Items,
             i => i.Category,
             i => i.Creator);
             

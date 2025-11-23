@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Identity;
 namespace Aseta.Application.Services;
 
 public class AuthService(
-    UserManager<UserApplication> userManager
+    UserManager<ApplicationUser> userManager
 ) : IAuthService
 {
-    private readonly UserManager<UserApplication> _userManager = userManager;
+    private readonly UserManager<ApplicationUser> _userManager = userManager;
 
     public async Task<UserResponse> GetCurrentUserAsync(Guid userId)
     {

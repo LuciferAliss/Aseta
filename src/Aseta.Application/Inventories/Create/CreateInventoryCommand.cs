@@ -9,5 +9,5 @@ public sealed record CreateInventoryCommand(
     string Description,
     string ImageUrl,
     bool IsPublic,
-    int CategoryId,
+    Guid CategoryId,
     Guid UserId) : ICommand<InventoryResponse>;

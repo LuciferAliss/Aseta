@@ -1,8 +1,7 @@
 using Aseta.Domain.Abstractions.Persistence;
 using Aseta.Domain.Abstractions.Services;
-using Aseta.Domain.Entities.Inventories;
+using Aseta.Domain.Entities.UserRoles;
 using Aseta.Domain.Entities.Users;
-using Aseta.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 
 namespace Aseta.Application.Services;
@@ -10,13 +9,13 @@ namespace Aseta.Application.Services;
 public class InventoryPermissionService(
     IInventoryUserRoleRepository inventoryUserRoleRepository,
     IInventoryRepository inventoryRepository,
-    UserManager<UserApplication> userManager,
+    UserManager<ApplicationUser> userManager,
     IUnitOfWork unitOfWork
 ) : IInventoryPermissionService
 {
     private readonly IInventoryUserRoleRepository _inventoryUserRoleRepository = inventoryUserRoleRepository;
     private readonly IInventoryRepository _inventoryRepository = inventoryRepository;
-    private readonly UserManager<UserApplication> _userManager = userManager;
+    private readonly UserManager<ApplicationUser> _userManager = userManager;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task GrantEditorAccessAsync(Guid inventoryId, Guid userId)

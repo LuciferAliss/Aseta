@@ -8,11 +8,11 @@ using Aseta.Domain.DTO.CustomId;
 using Aseta.Domain.DTO.Inventory;
 using Aseta.Domain.DTO.Tag;
 using Aseta.Domain.Entities.CustomField;
-using Aseta.Domain.Entities.CustomId;
 using Aseta.Domain.Entities.Inventories;
+using Aseta.Domain.Entities.Inventories.CustomId;
 using Aseta.Domain.Entities.Tags;
+using Aseta.Domain.Entities.UserRoles;
 using Aseta.Domain.Entities.Users;
-using Aseta.Domain.Enums;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Identity;
@@ -26,7 +26,7 @@ public class InventoryService(
     IInventoryUserRoleRepository inventoryUserRoleRepository,
     ITagRepository tagRepository,
     ICategoryRepository categoryRepository,
-    UserManager<UserApplication> userManager,
+    UserManager<ApplicationUser> userManager,
     IUnitOfWork unitOfWork,
     IMapper mapper
 ) : IInventoryService
@@ -34,7 +34,7 @@ public class InventoryService(
     private readonly IInventoryRepository _inventoryRepository = inventoryRepository;
     private readonly IItemRepository _itemRepository = itemRepository;
     private readonly IInventoryUserRoleRepository _inventoryUserRoleRepository = inventoryUserRoleRepository;
-    private readonly UserManager<UserApplication> _userManager = userManager;
+    private readonly UserManager<ApplicationUser> _userManager = userManager;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly ITagRepository _tagRepository = tagRepository;
     private readonly ICategoryRepository _categoryRepository = categoryRepository;
@@ -50,7 +50,7 @@ public class InventoryService(
         return new CollectionResponse<CategoryResponse>(response);
     }
 
-    public async Task<PaginatedResult<ViewInventoryResponse>> GetLastInventoriesAsync(ViewLatestInventoryRequest request)
+    public async Task<PaginatedResponse<ViewInventoryResponse>> GetLastInventoriesAsync(ViewLatestInventoryRequest request)
     {
         int totalCount = await _inventoryRepository.CountAsync();
 

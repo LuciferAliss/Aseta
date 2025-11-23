@@ -84,9 +84,6 @@ internal static class AuthorizationDecorator
 
         if (currentUserService.UserId is null || !currentUserService.IsAuthenticated) return UserErrors.NotAuthenticated();
 
-        var hasAdminRole = await userRoleChecker.HasAdminRoleAsync(currentUserService.UserId, cancellationToken);
-        if (hasAdminRole) return Result.Success();
-
         if (request is IInventoryScopedRequest inventoryScopedRequest)
         {
             var hasPermission = await userRoleChecker.HasPermissionAsync(
@@ -97,10 +94,11 @@ internal static class AuthorizationDecorator
 
             if (!hasPermission)
             {
-                return Result.Failure(UserErrors.NotPermission(inventoryScopedRequest.InventoryId));
+                return UserErrors.NotPermission(inventoryScopedRequest.InventoryId);
             }
         }
 
-        return Result.Success();
+        throw new InvalidOperationException(
+            $"The request '{typeof(TRequest).Name}' has an [Authorize] attribute but does not implement the {nameof(IInventoryScopedRequest)} interface. Authorization cannot be performed.");
     }
 }

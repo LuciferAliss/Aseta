@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Aseta.Domain.Entities.CustomField;
-using Aseta.Domain.Entities.CustomId;
+using Aseta.Domain.Entities.Inventories.CustomId;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 

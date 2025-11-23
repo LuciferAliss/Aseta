@@ -1,4 +1,4 @@
-using Aseta.Domain.Entities.Inventories;
+using Aseta.Domain.Entities.UserRoles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

@@ -1,4 +1,5 @@
 using Aseta.Application.Abstractions.Messaging;
+using Aseta.Application.Inventories.Get.Contracts;
 
 namespace Aseta.Application.Inventories.Get;
 

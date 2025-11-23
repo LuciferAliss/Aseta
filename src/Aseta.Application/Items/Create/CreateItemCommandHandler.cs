@@ -17,23 +17,30 @@ internal sealed class CreateItemCommandHandler(
         CreateItemCommand command,
         CancellationToken cancellationToken)
     {
-        var inventory = await inventoryRepository.FirstOrDefaultAsync(
-            i => i.Id == command.InventoryId,
-            cancellationToken);
-        if (inventory is null) return InventoryErrors.NotFound(command.InventoryId);
+        var inventory = await inventoryRepository.GetByIdAsync(command.InventoryId, true, cancellationToken);
+        if (inventory is null)
+        {
+            return InventoryErrors.NotFound(command.InventoryId);
+        }
 
-        var customIdResult = await customIdService
-            .GenerateAsync(inventory.CustomIdRules, command.InventoryId);
-        if (customIdResult.IsFailure) return customIdResult;
+        var customIdRules = await inventoryRepository.GetCustomIdRuleAsync(
+            command.InventoryId, cancellationToken);
+        
+        var createResult = await customIdService.GenerateAsync(
+            customIdRules, command.InventoryId, cancellationToken);
+        if (createResult.IsFailure) return createResult;
 
-        var item = Item.Create(
-            customIdResult.Value,
+        var itemResult = Item.Create(
+            createResult.Value,
             command.InventoryId,
             command.CustomFieldsValue,
-            command.UserId
-        );
+            command.UserId);
+        if (itemResult.IsFailure) return itemResult.Error;
+
+        await itemRepository.AddAsync(itemResult.Value, cancellationToken);
         
-        await itemRepository.AddAsync(item, cancellationToken);
+        inventory.IncrementItemsCount();
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

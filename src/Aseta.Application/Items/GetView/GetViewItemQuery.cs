@@ -6,4 +6,4 @@ namespace Aseta.Application.Items.GetView;
 public sealed record GetViewItemQuery(
     Guid InventoryId,
     int PageNumber,
-    int PageSize) : IQuery<PaginatedResult<ItemResponse>>;
+    int PageSize) : IQuery<PaginatedResponse<ItemResponse>>;

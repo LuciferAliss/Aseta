@@ -5,27 +5,27 @@ using Aseta.Domain.Entities.Users;
 
 namespace Aseta.Domain.Entities.Items;
 
-public class Item
+public class Item : IEntity
 {
     public Guid Id { get; private set; }
-    public string CustomId { get; private set; } = string.Empty;
-
+    public string CustomId { get; private set; }
     public Guid InventoryId { get; private set; }
-    public virtual Inventory Inventory { get; private set; } = null!;
-
+    public virtual Inventory Inventory { get; private set; }
     public ICollection<CustomFieldValue> CustomFieldValues { get; private set; } = [];
-
+    public Guid CreatorId { get; private set; }
+    public virtual ApplicationUser Creator { get; private set; }
+    public Guid UpdaterId { get; private set; }
+    public virtual ApplicationUser Updater { get; private set; }
+    public DateTime UpdatedAt { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
-    public Guid CreatorId { get; private set; }
-    public virtual UserApplication Creator { get; private set; } = null!;
-
-    public DateTime UpdatedAt { get; private set; }
-
-    public Guid UpdaterId { get; private set; }
-    public virtual UserApplication Updater { get; private set; } = null!;
-
-    private Item() { }
+    private Item()
+    {
+        CustomId = null!;
+        Inventory = null!;
+        Creator = null!;
+        Updater = null!;
+    }
 
     private Item(Guid id, string customId, Guid inventoryId, ICollection<CustomFieldValue> customFieldValues, Guid creatorId)
     {
@@ -35,12 +35,13 @@ public class Item
         CustomFieldValues = customFieldValues;
         CreatedAt = DateTime.UtcNow;
         CreatorId = creatorId;
+        Inventory = null!;
+        Creator = null!;
+        Updater = null!;
     }
 
-    public static Result<Item> Create(string customId, Guid inventoryId, ICollection<CustomFieldValue> customFieldValues, Guid creatorId)
-    {
-        return new Item(Guid.NewGuid(), customId, inventoryId, customFieldValues, creatorId);
-    }
+    public static Result<Item> Create(string customId, Guid inventoryId, ICollection<CustomFieldValue> customFieldValues, Guid creatorId) 
+        => new Item(Guid.NewGuid(), customId, inventoryId, customFieldValues, creatorId);
 
     public Result Update(
         Guid updaterId,

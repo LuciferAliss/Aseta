@@ -44,7 +44,7 @@ app.UseAuthorization();
 
 app.UseExceptionHandler();
 
-app.MapGroup("/auth").MapIdentityApi<UserApplication>();
+app.MapGroup("/auth").MapIdentityApi<ApplicationUser>();
 
 app.MapControllers();
 

@@ -11,4 +11,8 @@ public class ItemErrors
     public static Error CustomIdIsRequired => Error.Conflict(
         "Items.CustomIdIsRequired",
          "Custom id is required.");
+
+    public static Error DeletionFailed() => Error.Problem(
+        "Items.DeletionFailed",
+        "The item deletion operation failed.");
 }

@@ -1,51 +1,76 @@
 using Aseta.Domain.Abstractions.Primitives;
+using Aseta.Domain.Entities.Categories;
 using Aseta.Domain.Entities.CustomField;
-using Aseta.Domain.Entities.CustomId;
+using Aseta.Domain.Entities.Inventories.CustomId;
 using Aseta.Domain.Entities.Items;
 using Aseta.Domain.Entities.Tags;
+using Aseta.Domain.Entities.UserRoles;
 using Aseta.Domain.Entities.Users;
+using NpgsqlTypes;
 
 namespace Aseta.Domain.Entities.Inventories;
 
-public class Inventory
+public class Inventory : IEntity
 {
     public Guid Id { get; private set; }
-    public string Name { get; private set; } = null!;
-    public string Description { get; private set; } = null!;
-    public string ImageUrl { get; private set; } = null!;
+    public string InventoryName { get; private set; }
+    public string Description { get; private set; }
+    public string ImageUrl { get; private set; }
     public bool IsPublic { get; private set; }
     public ICollection<CustomFieldDefinition> CustomFields { get; private set; } = [];
+    public int ItemsCount { get; private set; }
     public virtual ICollection<Item> Items { get; private set; } = [];
-
-    public int CategoryId { get; private set; }
-    public virtual Category Category { get; private set; } = null!;
-
+    public Guid CategoryId { get; private set; }
+    public virtual Category Category { get; private set; }
     public virtual ICollection<Tag> Tags { get; private set; } = [];
     public ICollection<CustomIdRuleBase> CustomIdRules { get; private set; } = [];
     public DateTime CreatedAt { get; private set; }
-
     public Guid CreatorId { get; private set; }
-    public virtual UserApplication Creator { get; private set; } = null!;
-
+    public virtual ApplicationUser Creator { get; private set; }
     public virtual ICollection<InventoryRole> UserRoles { get; private set; } = [];
+    public NpgsqlTsVector SearchVector { get; private set; }
 
-    private Inventory() { }
+    private Inventory()
+    {
+        InventoryName = null!;
+        Description = null!;
+        ImageUrl = null!;
+        Creator = null!;
+        Category = null!;
+        SearchVector = null!;
+    }
 
-    private Inventory(Guid id, string name, string description, string imageUrl, bool isPublic, int categoryId, Guid creatorId)
+    private Inventory(Guid id, string name, string description, string imageUrl, bool isPublic, Guid categoryId, Guid creatorId, DateTime date)
     {
         Id = id;
-        Name = name;
+        InventoryName = name;
         Description = description;
         ImageUrl = imageUrl;
         IsPublic = isPublic;
         CategoryId = categoryId;
-        CreatedAt = DateTime.UtcNow;
+        CreatedAt = date;
         CreatorId = creatorId;
+        ItemsCount = 0;
+        Creator = null!;
+        Category = null!;
+        SearchVector = null!;
     }
 
-    public static Result<Inventory> Create(string name, string description, string imageUrl, bool isPublic, int categoryId, Guid creatorId)
+    public static Result<Inventory> Create(string name, string description, string imageUrl, bool isPublic, Guid categoryId, Guid creatorId, DateTime date) 
+        => new Inventory(Guid.NewGuid(), name, description, imageUrl, isPublic, categoryId, creatorId, date);
+
+    public void IncrementItemsCount() => ItemsCount++;
+
+    public void DecrementItemsCount(int count = 1)
     {
-        return new Inventory(Guid.NewGuid(), name, description, imageUrl, isPublic, categoryId, creatorId);   
+        if (ItemsCount >= count)
+        {
+            ItemsCount -= count;
+        }
+        else
+        {
+            ItemsCount = 0;
+        }
     }
 
     public void UpdateCustomFields(ICollection<CustomFieldDefinition> newFields)
@@ -76,5 +101,15 @@ public class Inventory
         }
 
         CustomFields = newFields;
+    }
+
+    public Result Update(string name, string description, string imageUrl, bool isPublic)
+    {
+        InventoryName = name;
+        Description = description;
+        ImageUrl = imageUrl;
+        IsPublic = isPublic;
+
+        return Result.Success();
     }
 }

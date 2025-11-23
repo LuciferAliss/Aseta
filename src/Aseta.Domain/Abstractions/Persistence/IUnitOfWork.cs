@@ -1,6 +1,7 @@
 namespace Aseta.Domain.Abstractions.Persistence;
 
-public interface IUnitOfWork
+public interface IUnitOfWork : IAsyncDisposable
 {
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    Task<ITransactionScope> BeginTransactionScopeAsync(CancellationToken cancellationToken = default);
+    Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

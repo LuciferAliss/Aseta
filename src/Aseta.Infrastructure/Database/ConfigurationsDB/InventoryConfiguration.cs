@@ -11,7 +11,7 @@ internal sealed class InventoryConfiguration : IEntityTypeConfiguration<Inventor
         inventory.ToTable("Inventories");
         inventory.HasKey(i => i.Id);
 
-        inventory.Property(i => i.Name)
+        inventory.Property(i => i.InventoryName)
             .IsRequired()
             .HasMaxLength(200);
 
@@ -22,6 +22,9 @@ internal sealed class InventoryConfiguration : IEntityTypeConfiguration<Inventor
         inventory.Property(i => i.ImageUrl)
             .IsRequired()
             .HasMaxLength(1000);
+
+        inventory.Property(i => i.ItemsCount)
+            .IsRequired();
 
         inventory.HasMany(i => i.UserRoles)
             .WithOne(i => i.Inventory)
@@ -45,6 +48,13 @@ internal sealed class InventoryConfiguration : IEntityTypeConfiguration<Inventor
             .WithMany(i => i.Inventories)
             .HasForeignKey(i => i.CreatorId)
             .IsRequired();
+
+        inventory.HasGeneratedTsVectorColumn(
+            i => i.SearchVector, 
+            "english", 
+            i => new { i.InventoryName, i.Description, i.Category.CategoryName })
+            .HasIndex(i => i.SearchVector)
+            .HasMethod("GIN");
 
         inventory.Property(i => i.CustomFields).HasColumnType("jsonb");
 

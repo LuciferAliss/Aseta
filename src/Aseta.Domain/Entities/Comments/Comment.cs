@@ -10,7 +10,7 @@ public class Comment
     public DateTime CreatedAt { get; private set; }
 
     public Guid UserId { get; private set; }
-    public virtual UserApplication User { get; private set; }
+    public virtual ApplicationUser User { get; private set; }
 
     public Guid InventoryId { get; private set; }
     public virtual Inventory Inventory { get; private set; }

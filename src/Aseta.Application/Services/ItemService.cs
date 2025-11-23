@@ -17,14 +17,14 @@ public interface IItemService
     Task<Result> AddItemAsync(CrateItemRequest request, Guid inventoryId, Guid userId);
     Task<Result> RemoveItemsAsync(RemoveItemsRequest request, Guid inventoryId);
     Task<Result> UpdateItemAsync(UpdateItemRequest request, Guid inventoryId, Guid userId);
-    Task<Result<PaginatedResult<ItemResponse>>> GetItemAsync(ItemViewRequest request, Guid inventoryId);
+    Task<Result<PaginatedResponse<ItemResponse>>> GetItemAsync(ItemViewRequest request, Guid inventoryId);
 }
 
 
 public class ItemService(
     IItemRepository itemRepository,
     IInventoryRepository inventoryRepository,
-    UserManager<UserApplication> userManager,
+    UserManager<ApplicationUser> userManager,
     ICustomIdService customIdService,
     IUnitOfWork unitOfWork,
     IMapper mapper
@@ -32,7 +32,7 @@ public class ItemService(
 {
     private readonly IItemRepository _itemRepository = itemRepository;
     private readonly IInventoryRepository _inventoryRepository = inventoryRepository;
-    private readonly UserManager<UserApplication> _userManager = userManager;
+    private readonly UserManager<ApplicationUser> _userManager = userManager;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly ICustomIdService _customIdService = customIdService;
     private readonly IMapper _mapper = mapper;
@@ -89,7 +89,7 @@ public class ItemService(
         return Result.Success();
     }
 
-    public async Task<Result<PaginatedResult<ItemResponse>>> GetItemAsync(
+    public async Task<Result<PaginatedResponse<ItemResponse>>> GetItemAsync(
         ItemViewRequest request,
         Guid inventoryId
     )
@@ -116,7 +116,7 @@ public class ItemService(
         );
     }
 
-    private async Task<Result<UserApplication>> GetUserByIdAsync(Guid userId)
+    private async Task<Result<ApplicationUser>> GetUserByIdAsync(Guid userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         return user is not null ? user : ItemServiceErrors.NotFoundUser;

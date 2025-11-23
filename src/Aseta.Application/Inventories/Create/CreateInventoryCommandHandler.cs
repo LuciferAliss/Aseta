@@ -2,7 +2,7 @@ using Aseta.Application.Abstractions.Messaging;
 using Aseta.Domain.Abstractions.Persistence;
 using Aseta.Domain.Abstractions.Primitives;
 using Aseta.Domain.Entities.Inventories;
-using Aseta.Domain.Enums;
+using Aseta.Domain.Entities.UserRoles;
 
 namespace Aseta.Application.Inventories.Create;
 
@@ -21,7 +21,8 @@ internal sealed class CreateInventoryCommandHandler(
             command.ImageUrl,
             command.IsPublic,
             command.CategoryId,
-            command.UserId);
+            command.UserId,
+            DateTime.UtcNow);
 
         if (inventoryResult.IsFailure) return inventoryResult.Error;
 

@@ -1,9 +1,8 @@
-using Aseta.Domain.Entities.Inventories;
-using Aseta.Domain.Enums;
+using Aseta.Domain.Entities.UserRoles;
 
 namespace Aseta.Domain.Abstractions.Persistence;
 
 public interface IInventoryUserRoleRepository : IRepository<InventoryRole>
 {
-    Task<bool> HasUserRoleAsync(string userId, Guid inventoryId, Role role, CancellationToken cancellationToken = default);
+    Task<Role> GetUserRoleInInventory(string userId, Guid inventoryI, CancellationToken cancellationToken = default);
 }

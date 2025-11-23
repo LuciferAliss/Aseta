@@ -10,12 +10,12 @@ using Microsoft.EntityFrameworkCore;
 namespace Aseta.Application.Services;
 
 public class AdminService(
-    UserManager<UserApplication> userManager,
+    UserManager<ApplicationUser> userManager,
     IUserRepository userRepository,
     IMapper mapper
 ) : IAdminService
 {
-    private readonly UserManager<UserApplication> _userManager = userManager;
+    private readonly UserManager<ApplicationUser> _userManager = userManager;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IMapper _mapper = mapper;
 
@@ -30,7 +30,7 @@ public class AdminService(
         await _userManager.SetLockoutEndDateAsync(user, DateTime.UtcNow.AddYears(100));
     }
 
-    public async Task<PaginatedResult<UserAdminViewResponse>> GetUsersAsync(int pageNumber, int pageSize)
+    public async Task<PaginatedResponse<UserAdminViewResponse>> GetUsersAsync(int pageNumber, int pageSize)
     {
         var totalCount = await _userManager.Users.CountAsync();
 

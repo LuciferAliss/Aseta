@@ -17,23 +17,22 @@ internal sealed class UpdateCommandHandler(
         UpdateCommand command,
         CancellationToken cancellationToken)
     {
-        var item = await itemRepository.FirstOrDefaultAsync(
-            i => i.Id == command.ItemId,
+        var item = await itemRepository.GetByIdAsync(
+            command.ItemId,
+            true,
             cancellationToken);
-        if (item is null)
-            return ItemErrors.NotFound(command.ItemId);
+        if (item is null) return ItemErrors.NotFound(command.ItemId);
 
-        var inventory = await inventoryRepository.FirstOrDefaultAsync(
-            i => i.Id == item.InventoryId,
+        var inventory = await inventoryRepository.GetByIdAsync(
+            command.InventoryId,
+            false,
             cancellationToken);
-        if (inventory is null)
-            return InventoryErrors.NotFound(item.InventoryId);
+        if (inventory is null) return InventoryErrors.NotFound(command.InventoryId);
 
         var customIdResult = await DetermineNewCustomIdAsync(
             command.CustomId,
             item, inventory);
-        if (customIdResult.IsFailure)
-            return Result.Failure(customIdResult.Error);
+        if (customIdResult.IsFailure) return Result.Failure(customIdResult.Error);
 
         item.Update(
             command.UserId,
@@ -67,8 +66,9 @@ internal sealed class UpdateCommandHandler(
         }
         else
         {
-            return await customIdService
-                .GenerateAsync(inventory.CustomIdRules, currentItem.InventoryId);
+            return await customIdService.GenerateAsync(
+                inventory.CustomIdRules,
+                currentItem.InventoryId);
         }
     }
 }

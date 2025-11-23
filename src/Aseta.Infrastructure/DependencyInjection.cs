@@ -1,3 +1,4 @@
+using Aseta.Application.Abstractions.Services;
 using Aseta.Domain.Entities.Users;
 using Aseta.Infrastructure.Database;
 using Aseta.Infrastructure.Options;
@@ -54,6 +55,8 @@ public static class DependencyInjection
             options.InstanceName = "Aseta:";
         });
 
+        services.AddScoped<ICacheService, CacheService>();
+
         return services;
     }
 
@@ -84,12 +87,16 @@ public static class DependencyInjection
 
     private static IServiceCollection AddAuthenticationInternal(this IServiceCollection services)
     {
-        services.AddIdentityApiEndpoints<UserApplication>(opts =>
-        {
-            opts.SignIn.RequireConfirmedEmail = true;
-        })
-        .AddRoles<IdentityRole>()
-        .AddEntityFrameworkStores<AppDbContext>();
+        services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
+            .AddEntityFrameworkStores<AppDbContext>()
+            .AddDefaultTokenProviders();
+
+        // services.AddIdentityApiEndpoints<ApplicationUser>(opts =>
+        // {
+        //     opts.SignIn.RequireConfirmedEmail = true;
+        // })
+        // .AddRoles<IdentityRole>()
+        // .AddEntityFrameworkStores<AppDbContext>();
 
         return services;
     }

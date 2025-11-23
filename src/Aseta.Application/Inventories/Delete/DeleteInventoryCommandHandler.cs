@@ -13,15 +13,13 @@ internal sealed class DeleteInventoryCommandHandler(
         DeleteInventoryCommand command,
         CancellationToken cancellationToken)
     {
-        var inventory = await inventoryRepository.FirstOrDefaultAsync(
-            i => i.Id == command.InventoryId,
-            cancellationToken);
-        if (inventory is null) return InventoryErrors.NotFound(command.InventoryId);
+        await using var transaction = await unitOfWork.BeginTransactionScopeAsync(cancellationToken);
+        
+        int deletedCount = await inventoryRepository.RemoveAsync(i =>
+            i.Id == command.InventoryId, cancellationToken);
+        if (deletedCount == 0) return InventoryErrors.NotFound(command.InventoryId);
 
-        await inventoryRepository.DeleteAsync(inventory);
-
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-
+        await transaction.CommitAsync(cancellationToken);
         return Result.Success();
     }
 }

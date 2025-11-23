@@ -1,4 +1,4 @@
-using Aseta.Domain.Entities.Inventories;
+using Aseta.Domain.Entities.Categories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -11,10 +11,10 @@ internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.ToTable("Categories");
         builder.HasKey(i => i.Id);
 
-        builder.Property(i => i.Name)
+        builder.Property(i => i.CategoryName)
             .IsRequired()
             .HasMaxLength(100);
 
-        builder.HasIndex(i => i.Name).IsUnique();
+        builder.HasIndex(i => i.CategoryName).IsUnique();
     }
 }

@@ -9,10 +9,10 @@ namespace Aseta.API.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class AuthController(IAuthService authService, SignInManager<UserApplication> signInManager) : ControllerBase
+public class AuthController(IAuthService authService, SignInManager<ApplicationUser> signInManager) : ControllerBase
 {
     private readonly IAuthService _authService = authService;
-    private readonly SignInManager<UserApplication> _signInManager = signInManager;
+    private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
 
     [HttpGet("pingauth")]
     [Authorize]

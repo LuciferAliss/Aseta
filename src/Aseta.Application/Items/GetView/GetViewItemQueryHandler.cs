@@ -9,9 +9,9 @@ namespace Aseta.Application.Items.GetView;
 internal sealed class GetViewItemQueryHandler(
     IInventoryRepository inventoryRepository,
     IItemRepository itemRepository,
-    IMapper mapper) : IQueryHandler<GetViewItemQuery, PaginatedResult<ItemResponse>>
+    IMapper mapper) : IQueryHandler<GetViewItemQuery, PaginatedResponse<ItemResponse>>
 {
-    public async Task<Result<PaginatedResult<ItemResponse>>> Handle(
+    public async Task<Result<PaginatedResponse<ItemResponse>>> Handle(
         GetViewItemQuery query,
         CancellationToken cancellationToken)
     {
@@ -34,7 +34,7 @@ internal sealed class GetViewItemQueryHandler(
             i => i.InventoryId == query.InventoryId,
             cancellationToken);
 
-        return PaginatedResult<ItemResponse>.Create(
+        return PaginatedResponse<ItemResponse>.Create(
             itemsResponse,
             query.PageNumber,
             query.PageSize,

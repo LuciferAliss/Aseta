@@ -1,24 +1,26 @@
+using Aseta.Domain.Abstractions.Persistence;
 using Aseta.Domain.Abstractions.Primitives;
 using Aseta.Domain.Abstractions.Services;
-using Aseta.Domain.Entities.CustomId;
-using Aseta.Domain.Entities.Inventories;
+using Aseta.Domain.Entities.Inventories.CustomId;
 
 namespace Aseta.Domain.Services.CustomId;
 
-public class CustomIdService : ICustomIdService
+public class CustomIdService(IItemRepository itemRepository) : ICustomIdService
 {
     public async Task<Result<string>> GenerateAsync(
-        ICollection<CustomIdRuleBase> customIdRule,
         Guid inventoryId,
+        Guid itemId,
+        ICollection<CustomIdRuleBase> customIdRule,
         CancellationToken cancellationToken = default)
     {
         if (customIdRule.Count == 0) return Guid.NewGuid().ToString();
 
-        if (inventoryId == Guid.Empty) return InventoryErrors.NotFound(inventoryId);
+        var itemSequence = await itemRepository.GetItemSequenceNumberAsync(itemId, inventoryId, cancellationToken);
 
-        var generationContext = new GenerationContext(
-            DateTime.UtcNow,
-            0);
+        var generationContext = new GenerationContext()
+        {
+            ItemSequence = itemSequence
+        };
 
         var customIdParts = customIdRule.Select(r => r.Generation(generationContext));
         var customId = string.Join("-", customIdParts);
