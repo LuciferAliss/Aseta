@@ -1,13 +1,12 @@
-using Aseta.Domain.Abstractions.Primitives;
-using Aseta.Domain.Entities.CustomField;
+using Aseta.Domain.Abstractions.Primitives.Entities;
 using Aseta.Domain.Entities.Inventories;
+using Aseta.Domain.Entities.Inventories.CustomField;
 using Aseta.Domain.Entities.Users;
 
 namespace Aseta.Domain.Entities.Items;
 
-public class Item : IEntity
+public class Item : Entity
 {
-    public Guid Id { get; private set; }
     public string CustomId { get; private set; }
     public Guid InventoryId { get; private set; }
     public virtual Inventory Inventory { get; private set; }
@@ -27,9 +26,8 @@ public class Item : IEntity
         Updater = null!;
     }
 
-    private Item(Guid id, string customId, Guid inventoryId, ICollection<CustomFieldValue> customFieldValues, Guid creatorId)
+    private Item(Guid id, string customId, Guid inventoryId, ICollection<CustomFieldValue> customFieldValues, Guid creatorId) : base(id)
     {
-        Id = id;
         CustomId = customId;
         InventoryId = inventoryId;
         CustomFieldValues = customFieldValues;
@@ -40,24 +38,22 @@ public class Item : IEntity
         Updater = null!;
     }
 
-    public static Result<Item> Create(string customId, Guid inventoryId, ICollection<CustomFieldValue> customFieldValues, Guid creatorId) 
-        => new Item(Guid.NewGuid(), customId, inventoryId, customFieldValues, creatorId);
+    public static Item Create(string customId, Guid inventoryId, ICollection<CustomFieldValue> customFieldValues, Guid creatorId) 
+        => new(Guid.NewGuid(), customId, inventoryId, customFieldValues, creatorId);
 
-    public Result Update(
+    public void Update(
         Guid updaterId,
         string newCustomId,
         ICollection<CustomFieldValue> newCustomFieldValues)
     {
         if (string.IsNullOrWhiteSpace(newCustomId))
         {
-            return Result.Failure(ItemErrors.CustomIdIsRequired);
+            throw new ArgumentException("CustomId cannot be null or whitespace.", nameof(newCustomId));
         }
 
         UpdaterId = updaterId;
         UpdatedAt = DateTime.UtcNow;
         CustomId = newCustomId;
         CustomFieldValues = newCustomFieldValues;
-
-        return Result.Success();
     }
 }

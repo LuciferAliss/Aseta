@@ -1,21 +1,19 @@
 using Aseta.Application.Abstractions.Messaging;
 using Aseta.Domain.Abstractions.Persistence;
-using Aseta.Domain.Abstractions.Primitives;
+using Aseta.Domain.Abstractions.Primitives.Results;
 using Aseta.Domain.Entities.Inventories;
-using Aseta.Domain.Entities.UserRoles;
 
 namespace Aseta.Application.Inventories.Create;
 
 internal sealed class CreateInventoryCommandHandler(
     IInventoryRepository inventoryRepository,
-    IInventoryUserRoleRepository inventoryUserRoleRepository,
     IUnitOfWork unitOfWork) : ICommandHandler<CreateInventoryCommand, InventoryResponse>
 {
     public async Task<Result<InventoryResponse>> Handle(
         CreateInventoryCommand command,
         CancellationToken cancellationToken)
     {
-        var inventoryResult = Inventory.Create(
+        var inventory = Inventory.Create(
             command.Name,
             command.Description,
             command.ImageUrl,
@@ -24,18 +22,10 @@ internal sealed class CreateInventoryCommandHandler(
             command.UserId,
             DateTime.UtcNow);
 
-        if (inventoryResult.IsFailure) return inventoryResult.Error;
-
-        await inventoryRepository.AddAsync(inventoryResult.Value, cancellationToken);
-
-        var inventoryUserRoleResult = InventoryRole.Create(command.UserId, inventoryResult.Value.Id, Role.Owner);
-
-        if (inventoryUserRoleResult.IsFailure) return inventoryUserRoleResult.Error;
-
-        await inventoryUserRoleRepository.AddAsync(inventoryUserRoleResult.Value, cancellationToken);
+        await inventoryRepository.AddAsync(inventory, cancellationToken);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new InventoryResponse(inventoryResult.Value.Id);
+        return new InventoryResponse(inventory.Id);
     }
 }

@@ -1,6 +1,6 @@
 using Aseta.Domain.Abstractions.Primitives;
 
-namespace Aseta.Domain.Entities.CustomField;
+namespace Aseta.Domain.Entities.Inventories.CustomField;
 
 public class CustomFieldDefinition
 {
@@ -15,5 +15,5 @@ public class CustomFieldDefinition
         Type = type;
     }
 
-    public static Result<CustomFieldDefinition> Create(string name, CustomFieldType type) => new CustomFieldDefinition(name, type);
+    public static CustomFieldDefinition Create(string name, CustomFieldType type) => new(name, type);
 }

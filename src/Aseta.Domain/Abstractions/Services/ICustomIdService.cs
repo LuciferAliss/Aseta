@@ -1,4 +1,4 @@
-using Aseta.Domain.Abstractions.Primitives;
+using Aseta.Domain.Abstractions.Primitives.Results;
 using Aseta.Domain.Entities.Inventories.CustomId;
 
 namespace Aseta.Domain.Abstractions.Services;

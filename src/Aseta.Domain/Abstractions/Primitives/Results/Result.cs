@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
+using Aseta.Domain.Abstractions.Primitives.Errors;
 
-namespace Aseta.Domain.Abstractions.Primitives;
+namespace Aseta.Domain.Abstractions.Primitives.Results;
 
 public class Result
 {

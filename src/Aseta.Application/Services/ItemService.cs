@@ -1,10 +1,10 @@
 using Aseta.Application.Items.GetItems;
 using Aseta.Domain.Abstractions.Persistence;
-using Aseta.Domain.Abstractions.Primitives;
+using Aseta.Domain.Abstractions.Primitives.Results;
 using Aseta.Domain.Abstractions.Services;
 using Aseta.Domain.DTO.Item;
-using Aseta.Domain.Entities.CustomField;
 using Aseta.Domain.Entities.Inventories;
+using Aseta.Domain.Entities.Inventories.CustomField;
 using Aseta.Domain.Entities.Items;
 using Aseta.Domain.Entities.Users;
 using AutoMapper;

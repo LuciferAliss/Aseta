@@ -1,7 +1,7 @@
 using Aseta.Application.Abstractions.Messaging;
 using Aseta.Application.Inventories.Get.Contracts;
 using Aseta.Domain.Abstractions.Persistence;
-using Aseta.Domain.Abstractions.Primitives;
+using Aseta.Domain.Abstractions.Primitives.Results;
 using Aseta.Domain.Entities.Inventories;
 using AutoMapper;
 

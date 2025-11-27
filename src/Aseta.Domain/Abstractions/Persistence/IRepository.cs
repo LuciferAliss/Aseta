@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using Aseta.Domain.Abstractions.Primitives;
+using Aseta.Domain.Abstractions.Primitives.Entities;
 
 namespace Aseta.Domain.Abstractions.Persistence;
 

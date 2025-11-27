@@ -1,4 +1,4 @@
-using Aseta.Domain.Abstractions.Primitives;
+using Aseta.Domain.Abstractions.Primitives.Pagination;
 using Aseta.Domain.Entities.Inventories;
 
 namespace Aseta.Application.Inventories.GetPaginated;

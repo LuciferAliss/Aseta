@@ -1,4 +1,4 @@
-using Aseta.Domain.Abstractions.Primitives;
+using Aseta.Domain.Abstractions.Primitives.Results;
 
 namespace Aseta.Application.Abstractions.Messaging;
 

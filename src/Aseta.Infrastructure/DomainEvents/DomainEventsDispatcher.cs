@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Concurrent;
-using Aseta.Domain.Abstractions.Primitives;
+using Aseta.Domain.Abstractions.Primitives.Events;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Aseta.Infrastructure.DomainEvents;
 
-internal sealed class DomainEventsDispatcher(IServiceProvider serviceProvider) : IDomainEventsDispatcher
+internal sealed class DomainEventsDispatcher(IServiceScopeFactory serviceProvider) : IDomainEventsDispatcher
 {
     private static readonly ConcurrentDictionary<Type, Type> HandlerTypeDictionary = new();
     private static readonly ConcurrentDictionary<Type, Type> WrapperTypeDictionary = new();

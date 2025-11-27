@@ -1,4 +1,4 @@
-namespace Aseta.Domain.Entities.CustomField;
+namespace Aseta.Domain.Entities.Inventories.CustomField;
 
 public enum CustomFieldType
 {

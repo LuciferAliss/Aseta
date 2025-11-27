@@ -1,4 +1,6 @@
-namespace Aseta.Domain.Abstractions.Primitives;
+using Aseta.Domain.Abstractions.Primitives.Results;
+
+namespace Aseta.Domain.Abstractions.Primitives.Errors;
 
 public sealed record ValidationError : Error
 {

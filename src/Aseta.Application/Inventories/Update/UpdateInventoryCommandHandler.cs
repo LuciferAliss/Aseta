@@ -1,6 +1,6 @@
 using Aseta.Application.Abstractions.Messaging;
 using Aseta.Domain.Abstractions.Persistence;
-using Aseta.Domain.Abstractions.Primitives;
+using Aseta.Domain.Abstractions.Primitives.Results;
 using Aseta.Domain.Entities.Inventories;
 
 namespace Aseta.Application.Inventories.Update;
@@ -19,13 +19,12 @@ internal sealed class UpdateInventoryCommandHandler(
             cancellationToken);
         if (inventory is null) return InventoryErrors.NotFound(command.InventoryId);
 
-        var updateResult = inventory.Update(
+        inventory.Update(
             command.Name,
             command.Description,
             command.ImageUrl,
             command.IsPublic);
-        if (updateResult.IsFailure) return updateResult.Error;
-
+        
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

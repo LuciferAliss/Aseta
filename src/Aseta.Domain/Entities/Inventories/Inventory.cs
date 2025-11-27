@@ -1,6 +1,6 @@
-using Aseta.Domain.Abstractions.Primitives;
+using Aseta.Domain.Abstractions.Primitives.Entities;
 using Aseta.Domain.Entities.Categories;
-using Aseta.Domain.Entities.CustomField;
+using Aseta.Domain.Entities.Inventories.CustomField;
 using Aseta.Domain.Entities.Inventories.CustomId;
 using Aseta.Domain.Entities.Items;
 using Aseta.Domain.Entities.Tags;
@@ -10,9 +10,8 @@ using NpgsqlTypes;
 
 namespace Aseta.Domain.Entities.Inventories;
 
-public class Inventory : IEntity
+public class Inventory : Entity
 {
-    public Guid Id { get; private set; }
     public string InventoryName { get; private set; }
     public string Description { get; private set; }
     public string ImageUrl { get; private set; }
@@ -40,9 +39,8 @@ public class Inventory : IEntity
         SearchVector = null!;
     }
 
-    private Inventory(Guid id, string name, string description, string imageUrl, bool isPublic, Guid categoryId, Guid creatorId, DateTime date)
+    private Inventory(Guid id, string name, string description, string imageUrl, bool isPublic, Guid categoryId, Guid creatorId, DateTime date) : base(id)
     {
-        Id = id;
         InventoryName = name;
         Description = description;
         ImageUrl = imageUrl;
@@ -56,8 +54,14 @@ public class Inventory : IEntity
         SearchVector = null!;
     }
 
-    public static Result<Inventory> Create(string name, string description, string imageUrl, bool isPublic, Guid categoryId, Guid creatorId, DateTime date) 
-        => new Inventory(Guid.NewGuid(), name, description, imageUrl, isPublic, categoryId, creatorId, date);
+    public static Inventory Create(string name, string description, string imageUrl, bool isPublic, Guid categoryId, Guid creatorId, DateTime date)
+    {
+        var inventory = new Inventory(Guid.NewGuid(), name, description, imageUrl, isPublic, categoryId, creatorId, date);
+
+        inventory.Raise(new CreateInventoryDomainEvent(inventory.Id, creatorId));
+
+        return inventory;
+    }
 
     public void IncrementItemsCount() => ItemsCount++;
 
@@ -103,13 +107,11 @@ public class Inventory : IEntity
         CustomFields = newFields;
     }
 
-    public Result Update(string name, string description, string imageUrl, bool isPublic)
+    public void Update(string name, string description, string imageUrl, bool isPublic)
     {
         InventoryName = name;
         Description = description;
         ImageUrl = imageUrl;
         IsPublic = isPublic;
-
-        return Result.Success();
     }
 }

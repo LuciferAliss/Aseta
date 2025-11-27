@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 using Aseta.Domain.Abstractions.Persistence;
-using Aseta.Domain.Abstractions.Primitives;
+using Aseta.Domain.Abstractions.Primitives.Entities;
 using Aseta.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 

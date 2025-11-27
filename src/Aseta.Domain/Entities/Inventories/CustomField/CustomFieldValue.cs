@@ -1,6 +1,4 @@
-using Aseta.Domain.Abstractions.Primitives;
-
-namespace Aseta.Domain.Entities.CustomField;
+namespace Aseta.Domain.Entities.Inventories.CustomField;
 
 public class CustomFieldValue
 {
@@ -15,5 +13,5 @@ public class CustomFieldValue
         Value = value;
     }
 
-    public static Result<CustomFieldValue> Create(Guid fieldId, string? value) => new CustomFieldValue(fieldId, value);
+    public static CustomFieldValue Create(Guid fieldId, string? value) => new(fieldId, value);
 }

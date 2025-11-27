@@ -1,5 +1,6 @@
 using Aseta.Application.Abstractions.Messaging;
-using Aseta.Domain.Abstractions.Primitives;
+using Aseta.Domain.Abstractions.Primitives.Events;
+using Aseta.Domain.Abstractions.Primitives.Results;
 using Microsoft.Extensions.Logging;
 using Serilog.Context;
 
@@ -90,6 +91,36 @@ internal static class LoggingDecorator
                 using (LogContext.PushProperty("Error", result.Error, true))
                 {
                     logger.LogError("Completed query {Query} with error", queryName);
+                }
+            }
+
+            return result;
+        }
+    }
+
+    internal sealed class DomainEventHandler<TDomainEvent>(
+        IDomainEventHandler<TDomainEvent> innerHandler,
+        ILogger<DomainEventHandler<TDomainEvent>> logger) 
+        : IDomainEventHandler<TDomainEvent> 
+        where TDomainEvent : IDomainEvent
+    {
+        public async Task<Result> Handle(TDomainEvent domainEvent, CancellationToken cancellationToken)
+        {
+            string domainEventName = typeof(TDomainEvent).Name;
+
+            logger.LogInformation("Processing domain event {DomainEvent}", domainEventName);
+
+            Result result = await innerHandler.Handle(domainEvent, cancellationToken);
+
+            if (result.IsSuccess)
+            {
+                logger.LogInformation("Completed domain event {DomainEvent}", domainEventName);
+            }
+            else
+            {
+                using (LogContext.PushProperty("Error", result.Error, true))
+                {
+                    logger.LogError("Completed domain event {DomainEvent} with error", domainEventName);
                 }
             }
 

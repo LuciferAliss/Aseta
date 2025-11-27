@@ -1,4 +1,4 @@
-namespace Aseta.Domain.Abstractions.Primitives;
+namespace Aseta.Domain.Abstractions.Primitives.Errors;
 
 public enum ErrorType
 {

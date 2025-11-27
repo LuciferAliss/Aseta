@@ -1,19 +1,17 @@
-using Aseta.Domain.Abstractions.Primitives;
+using Aseta.Domain.Abstractions.Primitives.Entities;
 using Aseta.Domain.Entities.Inventories;
 
 namespace Aseta.Domain.Entities.Categories;
 
-public class Category : IEntity
+public class Category : Entity
 {
-    public Guid Id { get; private set; }
     public string CategoryName { get; private set; }
     public virtual ICollection<Inventory> Inventories { get; private set; } = [];
 
-    private Category(string name)
+    private Category(Guid id, string name) : base(id)
     {
-        Id = Guid.NewGuid();
         CategoryName = name;
     }
 
-    public static Result<Category> Create(string name) => new Category(name);
+    public static Category Create(string name) => new(Guid.NewGuid(), name);
 }

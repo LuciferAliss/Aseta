@@ -1,5 +1,4 @@
-namespace Aseta.Domain.Abstractions.Primitives;
-
+namespace Aseta.Domain.Abstractions.Primitives.Errors;
 public record Error
 {
     public string Code { get; }

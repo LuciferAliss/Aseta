@@ -1,11 +1,10 @@
-using Aseta.Domain.Abstractions.Primitives;
+using Aseta.Domain.Abstractions.Primitives.Entities;
 using Aseta.Domain.Entities.Inventories;
 
 namespace Aseta.Domain.Entities.Tags;
 
-public class Tag : IEntity
+public class Tag : Entity
 {
-    public Guid Id { get; private set; }
     public string Name { get; private set; }
     public virtual ICollection<Inventory> Inventories { get; private set; } = [];
     
@@ -14,11 +13,10 @@ public class Tag : IEntity
         Name = null!;
     }
 
-    private Tag(string name)
+    private Tag(Guid id, string name) : base(id)
     {
-        Id = Guid.NewGuid();
         Name = name;
     }
 
-    public static Result<Tag> Create(string name) => new Tag(name);
+    public static Tag Create(string name) => new(Guid.NewGuid(), name);
 }

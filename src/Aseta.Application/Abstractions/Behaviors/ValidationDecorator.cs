@@ -1,5 +1,6 @@
 using Aseta.Application.Abstractions.Messaging;
-using Aseta.Domain.Abstractions.Primitives;
+using Aseta.Domain.Abstractions.Primitives.Errors;
+using Aseta.Domain.Abstractions.Primitives.Results;
 using FluentValidation;
 using FluentValidation.Results;
 

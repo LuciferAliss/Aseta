@@ -1,5 +1,6 @@
 using Aseta.Application.Abstractions.Behaviors;
 using Aseta.Application.Abstractions.Messaging;
+using Aseta.Domain.Abstractions.Primitives.Events;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,7 +26,8 @@ public static class DependencyInjection
             .AddClasses(classes => classes.AssignableToAny(
                 typeof(IQueryHandler<,>),
                 typeof(ICommandHandler<>),
-                typeof(ICommandHandler<,>)), publicOnly: false)
+                typeof(ICommandHandler<,>),
+                typeof(IDomainEventHandler<>)), publicOnly: false)
             .AsImplementedInterfaces()
             .WithScopedLifetime());
 
@@ -35,38 +37,22 @@ public static class DependencyInjection
     private static IServiceCollection AddDecorators(
         this IServiceCollection services)
     {
-        services.DecorateHandlers(
-            typeof(ValidationDecorator.CommandHandler<,>),
-            typeof(ValidationDecorator.CommandBaseHandler<>),
-            typeof(ValidationDecorator.QueryHandler<,>));
+        services.Decorate(typeof(ICommandHandler<,>), typeof(ValidationDecorator.CommandHandler<,>));
+        services.Decorate(typeof(ICommandHandler<>), typeof(ValidationDecorator.CommandBaseHandler<>));
+        services.Decorate(typeof(IQueryHandler<,>), typeof(ValidationDecorator.QueryHandler<,>));
 
-        services.DecorateHandlers(
-            typeof(AuthorizationDecorator.CommandHandler<,>),
-            typeof(AuthorizationDecorator.CommandBaseHandler<>),
-            typeof(AuthorizationDecorator.QueryHandler<,>));
+        services.Decorate(typeof(ICommandHandler<,>), typeof(AuthorizationDecorator.CommandHandler<,>));
+        services.Decorate(typeof(ICommandHandler<>), typeof(AuthorizationDecorator.CommandBaseHandler<>));
+        services.Decorate(typeof(IQueryHandler<,>), typeof(AuthorizationDecorator.QueryHandler<,>));
 
-        services.DecorateHandlers(
-            typeof(LockedUserDecorator.CommandHandler<,>),
-            typeof(LockedUserDecorator.CommandBaseHandler<>),
-            typeof(LockedUserDecorator.QueryHandler<,>));
+        services.Decorate(typeof(ICommandHandler<,>), typeof(LockedUserDecorator.CommandHandler<,>));
+        services.Decorate(typeof(ICommandHandler<>), typeof(LockedUserDecorator.CommandBaseHandler<>));
+        services.Decorate(typeof(IQueryHandler<,>), typeof(LockedUserDecorator.QueryHandler<,>));
 
-        services.DecorateHandlers(
-            typeof(LoggingDecorator.CommandHandler<,>),
-            typeof(LoggingDecorator.CommandBaseHandler<>),
-            typeof(LoggingDecorator.QueryHandler<,>));
+        services.Decorate(typeof(ICommandHandler<,>), typeof(LoggingDecorator.CommandHandler<,>));
+        services.Decorate(typeof(ICommandHandler<>), typeof(LoggingDecorator.CommandBaseHandler<>));
+        services.Decorate(typeof(IQueryHandler<,>), typeof(LoggingDecorator.QueryHandler<,>));
 
-        return services;
-    }
-
-    private static IServiceCollection DecorateHandlers(
-        this IServiceCollection services,
-        Type commandHandlerDecorator,
-        Type commandBaseHandlerDecorator,
-        Type queryHandlerDecorator)
-    {
-        services.Decorate(typeof(ICommandHandler<,>), commandHandlerDecorator);
-        services.Decorate(typeof(ICommandHandler<>), commandBaseHandlerDecorator);
-        services.Decorate(typeof(IQueryHandler<,>), queryHandlerDecorator);
         return services;
     }
 }

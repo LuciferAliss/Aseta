@@ -1,4 +1,4 @@
-using Aseta.Domain.Entities.CustomField;
+using Aseta.Domain.Entities.Inventories.CustomField;
 
 namespace Aseta.Domain.DTO.CustomField;
 

@@ -1,5 +1,4 @@
-namespace Aseta.Domain.Abstractions.Primitives;
-
+namespace Aseta.Domain.Abstractions.Primitives.Pagination;
 public sealed record KeysetPage<T>(
     string? Cursor,
     bool HasNextPage,
