@@ -15,7 +15,7 @@ internal sealed class GetInventoryQueryHandler(
         GetInventoryQuery query,
         CancellationToken cancellationToken)
     {
-        var inventory = await inventoryRepository.GetByIdAsync(
+        Inventory? inventory = await inventoryRepository.GetByIdAsync(
             query.InventoryId,
             false,
             cancellationToken,
@@ -23,10 +23,13 @@ internal sealed class GetInventoryQueryHandler(
             i => i.UserRoles,
             i => i.Category,
             i => i.Creator);
-            
-        if (inventory is null) return InventoryErrors.NotFound(query.InventoryId);
-        
-        var response = mapper.Map<InventoryResponse>(inventory);
+
+        if (inventory is null)
+        {
+            return InventoryErrors.NotFound(query.InventoryId);
+        }
+
+        InventoryResponse response = mapper.Map<InventoryResponse>(inventory);
 
         return response;
     }

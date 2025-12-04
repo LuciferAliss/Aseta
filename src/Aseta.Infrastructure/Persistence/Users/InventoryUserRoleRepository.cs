@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aseta.Infrastructure.Persistence.Users;
 
-internal sealed class InventoryUserRoleRepository(AppDbContext context) : Repository<InventoryRole>(context), IInventoryUserRoleRepository
+public sealed class InventoryUserRoleRepository(AppDbContext context) : Repository<InventoryRole>(context), IInventoryUserRoleRepository
 {
     public Task<Role> GetUserRoleInInventory(string userId, Guid inventoryI, CancellationToken cancellationToken = default)
     {

@@ -1,4 +1,4 @@
-namespace Aseta.Domain.DTO.Inventory;
+namespace Aseta.Domain.DTO.Inventories;
 
 public record class InventoryPaginationParameters(    
     DateTime? CreatedAtFrom,

@@ -5,4 +5,4 @@ using Aseta.Infrastructure.Persistence.Common;
 
 namespace Aseta.Infrastructure.Persistence.Tags;
 
-internal sealed class TagRepository(AppDbContext context) : Repository<Tag>(context), ITagRepository;
+public sealed class TagRepository(AppDbContext context) : Repository<Tag>(context), ITagRepository;

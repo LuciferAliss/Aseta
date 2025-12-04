@@ -1,10 +1,18 @@
+using System.Linq;
+
 namespace Aseta.Domain.Entities.Inventories.CustomId;
 
 public record GuidRule(string Format) : CustomIdRuleBase
 {
-    // GUID: "N", "D", "B", "P", "X"
+    private static readonly string[] ValidFormats = ["N", "D", "B", "P", "X"];
+
     public override string Generation(GenerationContext context)
     {
+        if (!ValidFormats.Contains(Format))
+        {
+            throw new ArgumentException($"Invalid GUID format. Must be one of: {string.Join(", ", ValidFormats)}");
+        }
+
         return Guid.NewGuid().ToString(Format);
     }
 

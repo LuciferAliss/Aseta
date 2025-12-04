@@ -17,22 +17,36 @@ internal sealed class UpdateCommandHandler(
         UpdateCommand command,
         CancellationToken cancellationToken)
     {
-        var item = await itemRepository.GetByIdAsync(
+        Item item = await itemRepository.GetByIdAsync(
             command.ItemId,
             true,
             cancellationToken);
-        if (item is null) return ItemErrors.NotFound(command.ItemId);
 
-        var inventory = await inventoryRepository.GetByIdAsync(
+        if (item is null)
+        {
+            return ItemErrors.NotFound(command.ItemId);
+        }
+
+        Inventory inventory = await inventoryRepository.GetByIdAsync(
             command.InventoryId,
             false,
             cancellationToken);
-        if (inventory is null) return InventoryErrors.NotFound(command.InventoryId);
 
-        var customIdResult = await DetermineNewCustomIdAsync(
+        if (inventory is null)
+        {
+            return InventoryErrors.NotFound(command.InventoryId);
+        }
+
+        Result<string> customIdResult = await DetermineNewCustomIdAsync(
             command.CustomId,
-            item, inventory);
-        if (customIdResult.IsFailure) return Result.Failure(customIdResult.Error);
+            item,
+            inventory,
+            cancellationToken);
+
+        if (customIdResult.IsFailure)
+        {
+            return Result.Failure(customIdResult.Error);
+        }
 
         item.Update(
             command.UserId,
@@ -46,29 +60,31 @@ internal sealed class UpdateCommandHandler(
 
     private async Task<Result<string>> DetermineNewCustomIdAsync(
         string requestedCustomId,
-        Item currentItem,
-        Inventory inventory
-    )
+        Item item,
+        Inventory inventory,
+        CancellationToken cancellationToken = default)
     {
-        var customIdValidationResult = customIdService
+        Result customIdValidationResult = customIdService
             .IsValid(requestedCustomId, inventory.CustomIdRules);
 
-        if (requestedCustomId != currentItem.CustomId)
+        if (requestedCustomId != item.CustomId)
         {
             return customIdValidationResult.IsSuccess
                 ? requestedCustomId
                 : customIdValidationResult.Error;
         }
-        
+
         if (customIdValidationResult.IsSuccess)
         {
-            return currentItem.CustomId;
+            return item.CustomId;
         }
         else
         {
             return await customIdService.GenerateAsync(
+                inventory.Id,
+                item.Id,
                 inventory.CustomIdRules,
-                currentItem.InventoryId);
+                cancellationToken);
         }
     }
 }

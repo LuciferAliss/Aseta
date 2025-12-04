@@ -1,20 +1,20 @@
 using Aseta.Domain.Abstractions.Persistence;
-using Aseta.Domain.DTO.Inventory;
+using Aseta.Domain.DTO.Inventories;
 using Aseta.Domain.Entities.Inventories;
 using Aseta.Infrastructure.Database;
 using Aseta.Infrastructure.Pagination;
 using Aseta.Infrastructure.Persistence.Common;
-using Microsoft.EntityFrameworkCore;
 
 namespace Aseta.Infrastructure.Persistence.Inventories;
 
-internal sealed class InventoryRepository(AppDbContext context) : Repository<Inventory>(context), IInventoryRepository
+public sealed class InventoryRepository(AppDbContext context) : Repository<Inventory>(context), IInventoryRepository
 {
     public async Task<(ICollection<Inventory> inventories, string? nextCursor, bool hasNextPage)> GetPaginatedWithKeysetAsync(
         InventoryPaginationParameters parameters,
         CancellationToken cancellationToken)
     {
-        var query = _dbSet.Include(i => i.Tags).Include(i => i.Creator).AsNoTracking();
+        IQueryable<Inventory> query = _dbSet.ApplyInclude(i => i.Tags, i => i.Creator, i => i.Category, i => i.UserRoles)
+            .ApplyTracking(false);
 
         query = query.FilterByCreateAtFrom(parameters.CreatedAtFrom)
             .FilterByCreateAtTo(parameters.CreatedAtTo)
@@ -24,13 +24,13 @@ internal sealed class InventoryRepository(AppDbContext context) : Repository<Inv
             .FilterByMinItemsCount(parameters.MinItemsCount)
             .FilterByMaxItemsCount(parameters.MaxItemsCount);
 
-        var (items, nextCursor, hasNextPage) = await new KeysetPaginator<Inventory>(query)
-            .AddSortableField("created_at", i => i.CreatedAt)
-            .AddSortableField("items_count", i => i.ItemsCount)
-            .AddSortableField("name", i => i.InventoryName)
-            .AddSortableField("creator", i => i.Creator.UserName)
-            .PaginateAsync("created_at", "desc", parameters.PageSize, parameters.Cursor, cancellationToken);
+        (ICollection<Inventory>? items, string? nextCursor, bool hasNextPage) = await new KeysetPaginator<Inventory>(query)
+            .AddSortableField(SortBy.Date.ToString(), i => i.CreatedAt)
+            .AddSortableField(SortBy.NumberOfItems.ToString(), i => i.ItemsCount)
+            .AddSortableField(SortBy.Name.ToString(), i => i.InventoryName)
+            .AddSortableField(SortBy.Creator.ToString(), i => i.Creator.UserName)
+            .PaginateAsync(parameters.SortBy.ToString(), parameters.SortOrder, parameters.PageSize, parameters.Cursor, cancellationToken);
 
         return (items, nextCursor, hasNextPage);
-    }   
+    }
 }

@@ -1,5 +1,6 @@
 using Aseta.Application.Abstractions.Messaging;
-using Aseta.Domain.DTO.Inventory;
+using Aseta.Application.Inventories.GetPaginated.Contracts;
+using Aseta.Domain.DTO.Inventories;
 
 namespace Aseta.Application.Inventories.GetPaginated;
 
@@ -14,5 +15,4 @@ internal sealed record GetPaginatedInventoryQuery(
     SortBy SortBy,
     string SortOrder,
     string? Cursor,
-    int PageSize
-) : IQuery<InventoryResponse>;
+    int PageSize) : IQuery<InventoriesResponse>;

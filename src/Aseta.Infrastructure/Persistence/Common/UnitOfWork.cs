@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Aseta.Infrastructure.Persistence.Common;
 
-internal sealed class UnitOfWork(AppDbContext context) : IUnitOfWork
+public sealed class UnitOfWork(AppDbContext context) : IUnitOfWork
 {
     private IDbContextTransaction? _currentTransaction;
 
@@ -50,7 +50,9 @@ internal sealed class UnitOfWork(AppDbContext context) : IUnitOfWork
     private async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
         if (_currentTransaction is not null)
+        {
             throw new InvalidOperationException("A transaction is already in progress.");
+        }
 
         _currentTransaction = await context.Database.BeginTransactionAsync(cancellationToken);
     }
@@ -58,11 +60,12 @@ internal sealed class UnitOfWork(AppDbContext context) : IUnitOfWork
     private async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
     {
         if (_currentTransaction is null)
+        {
             throw new InvalidOperationException("Transaction has not been started.");
+        }
 
         try
         {
-            await context.SaveChangesAsync(cancellationToken);
             await _currentTransaction.CommitAsync(cancellationToken);
         }
         catch
@@ -83,7 +86,9 @@ internal sealed class UnitOfWork(AppDbContext context) : IUnitOfWork
     private async Task RollbackTransactionAsync()
     {
         if (_currentTransaction is null)
-            return; 
+        {
+            return;
+        }
 
         try
         {

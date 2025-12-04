@@ -13,18 +13,19 @@ internal sealed class UpdateInventoryCommandHandler(
         UpdateInventoryCommand command,
         CancellationToken cancellationToken)
     {
-        var inventory = await inventoryRepository.GetByIdAsync(
-            command.InventoryId,
-            true,
-            cancellationToken);
-        if (inventory is null) return InventoryErrors.NotFound(command.InventoryId);
+        Inventory? inventory = await inventoryRepository.GetByIdAsync(command.InventoryId, true, cancellationToken: cancellationToken);
+
+        if (inventory is null)
+        {
+            return InventoryErrors.NotFound(command.InventoryId);
+        }
 
         inventory.Update(
             command.Name,
             command.Description,
             command.ImageUrl,
             command.IsPublic);
-        
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

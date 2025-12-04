@@ -3,7 +3,7 @@ using Aseta.Domain.Entities.UserRoles;
 namespace Aseta.Application.Abstractions.Authorization;
 
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-public class AuthorizeAttribute : Attribute
+internal sealed class AuthorizeAttribute : Attribute
 {
     public Role Role { get; init; }
 

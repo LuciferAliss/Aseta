@@ -1,8 +1,11 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Aseta.Infrastructure.Options;
 
 public sealed class ClientOptions
 {
     public const string SectionName = "Client";
 
-    public string? Url { get; set; }
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Url is required")]
+    public string Url { get; set; }
 }

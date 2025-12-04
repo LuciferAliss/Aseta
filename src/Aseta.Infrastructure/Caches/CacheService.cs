@@ -1,8 +1,8 @@
+using System.Text.Json;
 using Aseta.Application.Abstractions.Services;
 using Microsoft.Extensions.Caching.Distributed;
-using Newtonsoft.Json;
 
-namespace Aseta.Infrastructure.Services;
+namespace Aseta.Infrastructure.Caches;
 
 internal sealed class CacheService(
     IDistributedCache distributedCache) : ICacheService
@@ -10,15 +10,21 @@ internal sealed class CacheService(
     public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
     {
         string? value = await distributedCache.GetStringAsync(key, cancellationToken);
-        if (value is null) return default;
+        if (value is null)
+        {
+            return default;
+        }
 
-        return JsonConvert.DeserializeObject<T>(value);
+        return JsonSerializer.Deserialize<T>(value);
     }
 
     public async Task<T?> GetAsync<T>(string key, Func<Task<T?>> factory, CancellationToken cancellationToken = default)
     {
-        var value = await GetAsync<T>(key, cancellationToken);
-        if (value is not null) return value;
+        T? value = await GetAsync<T>(key, cancellationToken);
+        if (value is not null)
+        {
+            return value;
+        }
 
         value = await factory();
         await SetAsync(key, value, cancellationToken);
@@ -28,7 +34,7 @@ internal sealed class CacheService(
 
     public async Task SetAsync<T>(string key, T value, CancellationToken cancellationToken = default)
     {
-        await distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(value), cancellationToken);
+        await distributedCache.SetStringAsync(key, JsonSerializer.Serialize(value), cancellationToken);
     }
 
     public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)

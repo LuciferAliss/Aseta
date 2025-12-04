@@ -2,7 +2,7 @@ using Aseta.Domain.Abstractions.Primitives.Errors;
 
 namespace Aseta.Domain.Entities.Items;
 
-public class ItemErrors
+public static class ItemErrors
 {
     public static Error NotFound(Guid itemId) => Error.NotFound(
         "Items.NotFound",

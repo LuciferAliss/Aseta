@@ -6,30 +6,21 @@ using Aseta.Domain.Entities.Users;
 using Aseta.Infrastructure;
 using Scalar.AspNetCore;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDomain()
-    .AddInfrastructure(builder.Configuration)
+builder.Services.AddInfrastructure(builder.Configuration)
+    .AddDomain()
     .AddApplication()
     .AddPresentation(builder.Configuration);
 
-builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
-builder.Services.AddEndpointsApiExplorer(); //
-builder.Services.AddSwaggerGen(); // 
-
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference(opt =>
-    {
-        opt.WithTitle("JWT + Refresh Token Auth API");
-    });
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.MapScalarApiReference(opt => opt.WithTitle("JWT + Refresh Token Auth API"));
 }
 
 await app.ApplyMigrations();
@@ -43,9 +34,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseExceptionHandler();
-
-app.MapGroup("/auth").MapIdentityApi<ApplicationUser>();
-
-app.MapControllers();
 
 await app.RunAsync();

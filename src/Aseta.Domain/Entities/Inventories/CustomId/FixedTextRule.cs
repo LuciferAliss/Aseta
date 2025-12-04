@@ -1,3 +1,5 @@
+using System;
+
 namespace Aseta.Domain.Entities.Inventories.CustomId;
 
 public record FixedTextRule(string Text) : CustomIdRuleBase

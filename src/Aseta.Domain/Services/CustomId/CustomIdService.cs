@@ -5,7 +5,7 @@ using Aseta.Domain.Entities.Inventories.CustomId;
 
 namespace Aseta.Domain.Services.CustomId;
 
-public class CustomIdService(IItemRepository itemRepository) : ICustomIdService
+public sealed class CustomIdService(IItemRepository itemRepository) : ICustomIdService
 {
     public async Task<Result<string>> GenerateAsync(
         Guid inventoryId,
@@ -13,20 +13,25 @@ public class CustomIdService(IItemRepository itemRepository) : ICustomIdService
         ICollection<CustomIdRuleBase> customIdRule,
         CancellationToken cancellationToken = default)
     {
-        if (customIdRule.Count == 0) return Guid.NewGuid().ToString();
+        if (customIdRule.Count == 0)
+        {
+            return Guid.NewGuid().ToString();
+        }
 
-        var itemSequence = await itemRepository.GetItemSequenceNumberAsync(itemId, inventoryId, cancellationToken);
+        int itemSequence = await itemRepository.GetItemSequenceNumberAsync(itemId, inventoryId, cancellationToken);
 
         var generationContext = new GenerationContext()
         {
             ItemSequence = itemSequence
         };
 
-        var customIdParts = customIdRule.Select(r => r.Generation(generationContext));
-        var customId = string.Join("-", customIdParts);
+        var customIdParts = customIdRule.Select(r => r.Generation(generationContext)).ToList();
+        string customId = string.Join("-", customIdParts);
 
-        if (string.IsNullOrWhiteSpace(customId)) 
+        if (string.IsNullOrWhiteSpace(customId))
+        {
             return CustomIdServiceErrors.CustomIdEmpty();
+        }
 
         return customId;
     }
@@ -36,19 +41,22 @@ public class CustomIdService(IItemRepository itemRepository) : ICustomIdService
         ICollection<CustomIdRuleBase> customIdRule)
     {
         if (string.IsNullOrWhiteSpace(customId))
+        {
             return CustomIdServiceErrors.CustomIdEmpty();
+        }
 
         if (customIdRule.Count == 0)
+        {
             return Result.Success(true);
+        }
 
-        var parts = customId.Split('-');
+        string[] parts = customId.Split('-');
         if (parts.Length != customIdRule.Count)
         {
             return CustomIdServiceErrors.TemplateMismatch();
         }
 
-        var allPartsValid = customIdRule
-            .Zip(parts, (rule, part) => rule.IsValid(part))
+        bool allPartsValid = customIdRule.Zip(parts, (rule, part) => rule.IsValid(part))
             .All(isValid => isValid);
 
         return Result.Success(allPartsValid);

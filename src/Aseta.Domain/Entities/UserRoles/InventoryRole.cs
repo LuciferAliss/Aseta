@@ -1,4 +1,5 @@
 using Aseta.Domain.Abstractions.Primitives.Entities;
+using Aseta.Domain.Abstractions.Primitives.Results;
 using Aseta.Domain.Entities.Inventories;
 using Aseta.Domain.Entities.Users;
 
@@ -21,5 +22,13 @@ public class InventoryRole : Entity
         Role = role;
     }
 
-    public static InventoryRole Create(Guid userId, Guid inventoryId, Role role) => new(Guid.NewGuid(), userId, inventoryId, role);
+    public static Result<InventoryRole> Create(Guid userId, Guid inventoryId, Role role)
+    {
+        if (role == Role.None)
+        {
+            return InventoryRoleErrors.InvalidRole();
+        }
+
+        return new InventoryRole(Guid.NewGuid(), userId, inventoryId, role);
+    }
 }

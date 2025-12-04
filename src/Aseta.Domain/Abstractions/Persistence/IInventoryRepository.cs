@@ -1,4 +1,4 @@
-using Aseta.Domain.DTO.Inventory;
+using Aseta.Domain.DTO.Inventories;
 using Aseta.Domain.Entities.Inventories;
 
 namespace Aseta.Domain.Abstractions.Persistence;

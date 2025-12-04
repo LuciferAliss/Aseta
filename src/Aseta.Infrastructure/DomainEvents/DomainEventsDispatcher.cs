@@ -1,6 +1,6 @@
-using System;
 using System.Collections.Concurrent;
 using Aseta.Domain.Abstractions.Primitives.Events;
+using Aseta.Domain.Abstractions.Primitives.Results;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Aseta.Infrastructure.DomainEvents;
@@ -10,10 +10,12 @@ internal sealed class DomainEventsDispatcher(IServiceScopeFactory serviceProvide
     private static readonly ConcurrentDictionary<Type, Type> HandlerTypeDictionary = new();
     private static readonly ConcurrentDictionary<Type, Type> WrapperTypeDictionary = new();
 
-    public async Task DispatchAsync(
+    public async Task<Result> DispatchAsync(
         IEnumerable<IDomainEvent> domainEvents,
         CancellationToken cancellationToken = default)
     {
+        var handlerResults = new List<Result>();
+        
         foreach (IDomainEvent domainEvent in domainEvents)
         {
             using IServiceScope scope = serviceProvider.CreateScope();
@@ -34,14 +36,21 @@ internal sealed class DomainEventsDispatcher(IServiceScopeFactory serviceProvide
 
                 var handlerWrapper = HandlerWrapper.Create(handler, domainEventType);
 
-                await handlerWrapper.Handle(domainEvent, cancellationToken);
+                handlerResults.Add(await handlerWrapper.Handle(domainEvent, cancellationToken));
             }
         }
+
+        if (handlerResults.Any(r => r.IsFailure))
+        {
+            return DomainEventsDispatcherErrors.HandlersFailed;
+        }
+
+        return Result.Success();
     }
 
     private abstract class HandlerWrapper
     {
-        public abstract Task Handle(IDomainEvent domainEvent, CancellationToken cancellationToken);
+        public abstract Task<Result> Handle(IDomainEvent domainEvent, CancellationToken cancellationToken);
 
         public static HandlerWrapper Create(object handler, Type domainEventType)
         {
@@ -57,9 +66,9 @@ internal sealed class DomainEventsDispatcher(IServiceScopeFactory serviceProvide
     {
         private readonly IDomainEventHandler<T> _handler = (IDomainEventHandler<T>)handler;
 
-        public override async Task Handle(IDomainEvent domainEvent, CancellationToken cancellationToken)
+        public override async Task<Result> Handle(IDomainEvent domainEvent, CancellationToken cancellationToken)
         {
-            await _handler.Handle((T)domainEvent, cancellationToken);
+            return await _handler.Handle((T)domainEvent, cancellationToken);
         }
     }
 }

@@ -1,17 +1,22 @@
 using Aseta.Domain.Abstractions.Primitives.Entities;
+using Aseta.Domain.Abstractions.Primitives.Results;
 using Aseta.Domain.Entities.Categories;
+using Aseta.Domain.Entities.Comments;
 using Aseta.Domain.Entities.Inventories.CustomField;
 using Aseta.Domain.Entities.Inventories.CustomId;
 using Aseta.Domain.Entities.Items;
 using Aseta.Domain.Entities.Tags;
 using Aseta.Domain.Entities.UserRoles;
 using Aseta.Domain.Entities.Users;
-using NpgsqlTypes;
 
 namespace Aseta.Domain.Entities.Inventories;
 
 public class Inventory : Entity
 {
+    public const int MaxNameLength = 36;
+    public const int MinNameLength = 3;
+    public const int MaxDescriptionLength = 1000;
+
     public string InventoryName { get; private set; }
     public string Description { get; private set; }
     public string ImageUrl { get; private set; }
@@ -20,47 +25,57 @@ public class Inventory : Entity
     public int ItemsCount { get; private set; }
     public virtual ICollection<Item> Items { get; private set; } = [];
     public Guid CategoryId { get; private set; }
-    public virtual Category Category { get; private set; }
+    public virtual Category Category { get; }
     public virtual ICollection<Tag> Tags { get; private set; } = [];
     public ICollection<CustomIdRuleBase> CustomIdRules { get; private set; } = [];
     public DateTime CreatedAt { get; private set; }
     public Guid CreatorId { get; private set; }
-    public virtual ApplicationUser Creator { get; private set; }
+    public virtual ApplicationUser Creator { get; }
     public virtual ICollection<InventoryRole> UserRoles { get; private set; } = [];
-    public NpgsqlTsVector SearchVector { get; private set; }
+    public virtual ICollection<Comment> Comments { get; private set; } = [];
 
-    private Inventory()
-    {
-        InventoryName = null!;
-        Description = null!;
-        ImageUrl = null!;
-        Creator = null!;
-        Category = null!;
-        SearchVector = null!;
-    }
+    private Inventory() { }
 
-    private Inventory(Guid id, string name, string description, string imageUrl, bool isPublic, Guid categoryId, Guid creatorId, DateTime date) : base(id)
+    private Inventory(Guid id, string name, string description, Uri imageUrl, bool isPublic, Guid categoryId, Guid creatorId) : base(id)
     {
         InventoryName = name;
         Description = description;
-        ImageUrl = imageUrl;
+        ImageUrl = imageUrl.ToString();
         IsPublic = isPublic;
         CategoryId = categoryId;
-        CreatedAt = date;
         CreatorId = creatorId;
+        CreatedAt = DateTime.UtcNow;
         ItemsCount = 0;
-        Creator = null!;
-        Category = null!;
-        SearchVector = null!;
     }
 
-    public static Inventory Create(string name, string description, string imageUrl, bool isPublic, Guid categoryId, Guid creatorId, DateTime date)
+    public static Result<Inventory> Create(string name, string description, Uri imageUrl, bool isPublic, Guid categoryId, Guid creatorId)
     {
-        var inventory = new Inventory(Guid.NewGuid(), name, description, imageUrl, isPublic, categoryId, creatorId, date);
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return InventoryErrors.NameEmpty();
+        }
 
-        inventory.Raise(new CreateInventoryDomainEvent(inventory.Id, creatorId));
+        if (string.IsNullOrWhiteSpace(description))
+        {
+            return InventoryErrors.DescriptionEmpty();
+        }
 
-        return inventory;
+        if (name.Length > MaxNameLength || name.Length < MinNameLength)
+        {
+            return InventoryErrors.NameTooLong(MaxNameLength);
+        }
+
+        if (description.Length > MaxDescriptionLength)
+        {
+            return InventoryErrors.DescriptionTooLong(MaxDescriptionLength);
+        }
+
+        if (imageUrl is null)
+        {
+            return InventoryErrors.ImageUrlNull();
+        }
+
+        return new Inventory(Guid.NewGuid(), name, description, imageUrl, isPublic, categoryId, creatorId);
     }
 
     public void IncrementItemsCount() => ItemsCount++;
@@ -77,7 +92,7 @@ public class Inventory : Entity
         }
     }
 
-    public void UpdateCustomFields(ICollection<CustomFieldDefinition> newFields)
+    public Result UpdateCustomFields(ICollection<CustomFieldDefinition> newFields)
     {
         var fieldCountsByType = newFields
                 .GroupBy(field => field.Type)
@@ -85,33 +100,50 @@ public class Inventory : Entity
 
         int maxFieldsPerType = 3;
 
-        foreach (var entry in fieldCountsByType)
+        foreach (KeyValuePair<CustomFieldType, int> entry in fieldCountsByType)
         {
-            switch (entry.Key)
+            if (entry.Value > maxFieldsPerType)
             {
-                case CustomFieldType.SingleLineText:
-                case CustomFieldType.Checkbox:
-                case CustomFieldType.Date:
-                case CustomFieldType.MultiLineText:
-                case CustomFieldType.Number:
-                    if (entry.Value > maxFieldsPerType)
-                    {
-                        throw new InvalidOperationException(
-                            $"Cannot have more than {maxFieldsPerType} custom fields of type '{entry.Key}'. Found {entry.Value}."
-                        );
-                    }
-                    break;
+                return InventoryErrors.CustomFieldLimitExceeded(maxFieldsPerType, entry.Key.ToString(), entry.Value);
             }
         }
 
         CustomFields = newFields;
+        return Result.Success();
     }
 
-    public void Update(string name, string description, string imageUrl, bool isPublic)
+    public Result Update(string name, string description, Uri imageUrl, bool isPublic)
     {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return InventoryErrors.NameEmpty();
+        }
+
+        if (string.IsNullOrWhiteSpace(description))
+        {
+            return InventoryErrors.DescriptionEmpty();
+        }
+
+        if (name.Length > MaxNameLength || name.Length < MinNameLength)
+        {
+            return InventoryErrors.NameTooLong(MaxNameLength);
+        }
+
+        if (description.Length > MaxDescriptionLength)
+        {
+            return InventoryErrors.DescriptionTooLong(MaxDescriptionLength);
+        }
+
+        if (imageUrl is null)
+        {
+            return InventoryErrors.ImageUrlNull();
+        }
+
         InventoryName = name;
         Description = description;
-        ImageUrl = imageUrl;
+        ImageUrl = imageUrl.ToString();
         IsPublic = isPublic;
+
+        return Result.Success();
     }
 }

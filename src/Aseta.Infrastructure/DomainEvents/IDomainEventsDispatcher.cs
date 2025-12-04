@@ -1,8 +1,9 @@
 using Aseta.Domain.Abstractions.Primitives.Events;
+using Aseta.Domain.Abstractions.Primitives.Results;
 
 namespace Aseta.Infrastructure.DomainEvents;
 
-interface IDomainEventsDispatcher
+public interface IDomainEventsDispatcher
 {
-    Task DispatchAsync(IEnumerable<IDomainEvent> domainEvent, CancellationToken cancellationToken = default);
+    Task<Result> DispatchAsync(IEnumerable<IDomainEvent> domainEvents, CancellationToken cancellationToken = default);
 }

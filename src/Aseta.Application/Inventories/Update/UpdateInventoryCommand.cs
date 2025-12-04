@@ -9,5 +9,5 @@ public sealed record UpdateInventoryCommand(
     Guid InventoryId,
     string Name,
     string Description,
-    string ImageUrl,
+    Uri ImageUrl,
     bool IsPublic) : ICommand, IInventoryScopedRequest;

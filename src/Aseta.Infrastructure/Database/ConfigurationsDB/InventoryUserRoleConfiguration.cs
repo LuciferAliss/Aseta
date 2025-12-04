@@ -9,14 +9,21 @@ internal sealed class InventoryUserRoleConfiguration : IEntityTypeConfiguration<
     public void Configure(EntityTypeBuilder<InventoryRole> builder)
     {
         builder.ToTable("InventoryUserRoles");
-        builder.HasKey(i => new { i.UserId, i.InventoryId, i.Role });
+
+        builder.HasKey(i => new { i.UserId, i.InventoryId });
 
         builder.HasOne(i => i.User)
             .WithMany(i => i.InventoryUserRoles)
             .HasForeignKey(i => i.UserId)
             .OnDelete(DeleteBehavior.Restrict);
-            
+
+        builder.HasOne(i => i.Inventory)
+            .WithMany(i => i.UserRoles)
+            .HasForeignKey(i => i.InventoryId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.Property(i => i.Role)
+            .IsRequired()
             .HasConversion<string>();
     }
 }

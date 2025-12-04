@@ -1,10 +1,13 @@
 using Aseta.Domain.Abstractions.Primitives.Entities;
+using Aseta.Domain.Abstractions.Primitives.Results;
 using Aseta.Domain.Entities.Inventories;
 
 namespace Aseta.Domain.Entities.Categories;
 
 public class Category : Entity
 {
+    public const int MaxNameLength = 50;
+
     public string CategoryName { get; private set; }
     public virtual ICollection<Inventory> Inventories { get; private set; } = [];
 
@@ -13,5 +16,17 @@ public class Category : Entity
         CategoryName = name;
     }
 
-    public static Category Create(string name) => new(Guid.NewGuid(), name);
+    public static Result<Category> Create(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return CategoryErrors.NameEmpty();
+        }
+        if (name.Length > MaxNameLength)
+        {
+            return CategoryErrors.NameTooLong(MaxNameLength);
+        }
+
+        return new Category(Guid.NewGuid(), name);
+    }
 }

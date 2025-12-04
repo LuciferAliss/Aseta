@@ -1,14 +1,22 @@
+using System.Text;
+using Aseta.Application.Abstractions.Authorization;
 using Aseta.Application.Abstractions.Services;
+using Aseta.Domain.Abstractions.Persistence;
 using Aseta.Domain.Entities.Users;
+using Aseta.Infrastructure.Authorization;
+using Aseta.Infrastructure.Caches;
 using Aseta.Infrastructure.Database;
+using Aseta.Infrastructure.DomainEvents;
 using Aseta.Infrastructure.Options;
-using Aseta.Infrastructure.Services;
+using Aseta.Infrastructure.Persistence.Common;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Npgsql;
 
 namespace Aseta.Infrastructure;
@@ -18,21 +26,21 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         return services
-            .AddRepositories()
-            .AddAuthenticationInternal()
-            .AddEmailSender(configuration)
-            .ConfigureCookies()
             .AddDatabase(configuration)
-            .AddRedis(configuration);
+            .AddRedis(configuration)
+            .AddAuthentication(configuration)
+            .AddAppAuthorization()
+            .AddDomainEventsDispatcher()
+            .AddHealthChecks(configuration);
     }
 
     private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("Database");
+        string? connectionString = configuration.GetConnectionString("Database");
 
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
-        var dataSource = new NpgsqlDataSourceBuilder(connectionString)
+        NpgsqlDataSource dataSource = new NpgsqlDataSourceBuilder(connectionString)
             .EnableDynamicJson()
             .Build();
 
@@ -40,12 +48,21 @@ public static class DependencyInjection
             options.UseNpgsql(dataSource)
             .UseSnakeCaseNamingConvention());
 
+        services.Scan(scan => scan.FromAssembliesOf(
+                typeof(DependencyInjection))
+            .AddClasses(classes => classes.Where(type =>
+                type.Name.EndsWith("Repository", StringComparison.Ordinal)))
+            .AsImplementedInterfaces()
+            .WithScopedLifetime());
+
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
         return services;
-    } 
+    }
 
     private static IServiceCollection AddRedis(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("Redis");
+        string? connectionString = configuration.GetConnectionString("Redis");
 
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
@@ -60,69 +77,60 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection ConfigureCookies(this IServiceCollection services)
+    private static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        services.ConfigureApplicationCookie(options =>
-        {
-            options.Events.OnRedirectToLogin = context =>
-            {
-                context.Response.StatusCode = 401;
-                return Task.CompletedTask;
-            };
+        services.AddOptions<JwtOptions>()
+            .Bind(configuration.GetSection(JwtOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
-            options.Events.OnRedirectToAccessDenied = context =>
-            {
-                context.Response.StatusCode = 401;
-                return Task.CompletedTask;
-            };
+        JwtOptions jwtOptions = new();
+        configuration.GetSection(JwtOptions.SectionName).Bind(jwtOptions);
 
-            options.ExpireTimeSpan = TimeSpan.FromHours(24);
-            options.Cookie.SameSite = SameSiteMode.Lax;
-            options.Cookie.HttpOnly = true;
-            options.Cookie.SecurePolicy = CookieSecurePolicy.None;
-        });
-
-        return services;
-    }
-
-    private static IServiceCollection AddAuthenticationInternal(this IServiceCollection services)
-    {
-        services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
+        services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options => options.SignIn.RequireConfirmedAccount = false)
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 
-        // services.AddIdentityApiEndpoints<ApplicationUser>(opts =>
-        // {
-        //     opts.SignIn.RequireConfirmedEmail = true;
-        // })
-        // .AddRoles<IdentityRole>()
-        // .AddEntityFrameworkStores<AppDbContext>();
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(o =>
+            {
+                o.RequireHttpsMetadata = false; // ! In production, this should be true.
+                o.TokenValidationParameters = new TokenValidationParameters
+                {
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret)),
+                    ValidIssuer = jwtOptions.Issuer,
+                    ValidAudience = jwtOptions.Audience,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
 
         return services;
     }
 
-    private static IServiceCollection AddEmailSender(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddDomainEventsDispatcher(this IServiceCollection services)
     {
-        services.Configure<AuthMessageSenderOptions>(configuration.GetSection(AuthMessageSenderOptions.SectionName));
-
-        var authOptions = new AuthMessageSenderOptions();
-        configuration.GetSection(AuthMessageSenderOptions.SectionName).Bind(authOptions);
-        
-        ArgumentException.ThrowIfNullOrWhiteSpace(authOptions.Key);
-
-        services.AddTransient<IEmailSender, EmailSender>();
+        services.AddTransient<IDomainEventsDispatcher, DomainEventsDispatcher>();
 
         return services;
     }
 
-    private static IServiceCollection AddRepositories(
-        this IServiceCollection services)
+    private static IServiceCollection AddAppAuthorization(this IServiceCollection services)
     {
-        return services.Scan(scan => scan.FromAssembliesOf(
-                typeof(DependencyInjection))
-            .AddClasses(classes => classes.Where(type =>
-                type.Name.EndsWith("Repository")))
-            .AsImplementedInterfaces()
-            .WithScopedLifetime());  
-    } 
+        services.AddHttpContextAccessor();
+        services.AddAuthorization();
+        services.AddScoped<ILockedUserChecker, LockedUserChecker>();
+        services.AddScoped<IUserContext, UserContext>();
+        services.AddScoped<IUserRoleChecker, UserRoleChecker>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddHealthChecks(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddHealthChecks()
+            .AddNpgSql(configuration.GetConnectionString("Database")!)
+            .AddRedis(configuration.GetConnectionString("Redis")!);
+
+        return services;
+    }
 }

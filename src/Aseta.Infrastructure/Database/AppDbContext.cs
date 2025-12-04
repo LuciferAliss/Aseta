@@ -1,6 +1,8 @@
 using Aseta.Domain.Abstractions.Primitives.Entities;
 using Aseta.Domain.Abstractions.Primitives.Events;
+using Aseta.Domain.Abstractions.Primitives.Results;
 using Aseta.Domain.Entities.Categories;
+using Aseta.Domain.Entities.Comments;
 using Aseta.Domain.Entities.Inventories;
 using Aseta.Domain.Entities.Items;
 using Aseta.Domain.Entities.Tags;
@@ -10,18 +12,22 @@ using Aseta.Infrastructure.DomainEvents;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Aseta.Infrastructure.Database;
 
-internal sealed class AppDbContext(
+public sealed class AppDbContext(
     DbContextOptions<AppDbContext> options,
-    DomainEventsDispatcher domainEventsDispatcher) : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>(options)
+    IDomainEventsDispatcher domainEventsDispatcher,
+    ILogger<AppDbContext> logger) : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>(options)
 {
     public DbSet<Inventory> Inventories { get; set; }
     public DbSet<Item> Items { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<InventoryRole> InventoryRoles { get; set; }
+    public DbSet<Comment> Comments { get; set; }
+    public DbSet<Like> Likes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -32,18 +38,19 @@ internal sealed class AppDbContext(
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        await PublishDomainEventsAsync();
-        return await base.SaveChangesAsync(cancellationToken);
+        int result = await base.SaveChangesAsync(cancellationToken);
+        await PublishDomainEventsAsync(cancellationToken);
+        return result;
     }
 
-    private async Task PublishDomainEventsAsync()
+    private async Task PublishDomainEventsAsync(CancellationToken cancellationToken)
     {
         var domainEvents = ChangeTracker
             .Entries<IEntity>()
             .Select(entry => entry.Entity)
             .SelectMany(entity =>
             {
-                List<IDomainEvent> domainEvents = entity.DomainEvents.ToList();
+                var domainEvents = entity.DomainEvents.ToList();
 
                 entity.ClearDomainEvents();
 
@@ -51,6 +58,11 @@ internal sealed class AppDbContext(
             })
             .ToList();
 
-        await domainEventsDispatcher.DispatchAsync(domainEvents);
+        Result dispatchResult = await domainEventsDispatcher.DispatchAsync(domainEvents, cancellationToken);
+
+        if (dispatchResult.IsFailure)
+        {
+            logger.LogWarning("Post-transaction domain event handlers failed. {Error}", dispatchResult.Error);
+        }
     }
 }

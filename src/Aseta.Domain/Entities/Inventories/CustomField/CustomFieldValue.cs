@@ -1,7 +1,11 @@
+using Aseta.Domain.Abstractions.Primitives.Results;
+
 namespace Aseta.Domain.Entities.Inventories.CustomField;
 
 public class CustomFieldValue
 {
+    public const int MaxValueLength = 1000;
+
     public Guid FieldId { get; private set; }
     public string? Value { get; private set; }
 
@@ -13,5 +17,13 @@ public class CustomFieldValue
         Value = value;
     }
 
-    public static CustomFieldValue Create(Guid fieldId, string? value) => new(fieldId, value);
+    public static Result<CustomFieldValue> Create(Guid fieldId, string? value)
+    {
+        if (value is not null && value.Length > MaxValueLength)
+        {
+            return CustomFieldErrors.ValueTooLong(MaxValueLength);
+        }
+
+        return new CustomFieldValue(fieldId, value);
+    }
 }

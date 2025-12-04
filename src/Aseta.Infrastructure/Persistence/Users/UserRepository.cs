@@ -5,4 +5,4 @@ using Aseta.Infrastructure.Persistence.Common;
 
 namespace Aseta.Infrastructure.Persistence.Users;
 
-internal sealed class UserRepository(AppDbContext context) : Repository<ApplicationUser>(context), IUserRepository;
+public sealed class UserRepository(AppDbContext context) : Repository<ApplicationUser>(context), IUserRepository;

@@ -49,13 +49,6 @@ internal sealed class InventoryConfiguration : IEntityTypeConfiguration<Inventor
             .HasForeignKey(i => i.CreatorId)
             .IsRequired();
 
-        inventory.HasGeneratedTsVectorColumn(
-            i => i.SearchVector, 
-            "english", 
-            i => new { i.InventoryName, i.Description, i.Category.CategoryName })
-            .HasIndex(i => i.SearchVector)
-            .HasMethod("GIN");
-
         inventory.Property(i => i.CustomFields).HasColumnType("jsonb");
 
         inventory.Property(i => i.CustomIdRules).HasColumnType("jsonb");

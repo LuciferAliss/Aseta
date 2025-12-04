@@ -6,34 +6,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aseta.Infrastructure.Persistence.Common;
 
-internal class Repository<T>(AppDbContext context) : IRepository<T> where T : class, IEntity
+public class Repository<T>(AppDbContext context) : IRepository<T> where T : class, IEntity
 {
     protected readonly AppDbContext _context = context;
     protected readonly DbSet<T> _dbSet = context.Set<T>();
 
     public async Task<IReadOnlyCollection<T>> GetAllAsync(
+        Expression<Func<T, bool>> predicate,
         bool trackChanges = default,
         CancellationToken cancellationToken = default,
         params Expression<Func<T, object>>[] includeProperties)
     {
-        var query = _dbSet;
-        ApplyInclude(query, includeProperties);
-        ApplyTracking(query, trackChanges);
-        
-        return await query.ToListAsync(cancellationToken);
+        return await _dbSet.ApplyInclude(includeProperties)
+            .ApplyTracking(trackChanges)
+            .Where(predicate)
+            .ToListAsync(cancellationToken);
     }
 
-    public virtual async Task<T?> GetByIdAsync<TId>(
-        TId id,
+    public virtual async Task<T?> GetByIdAsync(
+        Guid id,
         bool trackChanges = default,
         CancellationToken cancellationToken = default,
         params Expression<Func<T, object>>[] includeProperties)
     {
-        var query = _dbSet;
-        ApplyTracking(query, trackChanges);
-        ApplyInclude(query, includeProperties);
-
-        return await query.FindAsync([id], cancellationToken: cancellationToken);
+        return await _dbSet.ApplyInclude(includeProperties)
+            .ApplyTracking(trackChanges)
+            .FirstOrDefaultAsync(i => i.Id == id, cancellationToken: cancellationToken);
     }
 
     public async Task<T?> FirstOrDefaultAsync(
@@ -42,11 +40,9 @@ internal class Repository<T>(AppDbContext context) : IRepository<T> where T : cl
         CancellationToken cancellationToken = default,
         params Expression<Func<T, object>>[] includeProperties)
     {
-        var query = _dbSet;
-        ApplyInclude(query, includeProperties);
-        ApplyTracking(query, trackChanges);
-
-        return await query.FirstOrDefaultAsync(predicate, cancellationToken);
+        return await _dbSet.ApplyInclude(includeProperties)
+            .ApplyTracking(trackChanges)
+            .FirstOrDefaultAsync(predicate, cancellationToken);
     }
 
     public async Task AddAsync(T entity, CancellationToken cancellationToken = default)
@@ -61,23 +57,15 @@ internal class Repository<T>(AppDbContext context) : IRepository<T> where T : cl
         return await _dbSet.AnyAsync(predicate, cancellationToken);
     }
 
-    public async Task<int> RemoveAsync(
+    public async Task<int> BulkRemoveAsync(
         Expression<Func<T, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
         return await _dbSet.Where(predicate).ExecuteDeleteAsync(cancellationToken);
     }
 
-    protected static IQueryable<T> ApplyTracking(IQueryable<T> query, bool trackChanges)
+    public void Remove(T entity)
     {
-        return trackChanges 
-            ? query 
-            : query.AsNoTracking();
-    }
-
-    protected static IQueryable<T> ApplyInclude(IQueryable<T> query, params Expression<Func<T, object>>[] includeProperties)
-    {
-        return includeProperties.Aggregate(query, (current, includeProperty) =>
-            current.Include(includeProperty));
+        _dbSet.Remove(entity);
     }
 }

@@ -5,4 +5,4 @@ using Aseta.Infrastructure.Persistence.Common;
 
 namespace Aseta.Infrastructure.Persistence.Categories;
 
-internal sealed class CategoryRepository(AppDbContext context) : Repository<Category>(context), ICategoryRepository { }
+public sealed class CategoryRepository(AppDbContext context) : Repository<Category>(context), ICategoryRepository { }

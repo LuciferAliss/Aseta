@@ -7,7 +7,7 @@ namespace Aseta.Application.Inventories.Create;
 public sealed record CreateInventoryCommand(
     string Name,
     string Description,
-    string ImageUrl,
+    Uri ImageUrl,
     bool IsPublic,
     Guid CategoryId,
     Guid UserId) : ICommand<InventoryResponse>;

@@ -5,11 +5,10 @@ public sealed record InventoryResponse
     Guid Id,
     string Name,
     string Description,
-    string ImageUrl,
+    Uri ImageUrl,
     string Creator,
     CategoryResponse Category,
     bool IsPublic,
     DateTime CreatedAt,
     ICollection<TagResponse> Tags,
-    ICollection<CustomFieldDefinitionResponse> CustomFieldsDefinition
-);
+    ICollection<CustomFieldDefinitionResponse> CustomFieldsDefinition);

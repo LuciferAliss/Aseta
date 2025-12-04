@@ -33,7 +33,7 @@ public static class DependencyInjection
 
         return services;
     }
-            
+
     private static IServiceCollection AddDecorators(
         this IServiceCollection services)
     {
@@ -52,6 +52,8 @@ public static class DependencyInjection
         services.Decorate(typeof(ICommandHandler<,>), typeof(LoggingDecorator.CommandHandler<,>));
         services.Decorate(typeof(ICommandHandler<>), typeof(LoggingDecorator.CommandBaseHandler<>));
         services.Decorate(typeof(IQueryHandler<,>), typeof(LoggingDecorator.QueryHandler<,>));
+
+        // services.Decorate(typeof(IDomainEventHandler<>), typeof(LoggingDecorator.DomainEventHandler<>));
 
         return services;
     }

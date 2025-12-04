@@ -2,7 +2,7 @@ using Aseta.Domain.Abstractions.Primitives.Errors;
 
 namespace Aseta.Domain.Entities.Users;
 
-public class UserErrors
+public static class UserErrors
 {
     public static Error NotFound(string userId) => Error.NotFound(
         "Users.NotFound",

@@ -2,7 +2,7 @@ using Aseta.Domain.Abstractions.Primitives.Errors;
 
 namespace Aseta.Domain.Services.CustomId;
 
-public static class CustomIdServiceErrors
+internal static class CustomIdServiceErrors
 {
     public static Error CustomIdEmpty() => Error.Problem(
         "CustomIdService.CustomIdEmpty",

@@ -11,12 +11,16 @@ internal sealed class LockedUserChecker(
 {
     public async Task<bool> IsLockedAsync(string userId, CancellationToken cancellationToken = default)
     {
-        var isLocked = await cacheService.GetAsync(
+        bool isLocked = await cacheService.GetAsync(
             $"locked-{userId}",
             async () =>
             {
-                var user = await userManager.FindByIdAsync(userId);
-                if (user is null) return false;
+                ApplicationUser? user = await userManager.FindByIdAsync(userId);
+                if (user is null)
+                {
+                    return false;
+                }
+
                 return await userManager.IsLockedOutAsync(user);
             },
             cancellationToken);
