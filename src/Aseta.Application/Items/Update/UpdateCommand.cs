@@ -1,7 +1,7 @@
 using Aseta.Application.Abstractions.Authorization;
 using Aseta.Application.Abstractions.Messaging;
 using Aseta.Domain.Entities.Inventories.CustomField;
-using Aseta.Domain.Entities.UserRoles;
+using Aseta.Domain.Entities.InventoryRoles;
 
 namespace Aseta.Application.Items.Update;
 

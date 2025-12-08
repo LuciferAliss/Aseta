@@ -4,9 +4,9 @@ using Aseta.Domain.Entities.Categories;
 using Aseta.Domain.Entities.Comments;
 using Aseta.Domain.Entities.Inventories.CustomField;
 using Aseta.Domain.Entities.Inventories.CustomId;
+using Aseta.Domain.Entities.InventoryRoles;
 using Aseta.Domain.Entities.Items;
 using Aseta.Domain.Entities.Tags;
-using Aseta.Domain.Entities.UserRoles;
 using Aseta.Domain.Entities.Users;
 
 namespace Aseta.Domain.Entities.Inventories;
@@ -17,7 +17,7 @@ public class Inventory : Entity
     public const int MinNameLength = 3;
     public const int MaxDescriptionLength = 1000;
 
-    public string InventoryName { get; private set; }
+    public string Name { get; private set; }
     public string Description { get; private set; }
     public string ImageUrl { get; private set; }
     public bool IsPublic { get; private set; }
@@ -30,7 +30,7 @@ public class Inventory : Entity
     public ICollection<CustomIdRuleBase> CustomIdRules { get; private set; } = [];
     public DateTime CreatedAt { get; private set; }
     public Guid CreatorId { get; private set; }
-    public virtual ApplicationUser Creator { get; }
+    public virtual User Creator { get; }
     public virtual ICollection<InventoryRole> UserRoles { get; private set; } = [];
     public virtual ICollection<Comment> Comments { get; private set; } = [];
 
@@ -38,7 +38,7 @@ public class Inventory : Entity
 
     private Inventory(Guid id, string name, string description, Uri imageUrl, bool isPublic, Guid categoryId, Guid creatorId) : base(id)
     {
-        InventoryName = name;
+        Name = name;
         Description = description;
         ImageUrl = imageUrl.ToString();
         IsPublic = isPublic;
@@ -60,9 +60,14 @@ public class Inventory : Entity
             return InventoryErrors.DescriptionEmpty();
         }
 
-        if (name.Length > MaxNameLength || name.Length < MinNameLength)
+        if (name.Length > MaxNameLength)
         {
             return InventoryErrors.NameTooLong(MaxNameLength);
+        }
+
+        if (name.Length < MinNameLength)
+        {
+            return InventoryErrors.NameTooShort(MinNameLength);
         }
 
         if (description.Length > MaxDescriptionLength)
@@ -139,7 +144,7 @@ public class Inventory : Entity
             return InventoryErrors.ImageUrlNull();
         }
 
-        InventoryName = name;
+        Name = name;
         Description = description;
         ImageUrl = imageUrl.ToString();
         IsPublic = isPublic;

@@ -19,14 +19,14 @@ internal static class AuthorizationDecorator
             TCommand command,
             CancellationToken cancellationToken)
         {
-            var authorizationResult = await AuthorizeRequestAsync(
+            Result authorizationResult = await AuthorizeRequestAsync(
                 command,
                 currentUserService,
                 userRoleChecker,
                 cancellationToken);
 
-            return authorizationResult.IsFailure 
-                ? authorizationResult.Error 
+            return authorizationResult.IsFailure
+                ? authorizationResult.Error
                 : await innerHandler.Handle(command, cancellationToken);
         }
     }
@@ -40,14 +40,14 @@ internal static class AuthorizationDecorator
     {
         public async Task<Result> Handle(TCommand command, CancellationToken cancellationToken)
         {
-            var authorizationResult = await AuthorizeRequestAsync(
+            Result authorizationResult = await AuthorizeRequestAsync(
                 command,
                 currentUserService,
                 userRoleChecker,
                 cancellationToken);
 
-            return authorizationResult.IsFailure 
-                ? authorizationResult.Error 
+            return authorizationResult.IsFailure
+                ? authorizationResult.Error
                 : await innerHandler.Handle(command, cancellationToken);
         }
     }
@@ -61,14 +61,14 @@ internal static class AuthorizationDecorator
     {
         public async Task<Result<TResponse>> Handle(TQuery query, CancellationToken cancellationToken)
         {
-            var authorizationResult = await AuthorizeRequestAsync(
+            Result authorizationResult = await AuthorizeRequestAsync(
                 query,
                 currentUserService,
                 userRoleChecker,
                 cancellationToken);
 
-            return authorizationResult.IsFailure 
-                ? authorizationResult.Error 
+            return authorizationResult.IsFailure
+                ? authorizationResult.Error
                 : await innerHandler.Handle(query, cancellationToken);
         }
     }
@@ -79,14 +79,20 @@ internal static class AuthorizationDecorator
         IUserRoleChecker userRoleChecker,
         CancellationToken cancellationToken)
     {
-        var authorizeAttribute = typeof(TRequest).GetCustomAttribute<AuthorizeAttribute>();
-        if (authorizeAttribute is null) return Result.Success();
+        AuthorizeAttribute? authorizeAttribute = typeof(TRequest).GetCustomAttribute<AuthorizeAttribute>();
+        if (authorizeAttribute is null)
+        {
+            return Result.Success();
+        }
 
-        if (currentUserService.UserId is null || !currentUserService.IsAuthenticated) return UserErrors.NotAuthenticated();
+        if (currentUserService.UserId is null || !currentUserService.IsAuthenticated)
+        {
+            return UserErrors.NotAuthenticated();
+        }
 
         if (request is IInventoryScopedRequest inventoryScopedRequest)
         {
-            var hasPermission = await userRoleChecker.HasPermissionAsync(
+            bool hasPermission = await userRoleChecker.HasPermissionAsync(
                 currentUserService.UserId,
                 inventoryScopedRequest.InventoryId,
                 authorizeAttribute.Role,

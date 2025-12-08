@@ -1,4 +1,4 @@
-using Aseta.Domain.Entities.UserRoles;
+using Aseta.Domain.Entities.InventoryRoles;
 
 namespace Aseta.Application.Abstractions.Authorization;
 

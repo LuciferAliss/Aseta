@@ -9,7 +9,7 @@ public class Tag : Entity
     public const int MaxNameLength = 25;
 
     public string Name { get; private set; }
-    public virtual ICollection<Inventory> Inventories { get; private set; } = [];
+    public virtual ICollection<Inventory> Inventories { get; }
 
     private Tag() { }
 
@@ -24,6 +24,7 @@ public class Tag : Entity
         {
             return TagErrors.NameEmpty();
         }
+
         if (name.Length > MaxNameLength)
         {
             return TagErrors.NameTooLong(MaxNameLength);

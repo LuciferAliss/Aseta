@@ -11,8 +11,6 @@ using Aseta.Infrastructure.Options;
 using Aseta.Infrastructure.Persistence.Common;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -84,12 +82,16 @@ public static class DependencyInjection
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services.AddOptions<RefreshTokenOptions>()
+            .Bind(configuration.GetSection(RefreshTokenOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         JwtOptions jwtOptions = new();
         configuration.GetSection(JwtOptions.SectionName).Bind(jwtOptions);
 
-        services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options => options.SignIn.RequireConfirmedAccount = false)
-            .AddEntityFrameworkStores<AppDbContext>()
-            .AddDefaultTokenProviders();
+        RefreshTokenOptions refreshTokenOptions = new();
+        configuration.GetSection(RefreshTokenOptions.SectionName).Bind(refreshTokenOptions);
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(o =>
@@ -121,6 +123,8 @@ public static class DependencyInjection
         services.AddScoped<ILockedUserChecker, LockedUserChecker>();
         services.AddScoped<IUserContext, UserContext>();
         services.AddScoped<IUserRoleChecker, UserRoleChecker>();
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
+        services.AddSingleton<ITokenProvider, TokenProvider>();
 
         return services;
     }

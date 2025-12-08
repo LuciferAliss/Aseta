@@ -14,4 +14,7 @@ public class JwtOptions
 
     [Required(AllowEmptyStrings = false, ErrorMessage = "Jwt:Audience is required.")]
     public string Audience { get; init; } = string.Empty;
+
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Jwt:ExpirationInMinutes is required.")]
+    public int ExpirationInMinutes { get; init; }
 }

@@ -1,6 +1,6 @@
 using Aseta.Application.Abstractions.Authorization;
 using Aseta.Application.Abstractions.Messaging;
-using Aseta.Domain.Entities.UserRoles;
+using Aseta.Domain.Entities.InventoryRoles;
 
 namespace Aseta.Application.Items.Create;
 

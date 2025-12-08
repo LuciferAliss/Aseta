@@ -6,17 +6,15 @@ namespace Aseta.Infrastructure.Database.ConfigurationsDB;
 
 internal sealed class TagConfiguration : IEntityTypeConfiguration<Tag>
 {
-    public void Configure(EntityTypeBuilder<Tag> builder)
+    public void Configure(EntityTypeBuilder<Tag> tag)
     {
-        builder.ToTable("Tags");
-        builder.HasKey(i => i.Id);
+        tag.ToTable("Tags");
+        tag.HasKey(i => i.Id);
 
-        builder.Property(i => i.Id).ValueGeneratedOnAdd();
-
-        builder.Property(i => i.Name)
+        tag.Property(i => i.Name)
             .IsRequired()
-            .HasMaxLength(50);
+            .HasMaxLength(Tag.MaxNameLength);
 
-        builder.HasIndex(i => i.Name).IsUnique();
+        tag.HasIndex(i => i.Name).IsUnique();
     }
 }

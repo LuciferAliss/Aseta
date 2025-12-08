@@ -1,4 +1,4 @@
-namespace Aseta.Domain.Entities.UserRoles;
+namespace Aseta.Domain.Entities.InventoryRoles;
 
 public enum Role
 {

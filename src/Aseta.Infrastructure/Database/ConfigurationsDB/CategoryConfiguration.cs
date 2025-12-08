@@ -6,15 +6,15 @@ namespace Aseta.Infrastructure.Database.ConfigurationsDB;
 
 internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
 {
-    public void Configure(EntityTypeBuilder<Category> builder)
+    public void Configure(EntityTypeBuilder<Category> category)
     {
-        builder.ToTable("Categories");
-        builder.HasKey(i => i.Id);
+        category.ToTable("Categories");
+        category.HasKey(i => i.Id);
 
-        builder.Property(i => i.CategoryName)
+        category.Property(i => i.Name)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(Category.MaxNameLength);
 
-        builder.HasIndex(i => i.CategoryName).IsUnique();
+        category.HasIndex(i => i.Name).IsUnique();
     }
 }

@@ -13,9 +13,9 @@ public class Item : Entity
     public virtual Inventory Inventory { get; }
     public ICollection<CustomFieldValue> CustomFieldValues { get; private set; } = [];
     public Guid CreatorId { get; private set; }
-    public virtual ApplicationUser Creator { get; }
+    public virtual User Creator { get; }
     public Guid? UpdaterId { get; private set; }
-    public virtual ApplicationUser Updater { get; }
+    public virtual User Updater { get; }
     public DateTime? UpdatedAt { get; private set; }
     public DateTime CreatedAt { get; private set; }
 

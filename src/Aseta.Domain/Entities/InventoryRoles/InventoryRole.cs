@@ -3,12 +3,12 @@ using Aseta.Domain.Abstractions.Primitives.Results;
 using Aseta.Domain.Entities.Inventories;
 using Aseta.Domain.Entities.Users;
 
-namespace Aseta.Domain.Entities.UserRoles;
+namespace Aseta.Domain.Entities.InventoryRoles;
 
 public class InventoryRole : Entity
 {
     public Guid UserId { get; private set; }
-    public virtual ApplicationUser User { get; private set; } = null!;
+    public virtual User User { get; private set; } = null!;
     public Guid InventoryId { get; private set; }
     public virtual Inventory Inventory { get; private set; } = null!;
     public Role Role { get; private set; }

@@ -1,6 +1,6 @@
 using Aseta.Domain.Abstractions.Primitives.Errors;
 
-namespace Aseta.Domain.Entities.UserRoles;
+namespace Aseta.Domain.Entities.InventoryRoles;
 
 public static class InventoryRoleErrors
 {

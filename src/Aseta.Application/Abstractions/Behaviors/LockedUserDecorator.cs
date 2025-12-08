@@ -17,13 +17,13 @@ internal static class LockedUserDecorator
     {
         public async Task<Result<TResponse>> Handle(TCommand command, CancellationToken cancellationToken)
         {
-            var lockedUserResult = await LockedUserRequestAsync(
+            Result lockedUserResult = await LockedUserRequestAsync(
                 currentUserService,
                 lockedUserChecker,
                 cancellationToken);
-                
-            return lockedUserResult.IsFailure 
-                ? lockedUserResult.Error 
+
+            return lockedUserResult.IsFailure
+                ? lockedUserResult.Error
                 : await innerHandler.Handle(command, cancellationToken);
         }
     }
@@ -37,13 +37,13 @@ internal static class LockedUserDecorator
     {
         public async Task<Result> Handle(TCommand command, CancellationToken cancellationToken)
         {
-            var lockedUserResult = await LockedUserRequestAsync(
+            Result lockedUserResult = await LockedUserRequestAsync(
                 currentUserService,
                 lockedUserChecker,
                 cancellationToken);
-                
-            return lockedUserResult.IsFailure 
-                ? lockedUserResult.Error 
+
+            return lockedUserResult.IsFailure
+                ? lockedUserResult.Error
                 : await innerHandler.Handle(command, cancellationToken);
         }
     }
@@ -57,13 +57,13 @@ internal static class LockedUserDecorator
     {
         public async Task<Result<TResponse>> Handle(TQuery query, CancellationToken cancellationToken)
         {
-            var lockedUserResult = await LockedUserRequestAsync(
+            Result lockedUserResult = await LockedUserRequestAsync(
                 currentUserService,
                 lockedUserChecker,
                 cancellationToken);
-                
-            return lockedUserResult.IsFailure 
-                ? lockedUserResult.Error 
+
+            return lockedUserResult.IsFailure
+                ? lockedUserResult.Error
                 : await innerHandler.Handle(query, cancellationToken);
         }
     }
@@ -73,11 +73,18 @@ internal static class LockedUserDecorator
         ILockedUserChecker lockedUserChecker,
         CancellationToken cancellationToken)
     {
-        if (currentUserService.UserId is null || !currentUserService.IsAuthenticated) return Result.Success();
+        if (currentUserService.UserId is null || !currentUserService.IsAuthenticated)
+        {
+            return Result.Success();
+        }
 
-        var userLocked = await lockedUserChecker.IsLockedAsync(currentUserService.UserId, cancellationToken);
-        if (userLocked) return UserErrors.AccountLocked(currentUserService.UserId);
+        bool userLocked = await lockedUserChecker.IsLockedAsync(currentUserService.UserId, cancellationToken);
+        if (userLocked)
+        {
+            return UserErrors.AccountLocked(currentUserService.UserId);
+        }
 
         return Result.Success();
     }
-}   
+}
+

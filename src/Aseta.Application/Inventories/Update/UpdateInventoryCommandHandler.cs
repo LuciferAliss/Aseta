@@ -20,11 +20,16 @@ internal sealed class UpdateInventoryCommandHandler(
             return InventoryErrors.NotFound(command.InventoryId);
         }
 
-        inventory.Update(
+        Result updateResult = inventory.Update(
             command.Name,
             command.Description,
             command.ImageUrl,
             command.IsPublic);
+
+        if (updateResult.IsFailure)
+        {
+            return updateResult.Error;
+        }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -1,5 +1,5 @@
 using Aseta.Domain.Abstractions.Persistence;
-using Aseta.Domain.Entities.UserRoles;
+using Aseta.Domain.Entities.InventoryRoles;
 using Aseta.Infrastructure.Database;
 using Aseta.Infrastructure.Persistence.Common;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +10,7 @@ public sealed class InventoryUserRoleRepository(AppDbContext context) : Reposito
 {
     public Task<Role> GetUserRoleInInventory(string userId, Guid inventoryI, CancellationToken cancellationToken = default)
     {
-        return _dbSet.Where(i => i.UserId == Guid.Parse(userId) 
+        return _dbSet.Where(i => i.UserId == Guid.Parse(userId)
             && i.InventoryId == inventoryI)
             .Select(i => i.Role)
             .FirstOrDefaultAsync(cancellationToken);

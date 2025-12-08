@@ -27,7 +27,7 @@ public sealed class InventoryRepository(AppDbContext context) : Repository<Inven
         (ICollection<Inventory>? items, string? nextCursor, bool hasNextPage) = await new KeysetPaginator<Inventory>(query)
             .AddSortableField(SortBy.Date.ToString(), i => i.CreatedAt)
             .AddSortableField(SortBy.NumberOfItems.ToString(), i => i.ItemsCount)
-            .AddSortableField(SortBy.Name.ToString(), i => i.InventoryName)
+            .AddSortableField(SortBy.Name.ToString(), i => i.Name)
             .AddSortableField(SortBy.Creator.ToString(), i => i.Creator.UserName)
             .PaginateAsync(parameters.SortBy.ToString(), parameters.SortOrder, parameters.PageSize, parameters.Cursor, cancellationToken);
 

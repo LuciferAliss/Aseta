@@ -1,26 +1,30 @@
 using Aseta.Application.Abstractions.Authorization;
 using Aseta.Application.Abstractions.Services;
 using Aseta.Domain.Abstractions.Persistence;
-using Aseta.Domain.Entities.UserRoles;
+using Aseta.Domain.Entities.InventoryRoles;
 using Aseta.Domain.Entities.Users;
-using Microsoft.AspNetCore.Identity;
 
 namespace Aseta.Infrastructure.Authorization;
 
 internal sealed class UserRoleChecker(
-    UserManager<ApplicationUser> userManager,
+    IUserRepository userRepository,
     IInventoryUserRoleRepository inventoryUserRoleRepository,
     ICacheService cacheService) : IUserRoleChecker
 {
-    private async Task<bool> HasAdminRoleAsync(string userId)
+    private async Task<bool> HasAdminRoleAsync(string userId, CancellationToken cancellationToken = default)
     {
-        ApplicationUser? user = await userManager.FindByIdAsync(userId);
+        if (!Guid.TryParse(userId, out Guid id))
+        {
+            return false;
+        }
+
+        User? user = await userRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
         if (user is null)
         {
             return false;
         }
 
-        return await userManager.IsInRoleAsync(user, "Admin");
+        return user.Role == UserRole.Admin;
     }
 
     public async Task<bool> HasPermissionAsync(string userId, Guid inventoryId, Role requiredRole, CancellationToken cancellationToken = default)
@@ -34,7 +38,7 @@ internal sealed class UserRoleChecker(
                     return true;
                 }
 
-                return await HasAdminRoleAsync(userId);
+                return await HasAdminRoleAsync(userId, cancellationToken);
             },
             cancellationToken);
 

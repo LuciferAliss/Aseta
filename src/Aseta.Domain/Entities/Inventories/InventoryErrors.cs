@@ -16,6 +16,10 @@ public static class InventoryErrors
         "Inventories.NameTooLong",
         $"Inventory name cannot be longer than {maxLength} characters.");
 
+    public static Error NameTooShort(int minLength) => Error.Validation(
+        "Inventories.NameTooShort",
+        $"Inventory name cannot be shorter than {minLength} characters.");
+
     public static Error DescriptionTooLong(int maxLength) => Error.Validation(
         "Inventories.DescriptionTooLong",
         $"Description cannot be longer than {maxLength} characters.");

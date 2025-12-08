@@ -17,8 +17,6 @@ public static class DependencyInjection
 
         services.AddCors(opt => opt.AddPolicy("CorsPolicy", options => options.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins(optionsClient.Url)));
 
-        services.AddControllers();
-
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();
 

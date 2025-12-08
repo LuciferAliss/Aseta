@@ -11,4 +11,8 @@ public static class CategoryErrors
     public static Error NameTooLong(int maxLength) => Error.Validation(
         "Categories.NameTooLong",
         $"Category name cannot be longer than {maxLength} characters.");
+
+    public static Error NameTooShort(int minLength) => Error.Validation(
+        "Categories.NameTooShort",
+        $"Category name cannot be shorter than {minLength} characters.");
 }

@@ -9,7 +9,7 @@ public class Like : Entity
     public Guid CommentId { get; private set; }
     public virtual Comment Comment { get; }
     public Guid UserId { get; private set; }
-    public virtual ApplicationUser User { get; }
+    public virtual User User { get; }
     public DateTime CreatedAt { get; private set; }
 
     private Like() { }

@@ -48,10 +48,15 @@ internal sealed class UpdateCommandHandler(
             return Result.Failure(customIdResult.Error);
         }
 
-        item.Update(
+        Result updateResult = item.Update(
             command.UserId,
             customIdResult.Value,
             command.CustomFieldsValue);
+
+        if (updateResult.IsFailure)
+        {
+            return updateResult.Error;
+        }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

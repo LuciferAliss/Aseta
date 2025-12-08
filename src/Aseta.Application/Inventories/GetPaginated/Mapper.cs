@@ -13,9 +13,6 @@ public class MappingProfile : Profile
 
         CreateMap<Inventory, InventoryResponse>()
             .ForMember(
-                dest => dest.Name,
-                opt => opt.MapFrom(src => src.InventoryName))
-            .ForMember(
                 dest => dest.CreatorName,
                 opt => opt.MapFrom(src => src.Creator.UserName));
     }

@@ -12,7 +12,7 @@ public class Comment : Entity
     public string Content { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public Guid UserId { get; private set; }
-    public virtual ApplicationUser User { get; }
+    public virtual User User { get; }
     public Guid InventoryId { get; private set; }
     public virtual Inventory Inventory { get; }
     public virtual ICollection<Like> Likes { get; private set; } = [];

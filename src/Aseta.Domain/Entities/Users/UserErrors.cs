@@ -8,6 +8,10 @@ public static class UserErrors
         "Users.NotFound",
         $"The user with id: {userId} was not found.");
 
+    public static Error NotFoundByEmail(string email) => Error.NotFound(
+        "Users.NotFoundByEmail",
+        $"The user with email: {email} was not found.");
+
     public static Error NotAuthenticated() => Error.Unauthorized(
         "Users.NotAuthenticated",
         "User is not authenticated.");
@@ -19,4 +23,36 @@ public static class UserErrors
     public static Error AccountLocked(string userId) => Error.Forbidden(
         "Users.AccountLocked",
         $"User account with id: {userId} is locked.");
+
+    public static Error UserNameEmpty() => Error.Validation(
+        "Users.UserNameEmpty",
+        "User name cannot be empty.");
+
+    public static Error EmailEmpty() => Error.Validation(
+        "Users.EmailEmpty",
+        "Email cannot be empty.");
+
+    public static Error UserAlreadyExists(string email, string userName) => Error.Conflict(
+        "Users.UserAlreadyExists",
+        $"User with email: {email} and user name: {userName} already exists.");
+
+    public static Error PasswordEmpty() => Error.Validation(
+        "Users.PasswordEmpty",
+        "Password cannot be empty.");
+
+    public static Error UserNameTooLong(int maxLength) => Error.Validation(
+        "Users.UserNameTooLong",
+        $"User name cannot be longer than {maxLength} characters.");
+
+    public static Error UserNameTooShort(int minLength) => Error.Validation(
+        "Users.UserNameTooShort",
+        $"User name cannot be shorter than {minLength} characters.");
+
+    public static Error EmailTooLong(int maxLength) => Error.Validation(
+        "Users.EmailTooLong",
+        $"Email cannot be longer than {maxLength} characters.");
+
+    public static Error PasswordIncorrect() => Error.Validation(
+        "Users.PasswordIncorrect",
+        "Password is incorrect.");
 }

@@ -1,3 +1,4 @@
+using Aseta.Domain.Entities.Inventories;
 using FluentValidation;
 
 namespace Aseta.Application.Inventories.Update;
@@ -6,7 +7,15 @@ internal sealed class UpdateInventoryCommandValidator : AbstractValidator<Update
 {
     public UpdateInventoryCommandValidator()
     {
-        RuleFor(x => x.Name).NotEmpty().MinimumLength(3).MaximumLength(36);
-        RuleFor(x => x.Description).NotEmpty().MaximumLength(1000);
+        RuleFor(x => x.Name)
+            .NotNull()
+            .NotEmpty()
+            .MinimumLength(Inventory.MinNameLength)
+            .MaximumLength(Inventory.MaxNameLength);
+
+        RuleFor(x => x.Description)
+            .NotNull()
+            .NotEmpty()
+            .MaximumLength(Inventory.MaxDescriptionLength);
     }
 }

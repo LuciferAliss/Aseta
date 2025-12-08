@@ -9,7 +9,8 @@ public static class MigrationExtensions
     {
         using IServiceScope scope = app.ApplicationServices.CreateScope();
 
-        AppDbContext dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        using AppDbContext dbContext =
+            scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         await dbContext.Database.MigrateAsync();
     }

@@ -1,24 +1,31 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-USER $APP_UID
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+USER app
 WORKDIR /app
 EXPOSE 8080
-EXPOSE 8081
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+
+COPY ["Aseta.sln", "."]
+COPY ["Directory.Packages.props", "."]
+COPY ["Directory.Build.props", "."]
+
 COPY ["src/Aseta.API/Aseta.API.csproj", "src/Aseta.API/"]
 COPY ["src/Aseta.Application/Aseta.Application.csproj", "src/Aseta.Application/"]
 COPY ["src/Aseta.Domain/Aseta.Domain.csproj", "src/Aseta.Domain/"]
 COPY ["src/Aseta.Infrastructure/Aseta.Infrastructure.csproj", "src/Aseta.Infrastructure/"]
-RUN dotnet restore "src/Aseta.API/Aseta.API.csproj"
+
+RUN dotnet restore "Aseta.sln"
+
 COPY . .
 WORKDIR "/src/src/Aseta.API"
-RUN dotnet build "./Aseta.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "Aseta.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Aseta.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+WORKDIR /src
+RUN dotnet publish "src/Aseta.API/Aseta.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app

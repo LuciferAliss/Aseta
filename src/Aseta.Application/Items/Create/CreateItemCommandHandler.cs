@@ -35,11 +35,18 @@ internal sealed class CreateItemCommandHandler(
 
         ICollection<CustomFieldValue> customFieldsValue = mapper.Map<ICollection<CustomFieldValue>>(command.CustomFieldsValue);
 
-        var item = Item.Create(
+        Result<Item> itemResult = Item.Create(
             createResult.Value,
             command.InventoryId,
             customFieldsValue,
             command.UserId);
+
+        if (itemResult.IsFailure)
+        {
+            return itemResult.Error;
+        }
+
+        Item item = itemResult.Value;
 
         await itemRepository.AddAsync(item, cancellationToken);
 
