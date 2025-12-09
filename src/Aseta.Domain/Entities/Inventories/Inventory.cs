@@ -46,6 +46,7 @@ public class Inventory : Entity
         CreatorId = creatorId;
         CreatedAt = DateTime.UtcNow;
         ItemsCount = 0;
+        CustomIdRules = [new GuidRule("N")];
     }
 
     public static Result<Inventory> Create(string name, string description, Uri imageUrl, bool isPublic, Guid categoryId, Guid creatorId)
@@ -53,11 +54,6 @@ public class Inventory : Entity
         if (string.IsNullOrWhiteSpace(name))
         {
             return InventoryErrors.NameEmpty();
-        }
-
-        if (string.IsNullOrWhiteSpace(description))
-        {
-            return InventoryErrors.DescriptionEmpty();
         }
 
         if (name.Length > MaxNameLength)
@@ -122,11 +118,6 @@ public class Inventory : Entity
         if (string.IsNullOrWhiteSpace(name))
         {
             return InventoryErrors.NameEmpty();
-        }
-
-        if (string.IsNullOrWhiteSpace(description))
-        {
-            return InventoryErrors.DescriptionEmpty();
         }
 
         if (name.Length > MaxNameLength || name.Length < MinNameLength)

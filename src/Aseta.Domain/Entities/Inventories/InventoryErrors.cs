@@ -4,6 +4,10 @@ namespace Aseta.Domain.Entities.Inventories;
 
 public static class InventoryErrors
 {
+    public static Error ImageUrlNull() => Error.Validation(
+        "Inventories.ImageUrlNull",
+        "Image url cannot be null.");
+
     public static Error NotFound(Guid inventoryId) => Error.NotFound(
         "Inventories.NotFound",
         $"The inventory with id: {inventoryId} was not found.");
@@ -24,15 +28,7 @@ public static class InventoryErrors
         "Inventories.DescriptionTooLong",
         $"Description cannot be longer than {maxLength} characters.");
 
-    public static Error ImageUrlNull() => Error.Validation(
-        "Inventories.ImageUrlNull",
-        "Image URL cannot be null.");
-
     public static Error CustomFieldLimitExceeded(int max, string type, int count) => Error.Validation(
         "Inventories.CustomFieldLimitExceeded",
         $"Cannot have more than {max} custom fields of type '{type}'. Found {count}.");
-
-    public static Error DescriptionEmpty() => Error.Validation(
-        "Inventories.DescriptionEmpty",
-        "Description cannot be empty.");
 }

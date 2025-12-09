@@ -2,6 +2,7 @@ using System;
 using System.Windows.Input;
 using Aseta.API.Extensions;
 using Aseta.API.Infrastructure;
+using Aseta.Application.Abstractions.Authorization;
 using Aseta.Application.Abstractions.Messaging;
 using Aseta.Application.Inventories.Create;
 using Aseta.Domain.Abstractions.Primitives.Results;
@@ -15,23 +16,27 @@ internal sealed partial class Create : IEndpoint
         string Description,
         string ImageUrl,
         string CategoryId,
-        bool IsPublic,
-        string CreatorId);
+        bool IsPublic);
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapPost("/inventories/create", async (
             Request request,
             ICommandHandler<CreateInventoryCommand, InventoryResponse> handler,
-            CancellationToken cancellationToken) =>
+            CancellationToken cancellationToken,
+            IUserContext user) =>
         {
+            _ = Uri.TryCreate(request.ImageUrl, UriKind.Absolute, out Uri? imageUrl);
+            _ = Guid.TryParse(request.CategoryId, out Guid categoryId);
+            _ = Guid.TryParse(user.UserId, out Guid creatorId);
+
             var command = new CreateInventoryCommand(
                 request.Name,
                 request.Description,
-                request.ImageUrl,
+                imageUrl,
                 request.IsPublic,
-                request.CategoryId,
-                request.CreatorId);
+                categoryId,
+                creatorId);
 
             Result<InventoryResponse> result = await handler.Handle(command, cancellationToken);
 

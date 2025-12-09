@@ -14,5 +14,14 @@ internal sealed class CreateInventoryCommandValidator : AbstractValidator<Create
 
         RuleFor(x => x.Description)
             .MaximumLength(Inventory.MaxDescriptionLength).WithMessage($"Description must be at most {Inventory.MaxDescriptionLength} characters long.");
+
+        RuleFor(x => x.ImageUrl)
+            .NotNull().WithMessage("ImageUrl is required.");
+
+        RuleFor(x => x.CategoryId)
+            .NotEqual(Guid.Empty).WithMessage("A valid CategoryId is required.");
+
+        RuleFor(x => x.UserId)
+            .NotEqual(Guid.Empty).WithMessage("A valid CreatorId is required.");
     }
 }

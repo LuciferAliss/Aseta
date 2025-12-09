@@ -8,6 +8,10 @@ public static class CategoryErrors
         "Categories.NameEmpty",
         "Category name cannot be empty.");
 
+    public static Error NotFound(Guid categoryId) => Error.NotFound(
+        "Categories.NotFound",
+        $"The category with id: {categoryId} was not found.");
+
     public static Error NameTooLong(int maxLength) => Error.Validation(
         "Categories.NameTooLong",
         $"Category name cannot be longer than {maxLength} characters.");

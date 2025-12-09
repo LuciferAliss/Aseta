@@ -29,7 +29,7 @@ internal sealed class UserRoleChecker(
 
     public async Task<bool> HasPermissionAsync(string userId, Guid inventoryId, Role requiredRole, CancellationToken cancellationToken = default)
     {
-        bool hasPermission = await cacheService.GetAsync($"has-permission-{userId}-{inventoryId}",
+        bool? hasPermission = await cacheService.GetAsync<bool?>($"has-permission-{userId}-{inventoryId}",
             async () =>
             {
                 Role role = await inventoryUserRoleRepository.GetUserRoleInInventory(userId, inventoryId, cancellationToken);
@@ -42,6 +42,6 @@ internal sealed class UserRoleChecker(
             },
             cancellationToken);
 
-        return hasPermission;
+        return hasPermission.Value;
     }
 }

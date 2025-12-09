@@ -12,7 +12,7 @@ internal sealed class LockedUserChecker(
 {
     public async Task<bool> IsLockedAsync(string userId, CancellationToken cancellationToken = default)
     {
-        bool isLocked = await cacheService.GetAsync(
+        bool? isLocked = await cacheService.GetAsync<bool?>(
             $"locked-{userId}",
             async () =>
             {
@@ -31,8 +31,6 @@ internal sealed class LockedUserChecker(
             },
             cancellationToken);
 
-        await cacheService.SetAsync($"locked-{userId}", isLocked, cancellationToken);
-
-        return isLocked;
+        return isLocked.Value;
     }
 }

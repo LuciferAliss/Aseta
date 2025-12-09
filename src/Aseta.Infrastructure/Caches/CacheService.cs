@@ -15,7 +15,7 @@ internal sealed class CacheService(
             return default;
         }
 
-        return JsonSerializer.Deserialize<T>(value);
+        return JsonSerializer.Deserialize<T?>(value);
     }
 
     public async Task<T?> GetAsync<T>(string key, Func<Task<T?>> factory, CancellationToken cancellationToken = default)

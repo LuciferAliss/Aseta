@@ -2,6 +2,7 @@ using System.Reflection;
 using Aseta.Application.Abstractions.Authorization;
 using Aseta.Application.Abstractions.Messaging;
 using Aseta.Domain.Abstractions.Primitives.Results;
+using Aseta.Domain.Entities.InventoryRoles;
 using Aseta.Domain.Entities.Users;
 
 namespace Aseta.Application.Abstractions.Behaviors;
@@ -80,7 +81,8 @@ internal static class AuthorizationDecorator
         CancellationToken cancellationToken)
     {
         AuthorizeAttribute? authorizeAttribute = typeof(TRequest).GetCustomAttribute<AuthorizeAttribute>();
-        if (authorizeAttribute is null)
+
+        if (authorizeAttribute is null || authorizeAttribute.Role == Role.None)
         {
             return Result.Success();
         }
@@ -102,6 +104,8 @@ internal static class AuthorizationDecorator
             {
                 return UserErrors.NotPermission(inventoryScopedRequest.InventoryId);
             }
+
+            return Result.Success();
         }
 
         throw new InvalidOperationException(
