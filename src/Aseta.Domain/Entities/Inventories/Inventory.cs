@@ -76,6 +76,11 @@ public class Inventory : Entity
             return InventoryErrors.ImageUrlNull();
         }
 
+        if (categoryId == Guid.Empty)
+        {
+            return InventoryErrors.CategoryIdEmpty();
+        }
+
         return new Inventory(Guid.NewGuid(), name, description, imageUrl, isPublic, categoryId, creatorId);
     }
 
@@ -113,7 +118,7 @@ public class Inventory : Entity
         return Result.Success();
     }
 
-    public Result Update(string name, string description, Uri imageUrl, bool isPublic)
+    public Result Update(string name, string description, Uri imageUrl, Guid categoryId, bool isPublic)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -135,10 +140,16 @@ public class Inventory : Entity
             return InventoryErrors.ImageUrlNull();
         }
 
+        if (categoryId == Guid.Empty)
+        {
+            return InventoryErrors.CategoryIdEmpty();
+        }
+
         Name = name;
         Description = description;
         ImageUrl = imageUrl.ToString();
         IsPublic = isPublic;
+        CategoryId = categoryId;
 
         return Result.Success();
     }

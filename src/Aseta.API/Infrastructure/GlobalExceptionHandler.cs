@@ -18,6 +18,7 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
             BadHttpRequestException => new ProblemDetails
             {
                 Status = StatusCodes.Status400BadRequest,
+                Detail = exception.Message,
                 Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1",
                 Title = "Bad request"
             },
@@ -29,7 +30,7 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
             }
         };
 
-        httpContext.Response.StatusCode = problemDetails.Status ?? StatusCodes.Status500InternalServerError;
+        httpContext.Response.StatusCode = problemDetails.Status!.Value;
 
         await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
 

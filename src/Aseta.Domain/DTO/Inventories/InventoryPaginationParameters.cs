@@ -1,11 +1,10 @@
 namespace Aseta.Domain.DTO.Inventories;
 
-public record class InventoryPaginationParameters(    
+public record class InventoryPaginationParameters(
     DateTime? CreatedAtFrom,
     DateTime? CreatedAtTo,
     ICollection<Guid> TagIds,
     ICollection<Guid> CategoryIds,
-    bool? IsPublic,
     int? MinItemsCount,
     int? MaxItemsCount,
     SortBy SortBy,

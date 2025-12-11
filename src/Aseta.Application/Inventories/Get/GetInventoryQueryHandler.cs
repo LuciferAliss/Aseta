@@ -8,8 +8,7 @@ using AutoMapper;
 namespace Aseta.Application.Inventories.Get;
 
 internal sealed class GetInventoryQueryHandler(
-    IInventoryRepository inventoryRepository,
-    IMapper mapper) : IQueryHandler<GetInventoryQuery, InventoryResponse>
+    IInventoryRepository inventoryRepository) : IQueryHandler<GetInventoryQuery, InventoryResponse>
 {
     public async Task<Result<InventoryResponse>> Handle(
         GetInventoryQuery query,
@@ -29,7 +28,22 @@ internal sealed class GetInventoryQueryHandler(
             return InventoryErrors.NotFound(query.InventoryId);
         }
 
-        InventoryResponse response = mapper.Map<InventoryResponse>(inventory);
+        if (!Uri.TryCreate(inventory.ImageUrl, UriKind.Absolute, out Uri? imageUrl) && imageUrl is null)
+        {
+            return InventoryErrors.ImageUrlNull();
+        }
+
+        var response = new InventoryResponse(
+            inventory.Id,
+            inventory.Name,
+            inventory.Description,
+            imageUrl,
+            inventory.Creator.UserName,
+            new CategoryResponse(inventory.Category.Id, inventory.Category.Name),
+            inventory.IsPublic,
+            inventory.CreatedAt,
+            inventory.Tags.Select(t => new TagResponse(t.Id, t.Name)).ToList(),
+            inventory.CustomFields.Select(c => new CustomFieldDefinitionResponse(c.Id, c.Name, c.Type.ToString())).ToList());
 
         return response;
     }

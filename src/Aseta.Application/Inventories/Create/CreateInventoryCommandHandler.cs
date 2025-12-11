@@ -22,7 +22,7 @@ internal sealed class CreateInventoryCommandHandler(
 
         if (!categoryExists)
         {
-            return CategoryErrors.NotFound(command.CategoryId!.Value);
+            return CategoryErrors.NotFound(command.CategoryId);
         }
 
         Result<Inventory> inventoryResult = Inventory.Create(
@@ -30,8 +30,8 @@ internal sealed class CreateInventoryCommandHandler(
             command.Description,
             command.ImageUrl!,
             command.IsPublic,
-            command.CategoryId!.Value,
-            command.UserId!.Value);
+            command.CategoryId,
+            command.UserId);
 
         if (inventoryResult.IsFailure)
         {

@@ -4,12 +4,11 @@ using Aseta.Domain.DTO.Inventories;
 
 namespace Aseta.Application.Inventories.GetPaginated;
 
-internal sealed record GetPaginatedInventoryQuery(
+public sealed record GetInventoriesPaginatedQuery(
     DateTime? CreatedAtFrom,
     DateTime? CreatedAtTo,
     ICollection<Guid> TagIds,
     ICollection<Guid> CategoryIds,
-    bool? IsPublic,
     int? MinItemsCount,
     int? MaxItemsCount,
     SortBy SortBy,

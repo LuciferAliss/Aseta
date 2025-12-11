@@ -31,4 +31,9 @@ public static class InventoryErrors
     public static Error CustomFieldLimitExceeded(int max, string type, int count) => Error.Validation(
         "Inventories.CustomFieldLimitExceeded",
         $"Cannot have more than {max} custom fields of type '{type}'. Found {count}.");
+
+    public static Error CategoryIdEmpty() => Error.Validation(
+        "Inventories.CategoryIdEmpty",
+        "Category id cannot be empty."
+    );
 }

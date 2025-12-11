@@ -20,7 +20,6 @@ public sealed class InventoryRepository(AppDbContext context) : Repository<Inven
             .FilterByCreateAtTo(parameters.CreatedAtTo)
             .FilterByTags(parameters.TagIds)
             .FilterByCategory(parameters.CategoryIds)
-            .FilterByIsPublic(parameters.IsPublic)
             .FilterByMinItemsCount(parameters.MinItemsCount)
             .FilterByMaxItemsCount(parameters.MaxItemsCount);
 

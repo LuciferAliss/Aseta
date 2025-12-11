@@ -1,7 +1,6 @@
 namespace Aseta.Application.Inventories.Get.Contracts;
 
-public sealed record InventoryResponse
-(
+public sealed record InventoryResponse(
     Guid Id,
     string Name,
     string Description,
