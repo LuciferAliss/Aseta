@@ -1,14 +1,13 @@
 using Aseta.Application.Abstractions.Authorization;
 using Aseta.Application.Abstractions.Messaging;
-using Aseta.Domain.Entities.Inventories.CustomField;
 using Aseta.Domain.Entities.InventoryRoles;
 
 namespace Aseta.Application.Items.Update;
 
 [Authorize(Role.Editor)]
-public sealed record UpdateCommand(
+public sealed record UpdateItemCommand(
     Guid ItemId,
     string CustomId,
-    ICollection<CustomFieldValue> CustomFieldsValue,
+    ICollection<CustomFieldValueData> CustomFieldsValue,
     Guid InventoryId,
     Guid UserId) : ICommand, IInventoryScopedRequest;

@@ -15,6 +15,7 @@ public record class InventoryPaginationParameters(
 
 public enum SortBy
 {
+    None,
     Date,
     Name,
     Creator,

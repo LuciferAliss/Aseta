@@ -29,7 +29,6 @@ internal sealed class ItemConfiguration : IEntityTypeConfiguration<Item>
         item.HasOne(i => i.Updater)
             .WithMany()
             .HasForeignKey(i => i.UpdaterId)
-            .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
 
         item.HasOne(i => i.Inventory)

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Aseta.Domain.Abstractions.Primitives.Results;
 
 namespace Aseta.Domain.Entities.Inventories.CustomField;
@@ -10,9 +11,12 @@ public class CustomFieldDefinition
     public string Name { get; private set; }
     public CustomFieldType Type { get; private set; }
 
-    private CustomFieldDefinition(string name, CustomFieldType type)
+    private CustomFieldDefinition() { }
+
+    [JsonConstructor]
+    private CustomFieldDefinition(Guid id, string name, CustomFieldType type)
     {
-        Id = Guid.NewGuid();
+        Id = id;
         Name = name;
         Type = type;
     }
@@ -23,11 +27,17 @@ public class CustomFieldDefinition
         {
             return CustomFieldErrors.DefinitionNameEmpty();
         }
+
         if (name.Length > MaxNameLength)
         {
             return CustomFieldErrors.DefinitionNameTooLong(MaxNameLength);
         }
 
-        return new CustomFieldDefinition(name, type);
+        if (type == CustomFieldType.None)
+        {
+            return CustomFieldErrors.InvalidType();
+        }
+
+        return new CustomFieldDefinition(Guid.NewGuid(), name, type);
     }
 }

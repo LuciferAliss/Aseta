@@ -46,7 +46,7 @@ internal static class ItemQueryExtensions
 
     public static IQueryable<Item> FilterByUpdater(this IQueryable<Item> query, Guid? updaterId)
     {
-        if (updaterId.HasValue)
+        if (!updaterId.HasValue)
         {
             return query;
         }
@@ -56,7 +56,7 @@ internal static class ItemQueryExtensions
 
     public static IQueryable<Item> FilterByCreator(this IQueryable<Item> query, Guid? creatorId)
     {
-        if (creatorId.HasValue)
+        if (!creatorId.HasValue)
         {
             return query;
         }

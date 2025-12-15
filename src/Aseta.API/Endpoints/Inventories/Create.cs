@@ -20,11 +20,11 @@ internal sealed partial class Create : IEndpoint
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("/inventories/create", async (
+        app.MapPost("/inventories", async (
             Request request,
             ICommandHandler<CreateInventoryCommand, InventoryResponse> handler,
-            CancellationToken cancellationToken,
-            IUserContext user) =>
+            IUserContext user,
+            CancellationToken cancellationToken = default) =>
         {
             _ = Uri.TryCreate(request.ImageUrl, UriKind.Absolute, out Uri? imageUrl);
             _ = Guid.TryParse(request.CategoryId, out Guid categoryId);

@@ -3,8 +3,8 @@ namespace Aseta.Application.Items.GetPaginated.Contracts;
 public sealed record ItemResponse(
     Guid Id,
     string CustomId,
-    List<CustomFieldValueResponse> CustomFields,
-    string UpdaterName,
+    List<CustomFieldValueResponse> CustomFieldValues,
     string CreatorName,
+    string? UpdaterName,
     DateTime CreatedAt,
-    DateTime UpdatedAt);
+    DateTime? UpdatedAt);

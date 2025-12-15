@@ -28,10 +28,12 @@ public sealed class ItemRepository(AppDbContext context) : Repository<Item>(cont
 
     public async Task<(ICollection<Item> items, string? nextCursor, bool hasNextPage)> GetPaginatedWithKeysetAsync(
         ItemPaginationParameters parameters,
+        Guid inventoryId,
         CancellationToken cancellationToken = default)
     {
         IQueryable<Item> query = _dbSet.ApplyInclude(i => i.Creator, i => i.Updater)
-            .ApplyTracking(false);
+            .ApplyTracking(false)
+            .Where(i => i.InventoryId == inventoryId);
 
         query = query.FilterByCreateAtFrom(parameters.CreatedAtFrom)
             .FilterByCreateAtTo(parameters.CreatedAtTo)
@@ -44,7 +46,7 @@ public sealed class ItemRepository(AppDbContext context) : Repository<Item>(cont
             .AddSortableField(SortBy.DateCreated.ToString(), i => i.CreatedAt)
             .AddSortableField(SortBy.DateUpdated.ToString(), i => i.UpdatedAt)
             .AddSortableField(SortBy.Creator.ToString(), i => i.Creator.UserName)
-            .AddSortableField(SortBy.Updater.ToString(), i => i.Updater.UserName)
+            .AddSortableField(SortBy.Updater.ToString(), i => i.Updater == null ? "" : i.Updater.UserName)
             .PaginateAsync(parameters.SortBy.ToString(), parameters.SortOrder, parameters.PageSize, parameters.Cursor, cancellationToken);
 
         return (items, nextCursor, hasNextPage);

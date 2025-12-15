@@ -24,4 +24,8 @@
     <None Include="Controllers\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Endpoints\Items\" />
+  </ItemGroup>
+
 </Project>

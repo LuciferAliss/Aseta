@@ -6,7 +6,7 @@ using Aseta.Domain.DTO.Items;
 
 namespace Aseta.Application.Items.GetPaginated;
 
-public sealed record GetPaginatedItemQuery(
+public sealed record GetItemsPaginatedQuery(
     Guid InventoryId,
     DateTime? CreatedAtFrom,
     DateTime? CreatedAtTo,

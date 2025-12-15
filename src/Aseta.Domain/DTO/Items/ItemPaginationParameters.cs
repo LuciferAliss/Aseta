@@ -1,6 +1,6 @@
 namespace Aseta.Domain.DTO.Items;
 
-public record ItemPaginationParameters (
+public record ItemPaginationParameters(
     DateTime? CreatedAtFrom,
     DateTime? CreatedAtTo,
     DateTime? UpdatedAtFrom,
@@ -14,6 +14,7 @@ public record ItemPaginationParameters (
 
 public enum SortBy
 {
+    None,
     DateCreated,
     DateUpdated,
     Creator,

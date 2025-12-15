@@ -20,7 +20,7 @@ internal sealed class Login : IEndpoint
         app.MapPost("/users/login", async (
             Request request,
             ICommandHandler<LoginUserCommand, LoginResponse> handler,
-            CancellationToken cancellationToken) =>
+            CancellationToken cancellationToken = default) =>
         {
             var command = new LoginUserCommand(
                 request.Email,

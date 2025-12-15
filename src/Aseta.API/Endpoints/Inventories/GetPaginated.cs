@@ -29,7 +29,7 @@ internal sealed class GetPaginated : IEndpoint
         app.MapGet("/inventories", async (
             [AsParameters] Request request,
             IQueryHandler<GetInventoriesPaginatedQuery, InventoriesResponse> handler,
-            CancellationToken cancellationToken) =>
+            CancellationToken cancellationToken = default) =>
         {
             _ = Enum.TryParse(request.SortBy, out SortBy sortBy);
             ICollection<Guid> tagIds = request.TagIds?.Select(t =>

@@ -21,9 +21,9 @@ public class Inventory : Entity
     public string Description { get; private set; }
     public string ImageUrl { get; private set; }
     public bool IsPublic { get; private set; }
-    public ICollection<CustomFieldDefinition> CustomFields { get; private set; } = [];
+    public List<CustomFieldDefinition> CustomFields { get; private set; } = [];
     public int ItemsCount { get; private set; }
-    public virtual ICollection<Item> Items { get; private set; } = [];
+    public virtual List<Item> Items { get; private set; } = [];
     public Guid CategoryId { get; private set; }
     public virtual Category Category { get; }
     public virtual ICollection<Tag> Tags { get; private set; } = [];
@@ -114,7 +114,11 @@ public class Inventory : Entity
             }
         }
 
-        CustomFields = newFields;
+        var updateCustomFields = CustomFields.Concat(newFields).ToList();
+        CustomFields = updateCustomFields;
+
+        //! необходимо сделать если кастомные поля удаляются
+
         return Result.Success();
     }
 

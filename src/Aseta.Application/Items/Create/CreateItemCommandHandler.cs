@@ -6,6 +6,7 @@ using Aseta.Domain.Entities.Inventories;
 using Aseta.Domain.Entities.Inventories.CustomField;
 using Aseta.Domain.Entities.Items;
 using AutoMapper;
+using System.Linq;
 
 namespace Aseta.Application.Items.Create;
 
@@ -13,30 +14,75 @@ internal sealed class CreateItemCommandHandler(
     IItemRepository itemRepository,
     IInventoryRepository inventoryRepository,
     IUnitOfWork unitOfWork,
-    IMapper mapper,
     ICustomIdService customIdService) : ICommandHandler<CreateItemCommand>
 {
     public async Task<Result> Handle(
         CreateItemCommand command,
         CancellationToken cancellationToken)
     {
-        Inventory? inventory = await inventoryRepository.GetByIdAsync(command.InventoryId, true, cancellationToken);
+        Inventory? inventory = await inventoryRepository.GetByIdAsync(
+            command.InventoryId,
+            true,
+            cancellationToken);
 
         if (inventory is null)
         {
             return InventoryErrors.NotFound(command.InventoryId);
         }
 
-        Result<string> createResult = await customIdService.GenerateAsync(command.InventoryId, command.InventoryId, inventory.CustomIdRules, cancellationToken);
-        if (createResult.IsFailure)
+        var existingIds = inventory.CustomFields.Select(cf => cf.Id).ToList();
+
+        var missingIds = command.CustomFieldsValue
+            .Select(val => val.FieldId)
+            .Except(existingIds)
+            .ToList();
+
+        if (missingIds.Count > 0)
         {
-            return createResult.Error;
+            return CustomFieldErrors.NotFound(missingIds);
         }
 
-        ICollection<CustomFieldValue> customFieldsValue = mapper.Map<ICollection<CustomFieldValue>>(command.CustomFieldsValue);
+        if (command.CustomFieldsValue.Count != existingIds.Count)
+        {
+            return CustomFieldErrors.AllFieldsRequired();
+        }
+
+        var customFieldDefinitionsMap = inventory.CustomFields.ToDictionary(d => d.Id, d => d);
+
+        var customFieldResults = command.CustomFieldsValue
+            .Select(c =>
+            {
+                if (!customFieldDefinitionsMap.TryGetValue(c.FieldId, out CustomFieldDefinition? fieldDefinition))
+                {
+                    return CustomFieldErrors.NotFound(c.FieldId);
+                }
+
+                return CustomFieldValue.Create(c.FieldId, c.Value, fieldDefinition.Type);
+            })
+            .ToList();
+
+        if (customFieldResults.Any(r => r.IsFailure))
+        {
+            return customFieldResults.First(r => r.IsFailure).Error;
+        }
+
+        ICollection<CustomFieldValue> customFieldsValue = customFieldResults
+            .Select(r => r.Value)
+            .ToList();
+
+        Result<string> customIdResult = await customIdService.GenerateAsync(
+            command.InventoryId,
+            command.InventoryId,
+            inventory.CustomIdRules,
+            cancellationToken);
+
+        if (customIdResult.IsFailure)
+        {
+            return customIdResult.Error;
+        }
 
         Result<Item> itemResult = Item.Create(
-            createResult.Value,
+            customIdResult.Value,
             command.InventoryId,
             customFieldsValue,
             command.UserId);
