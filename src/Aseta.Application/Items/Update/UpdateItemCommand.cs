@@ -7,7 +7,6 @@ namespace Aseta.Application.Items.Update;
 [Authorize(Role.Editor)]
 public sealed record UpdateItemCommand(
     Guid ItemId,
-    string CustomId,
-    ICollection<CustomFieldValueData> CustomFieldsValue,
+    ICollection<CustomFieldValueData> CustomFieldValues,
     Guid InventoryId,
     Guid UserId) : ICommand, IInventoryScopedRequest;

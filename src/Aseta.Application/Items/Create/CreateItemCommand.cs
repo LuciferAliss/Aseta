@@ -6,6 +6,6 @@ namespace Aseta.Application.Items.Create;
 
 [Authorize(Role.Editor)]
 public sealed record CreateItemCommand(
-    ICollection<CustomFieldValueData> CustomFieldsValue,
+    ICollection<CustomFieldValueData> CustomFieldValues,
     Guid InventoryId,
     Guid UserId) : ICommand, IInventoryScopedRequest;

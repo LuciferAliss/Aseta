@@ -5,7 +5,7 @@ using Aseta.Domain.Abstractions.Primitives.Results;
 using Aseta.Domain.Entities.Inventories;
 using Aseta.Domain.Entities.Inventories.CustomField;
 
-namespace Aseta.Application.Inventories.AddCustomFieldDefinition;
+namespace Aseta.Application.CustomFields.AddCustomFieldDefinition;
 
 internal sealed class AddCustomFieldDefinitionCommandHandler(
     IInventoryRepository inventoryRepository,
@@ -31,7 +31,7 @@ internal sealed class AddCustomFieldDefinitionCommandHandler(
 
         var customFields = customFIeldResults.Select(r => r.Value).ToList();
 
-        Result result = inventory.UpdateCustomFields(customFields);
+        Result result = inventory.AddCustomFields(customFields);
 
         if (result.IsFailure)
         {

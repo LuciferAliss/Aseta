@@ -2,11 +2,11 @@ using System;
 using Aseta.API.Extensions;
 using Aseta.API.Infrastructure;
 using Aseta.Application.Abstractions.Messaging;
-using Aseta.Application.Inventories.AddCustomFieldDefinition;
+using Aseta.Application.CustomFields.AddCustomFieldDefinition;
 using Aseta.Domain.Abstractions.Primitives.Results;
 using Aseta.Domain.Entities.Inventories.CustomField;
 
-namespace Aseta.API.Endpoints.Inventories;
+namespace Aseta.API.Endpoints.CustomFields;
 
 internal sealed class AddCustomFieldDefinition : IEndpoint
 {
@@ -38,7 +38,7 @@ internal sealed class AddCustomFieldDefinition : IEndpoint
 
             return result.Match(Results.Created, CustomResults.Problem);
         })
-        .WithTags(Tags.Inventories)
+        .WithTags(Tags.CustomFields)
         .RequireAuthorization();
     }
 }

@@ -38,7 +38,7 @@ internal sealed class UpdateItemCommandHandler(
         }
 
         Result<string> customIdResult = await DetermineNewCustomIdAsync(
-            command.CustomId,
+            item.CustomId,
             item,
             inventory,
             cancellationToken);
@@ -52,7 +52,7 @@ internal sealed class UpdateItemCommandHandler(
 
         var existingIds = inventory.CustomFields.Select(cf => cf.Id).ToList();
 
-        var missingIds = command.CustomFieldsValue
+        var missingIds = command.CustomFieldValues
             .Select(val => val.FieldId)
             .Except(existingIds)
             .ToList();
@@ -62,14 +62,14 @@ internal sealed class UpdateItemCommandHandler(
             return CustomFieldErrors.NotFound(missingIds);
         }
 
-        if (command.CustomFieldsValue.Count != existingIds.Count)
+        if (command.CustomFieldValues.Count != existingIds.Count)
         {
             return CustomFieldErrors.AllFieldsRequired();
         }
 
         var customFieldDefinitionsMap = inventory.CustomFields.ToDictionary(d => d.Id, d => d);
 
-        var customFieldResults = command.CustomFieldsValue
+        var customFieldResults = command.CustomFieldValues
             .Select(c =>
             {
                 if (!customFieldDefinitionsMap.TryGetValue(c.FieldId, out CustomFieldDefinition? fieldDefinition))

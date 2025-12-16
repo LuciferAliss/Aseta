@@ -1,7 +1,7 @@
 using Aseta.Domain.Entities.Inventories.CustomField;
 using FluentValidation;
 
-namespace Aseta.Application.Inventories.AddCustomFieldDefinition;
+namespace Aseta.Application.CustomFields.AddCustomFieldDefinition;
 
 internal sealed class AddCustomFieldDefinitionCommandValidation : AbstractValidator<AddCustomFieldDefinitionCommand>
 {
@@ -18,5 +18,8 @@ internal sealed class AddCustomFieldDefinitionCommandValidation : AbstractValida
             cfv.RuleFor(x => x.Type)
                 .NotEqual(CustomFieldType.None).WithMessage("A valid type is required.");
         });
+
+        RuleFor(x => x.NewFields)
+            .NotEmpty().WithMessage("The NewFields collection cannot be empty.");
     }
 }

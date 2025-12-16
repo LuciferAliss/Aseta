@@ -1,14 +1,16 @@
 using System;
-using System.Data;
 using Aseta.Domain.Entities.Inventories.CustomField;
 using FluentValidation;
 
-namespace Aseta.Application.Items.Create;
+namespace Aseta.Application.Items.Update;
 
-internal sealed class CreateItemCommandValidation : AbstractValidator<CreateItemCommand>
+internal sealed class UpdateItemCommandValidation : AbstractValidator<UpdateItemCommand>
 {
-    public CreateItemCommandValidation()
+    public UpdateItemCommandValidation()
     {
+        RuleFor(x => x.ItemId)
+            .NotEqual(Guid.Empty).WithMessage("A valid ItemId is required.");
+
         RuleFor(x => x.UserId)
             .NotEqual(Guid.Empty).WithMessage("A valid CreatorId is required.");
 

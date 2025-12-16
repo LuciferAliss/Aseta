@@ -20,7 +20,7 @@ internal sealed class GetPaginated : IEndpoint
         int? MinItemsCount,
         int? MaxItemsCount,
         string? Cursor,
-        int PageSize = 0,
+        int PageSize = 20,
         string SortBy = "Date",
         string SortOrder = "desc");
 

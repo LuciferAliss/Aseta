@@ -98,9 +98,11 @@ public class Inventory : Entity
         }
     }
 
-    public Result UpdateCustomFields(ICollection<CustomFieldDefinition> newFields)
+    public Result AddCustomFields(ICollection<CustomFieldDefinition> newFields)
     {
-        var fieldCountsByType = newFields
+        var allCustomFields = CustomFields.Concat(newFields).ToList();
+
+        var fieldCountsByType = allCustomFields
                 .GroupBy(field => field.Type)
                 .ToDictionary(group => group.Key, group => group.Count());
 
@@ -116,8 +118,6 @@ public class Inventory : Entity
 
         var updateCustomFields = CustomFields.Concat(newFields).ToList();
         CustomFields = updateCustomFields;
-
-        //! необходимо сделать если кастомные поля удаляются
 
         return Result.Success();
     }

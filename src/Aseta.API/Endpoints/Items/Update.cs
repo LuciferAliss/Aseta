@@ -10,8 +10,6 @@ namespace Aseta.API.Endpoints.Items;
 internal sealed class Update : IEndpoint
 {
     public sealed record Request(
-        string ItemId,
-        string CustomId,
         ICollection<CustomFieldValue> CustomFieldsValue);
     public sealed record CustomFieldValue(string FieldId, string Value);
 
@@ -38,7 +36,6 @@ internal sealed class Update : IEndpoint
 
             var command = new UpdateItemCommand(
                 itemId,
-                request.CustomId,
                 customFieldValueData,
                 inventoryId,
                 userId);
