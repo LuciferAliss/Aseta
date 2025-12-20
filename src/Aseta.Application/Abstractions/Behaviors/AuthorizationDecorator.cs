@@ -1,4 +1,5 @@
 using System.Reflection;
+using Aseta.Application.Abstractions.Authentication;
 using Aseta.Application.Abstractions.Authorization;
 using Aseta.Application.Abstractions.Messaging;
 using Aseta.Domain.Abstractions.Primitives.Results;
@@ -82,7 +83,7 @@ internal static class AuthorizationDecorator
     {
         AuthorizeAttribute? authorizeAttribute = typeof(TRequest).GetCustomAttribute<AuthorizeAttribute>();
 
-        if (authorizeAttribute is null || authorizeAttribute.Role == Role.None)
+        if (authorizeAttribute is null)
         {
             return Result.Success();
         }
@@ -92,23 +93,45 @@ internal static class AuthorizationDecorator
             return UserErrors.NotAuthenticated();
         }
 
-        if (request is IInventoryScopedRequest inventoryScopedRequest)
+        if (authorizeAttribute.UserRole.HasValue &&
+            currentUserService.UserRole != authorizeAttribute.UserRole.Value &&
+            currentUserService.UserRole != UserRole.Admin)
         {
-            bool hasPermission = await userRoleChecker.HasPermissionAsync(
-                currentUserService.UserId,
-                inventoryScopedRequest.InventoryId,
-                authorizeAttribute.Role,
-                cancellationToken);
-
-            if (!hasPermission)
-            {
-                return UserErrors.NotPermission(inventoryScopedRequest.InventoryId);
-            }
-
-            return Result.Success();
+            return UserErrors.NotGlobalPermission(authorizeAttribute.UserRole.Value.ToString());
         }
 
-        throw new InvalidOperationException(
-            $"The request '{typeof(TRequest).Name}' has an [Authorize] attribute but does not implement the {nameof(IInventoryScopedRequest)} interface. Authorization cannot be performed.");
+        if (authorizeAttribute.InventoryRole != Role.None)
+        {
+            if (currentUserService.UserRole == UserRole.Admin)
+            {
+                return Result.Success();
+            }
+
+            if (request is IInventoryScopedRequest inventoryScopedRequest)
+            {
+                if (!Guid.TryParse(currentUserService.UserId, out Guid userId))
+                {
+                    return UserErrors.InvalidId(currentUserService.UserId);
+                }
+
+                bool hasPermission = await userRoleChecker.HasPermissionAsync(
+                    userId,
+                    inventoryScopedRequest.InventoryId,
+                    authorizeAttribute.InventoryRole,
+                    cancellationToken);
+
+                if (!hasPermission)
+                {
+                    return UserErrors.NotPermission(inventoryScopedRequest.InventoryId);
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    $"The request '{typeof(TRequest).Name}' has an [Authorize(InventoryRole)] attribute but does not implement the {nameof(IInventoryScopedRequest)} interface. Authorization cannot be performed.");
+            }
+        }
+
+        return Result.Success();
     }
 }

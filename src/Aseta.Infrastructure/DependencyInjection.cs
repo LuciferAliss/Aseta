@@ -1,8 +1,10 @@
 using System.Text;
+using Aseta.Application.Abstractions.Authentication;
 using Aseta.Application.Abstractions.Authorization;
 using Aseta.Application.Abstractions.Services;
 using Aseta.Domain.Abstractions.Persistence;
 using Aseta.Domain.Entities.Users;
+using Aseta.Infrastructure.Authentication;
 using Aseta.Infrastructure.Authorization;
 using Aseta.Infrastructure.Caches;
 using Aseta.Infrastructure.Database;
@@ -121,6 +123,7 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddAuthorization();
         services.AddScoped<ILockedUserChecker, LockedUserChecker>();
+        services.AddScoped<IUserSessionChecker, UserSessionChecker>();
         services.AddScoped<IUserContext, UserContext>();
         services.AddScoped<IUserRoleChecker, UserRoleChecker>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();

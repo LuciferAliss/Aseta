@@ -8,7 +8,7 @@ internal sealed class TagConfiguration : IEntityTypeConfiguration<Tag>
 {
     public void Configure(EntityTypeBuilder<Tag> tag)
     {
-        tag.ToTable("Tags");
+        tag.ToTable("tags");
         tag.HasKey(i => i.Id);
 
         tag.Property(i => i.Name)

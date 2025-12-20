@@ -12,13 +12,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    environment:
-      - ConnectionStrings__Database=Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
-      - ConnectionStrings__Redis=redis:6379
-      - Jwt__Secret=${JWT_SECRET}
-      - Jwt__Issuer=${JWT_ISSUER}
-      - Jwt__Audience=${JWT_AUDIENCE}
-      - Client__Url=${CLIENT_URL}
 
   db:
     image: postgres:17.6

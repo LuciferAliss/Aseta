@@ -11,12 +11,12 @@ internal sealed class Delete : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapDelete("/inventories/{InventoryId}", async (
-            string InventoryId,
+        app.MapDelete("/inventories/{id}", async (
+            string id,
             ICommandHandler<DeleteInventoryCommand> handler,
             CancellationToken cancellationToken = default) =>
         {
-            _ = Guid.TryParse(InventoryId, out Guid inventoryId);
+            _ = Guid.TryParse(id, out Guid inventoryId);
 
             var command = new DeleteInventoryCommand(inventoryId);
 

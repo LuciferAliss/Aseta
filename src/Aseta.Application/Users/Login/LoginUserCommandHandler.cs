@@ -1,6 +1,7 @@
 using System;
-using Aseta.Application.Abstractions.Authorization;
+using Aseta.Application.Abstractions.Authentication;
 using Aseta.Application.Abstractions.Messaging;
+using Aseta.Application.Abstractions.Services;
 using Aseta.Domain.Abstractions.Persistence;
 using Aseta.Domain.Abstractions.Primitives.Results;
 using Aseta.Domain.Entities.Users;
@@ -11,7 +12,7 @@ namespace Aseta.Application.Users.Login;
 internal sealed class LoginUserCommandHandler(
     IUserRepository userRepository,
     IPasswordHasher passwordHasher,
-    IRefreshTokenRepository refreshTokenRepository,
+    IUserSessionRepository userSessionRepository,
     IUnitOfWork unitOfWork,
     ITokenProvider tokenProvider) : ICommandHandler<LoginUserCommand, LoginResponse>
 {
@@ -33,33 +34,42 @@ internal sealed class LoginUserCommandHandler(
             return UserErrors.PasswordIncorrect();
         }
 
-        string accessToken = tokenProvider.CreateAccessToken(user);
+        string accessToken = "";
 
-        RefreshToken? refreshToken = await refreshTokenRepository.FirstOrDefaultAsync(
+        UserSession? userSession = await userSessionRepository.FirstOrDefaultAsync(
             rt => rt.UserId == user.Id &&
             rt.DeviceId == command.DeviceId &&
             !rt.IsRevoked &&
             DateTime.UtcNow < rt.ExpiresAt,
             cancellationToken: cancellationToken);
 
-        if (refreshToken is not null)
+        if (userSession is not null)
         {
-            return new LoginResponse(accessToken, refreshToken.Token);
+            accessToken = tokenProvider.CreateAccessToken(user, userSession.Id);
+            return new LoginResponse(accessToken, userSession);
         }
 
-        Result<RefreshToken> refreshTokenResult = tokenProvider.CreateRefreshToken(user, command.DeviceId, command.DeviceName);
+        (string refreshToken, int expiresInRefreshToken) = tokenProvider.CreateRefreshToken();
 
-        if (refreshTokenResult.IsFailure)
+        Result<UserSession> userSessionResult = UserSession.Create(
+            refreshToken,
+            user.Id,
+            expiresInRefreshToken,
+            command.DeviceId, command.DeviceName);
+
+        if (userSessionResult.IsFailure)
         {
-            return refreshTokenResult.Error;
+            return userSessionResult.Error;
         }
 
-        refreshToken = refreshTokenResult.Value;
+        userSession = userSessionResult.Value;
 
-        await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
+        accessToken = tokenProvider.CreateAccessToken(user, userSession.Id);
+
+        await userSessionRepository.AddAsync(userSession, cancellationToken);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new LoginResponse(accessToken, refreshToken.Token);
+        return new LoginResponse(accessToken, userSession);
     }
 }

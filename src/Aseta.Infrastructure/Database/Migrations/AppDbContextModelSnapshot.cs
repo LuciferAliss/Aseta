@@ -45,7 +45,7 @@ namespace Aseta.Infrastructure.Database.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_categories_name");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("categories", (string)null);
                 });
 
             modelBuilder.Entity("Aseta.Domain.Entities.Comments.Comment", b =>
@@ -82,7 +82,7 @@ namespace Aseta.Infrastructure.Database.Migrations
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_comments_user_id");
 
-                    b.ToTable("Comments", (string)null);
+                    b.ToTable("comments", (string)null);
                 });
 
             modelBuilder.Entity("Aseta.Domain.Entities.Comments.Like", b =>
@@ -114,7 +114,7 @@ namespace Aseta.Infrastructure.Database.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_likes_user_id_comment_id");
 
-                    b.ToTable("Likes", (string)null);
+                    b.ToTable("likes", (string)null);
                 });
 
             modelBuilder.Entity("Aseta.Domain.Entities.Inventories.Inventory", b =>
@@ -136,7 +136,7 @@ namespace Aseta.Infrastructure.Database.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("creator_id");
 
-                    b.Property<ICollection<CustomFieldDefinition>>("CustomFields")
+                    b.Property<List<CustomFieldDefinition>>("CustomFields")
                         .IsRequired()
                         .HasColumnType("jsonb")
                         .HasColumnName("custom_fields");
@@ -182,7 +182,7 @@ namespace Aseta.Infrastructure.Database.Migrations
                     b.HasIndex("CreatorId")
                         .HasDatabaseName("ix_inventories_creator_id");
 
-                    b.ToTable("Inventories", (string)null);
+                    b.ToTable("inventories", (string)null);
                 });
 
             modelBuilder.Entity("Aseta.Domain.Entities.InventoryRoles.InventoryRole", b =>
@@ -210,7 +210,7 @@ namespace Aseta.Infrastructure.Database.Migrations
                     b.HasIndex("InventoryId")
                         .HasDatabaseName("ix_inventory_user_roles_inventory_id");
 
-                    b.ToTable("InventoryUserRoles", (string)null);
+                    b.ToTable("inventory_user_roles", (string)null);
                 });
 
             modelBuilder.Entity("Aseta.Domain.Entities.Items.Item", b =>
@@ -263,7 +263,7 @@ namespace Aseta.Infrastructure.Database.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_items_inventory_id_custom_id");
 
-                    b.ToTable("Items", (string)null);
+                    b.ToTable("items", (string)null);
                 });
 
             modelBuilder.Entity("Aseta.Domain.Entities.Tags.Tag", b =>
@@ -286,61 +286,7 @@ namespace Aseta.Infrastructure.Database.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_tags_name");
 
-                    b.ToTable("Tags", (string)null);
-                });
-
-            modelBuilder.Entity("Aseta.Domain.Entities.Users.RefreshToken", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("DeviceId")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("device_id");
-
-                    b.Property<string>("DeviceName")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)")
-                        .HasColumnName("device_name");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("expires_at");
-
-                    b.Property<bool>("IsRevoked")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_revoked");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("token");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_refresh_tokens");
-
-                    b.HasIndex("Token")
-                        .IsUnique()
-                        .HasDatabaseName("ix_refresh_tokens_token");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_refresh_tokens_user_id");
-
-                    b.ToTable("RefreshTokens", (string)null);
+                    b.ToTable("tags", (string)null);
                 });
 
             modelBuilder.Entity("Aseta.Domain.Entities.Users.User", b =>
@@ -391,7 +337,61 @@ namespace Aseta.Infrastructure.Database.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_users_email");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("users", (string)null);
+                });
+
+            modelBuilder.Entity("Aseta.Domain.Entities.Users.UserSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("DeviceId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("device_id");
+
+                    b.Property<string>("DeviceName")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("device_name");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_revoked");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("token");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_user_sessions");
+
+                    b.HasIndex("Token")
+                        .IsUnique()
+                        .HasDatabaseName("ix_user_sessions_token");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_user_sessions_user_id");
+
+                    b.ToTable("user_sessions", (string)null);
                 });
 
             modelBuilder.Entity("InventoryTag", b =>
@@ -526,14 +526,14 @@ namespace Aseta.Infrastructure.Database.Migrations
                     b.Navigation("Updater");
                 });
 
-            modelBuilder.Entity("Aseta.Domain.Entities.Users.RefreshToken", b =>
+            modelBuilder.Entity("Aseta.Domain.Entities.Users.UserSession", b =>
                 {
                     b.HasOne("Aseta.Domain.Entities.Users.User", "User")
                         .WithMany("RefreshTokens")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_refresh_tokens_users_user_id");
+                        .HasConstraintName("fk_user_sessions_users_user_id");
 
                     b.Navigation("User");
                 });

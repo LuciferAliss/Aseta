@@ -17,4 +17,11 @@
     <None Include="Services\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="CustomFields\Delete\" />
+    <Folder Include="CustomFields\Update\" />
+    <Folder Include="UserSessions\" />
+    <Folder Include="UserSessions\Refresh\" />
+  </ItemGroup>
+
 </Project>

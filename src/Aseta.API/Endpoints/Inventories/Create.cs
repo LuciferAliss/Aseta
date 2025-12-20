@@ -2,7 +2,7 @@ using System;
 using System.Windows.Input;
 using Aseta.API.Extensions;
 using Aseta.API.Infrastructure;
-using Aseta.Application.Abstractions.Authorization;
+using Aseta.Application.Abstractions.Authentication;
 using Aseta.Application.Abstractions.Messaging;
 using Aseta.Application.Inventories.Create;
 using Aseta.Domain.Abstractions.Primitives.Results;

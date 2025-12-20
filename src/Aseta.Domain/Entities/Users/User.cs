@@ -23,7 +23,7 @@ public class User : Entity
     public DateTime? UpdatedAt { get; private set; }
     public virtual ICollection<Inventory> Inventories { get; }
     public virtual ICollection<InventoryRole> InventoryUserRoles { get; }
-    public virtual ICollection<RefreshToken> RefreshTokens { get; }
+    public virtual ICollection<UserSession> UserSessions { get; }
 
     private User() { }
 

@@ -8,9 +8,9 @@ namespace Aseta.Infrastructure.Persistence.Users;
 
 public sealed class InventoryUserRoleRepository(AppDbContext context) : Repository<InventoryRole>(context), IInventoryUserRoleRepository
 {
-    public Task<Role> GetUserRoleInInventory(string userId, Guid inventoryI, CancellationToken cancellationToken = default)
+    public Task<Role> GetUserRoleInInventory(Guid userId, Guid inventoryI, CancellationToken cancellationToken = default)
     {
-        return _dbSet.Where(i => i.UserId == Guid.Parse(userId)
+        return _dbSet.Where(i => i.UserId == userId
             && i.InventoryId == inventoryI)
             .Select(i => i.Role)
             .FirstOrDefaultAsync(cancellationToken);

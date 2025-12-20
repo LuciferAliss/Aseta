@@ -1,8 +1,9 @@
 {
-    "cSpell.words": [
-        "/Tests/ArchitectureTests/Domain/DomainTests.cs",
-        "/Tests/Domain.UniteTests/Users/NameTests.cs",
-        "pingauth",
-        "Sendgrid"
-    ]
+  "cSpell.words": [
+    "/Tests/ArchitectureTests/Domain/DomainTests.cs",
+    "/Tests/Domain.UniteTests/Users/NameTests.cs",
+    "pingauth",
+    "Sendgrid"
+  ],
+  "commentTranslate.hover.enabled": true
 }

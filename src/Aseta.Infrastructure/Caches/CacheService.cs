@@ -27,7 +27,11 @@ internal sealed class CacheService(
         }
 
         value = await factory();
-        await SetAsync(key, value, cancellationToken);
+
+        if (value is not null)
+        {
+            await SetAsync(key, value, cancellationToken);
+        }
 
         return value;
     }

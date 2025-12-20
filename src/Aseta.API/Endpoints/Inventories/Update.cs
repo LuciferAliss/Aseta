@@ -19,13 +19,13 @@ internal sealed class Update : IEndpoint
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPatch("/inventories/{InventoryId}", async (
-            string InventoryId,
+        app.MapPatch("/inventories/{id}", async (
+            string id,
             Request request,
             ICommandHandler<UpdateInventoryCommand> handler,
             CancellationToken cancellationToken = default) =>
         {
-            _ = Guid.TryParse(InventoryId, out Guid inventoryId);
+            _ = Guid.TryParse(id, out Guid inventoryId);
             _ = Guid.TryParse(request.CategoryId, out Guid categoryId);
             _ = Uri.TryCreate(request.ImageUrl, UriKind.Absolute, out Uri? imageUrl);
 

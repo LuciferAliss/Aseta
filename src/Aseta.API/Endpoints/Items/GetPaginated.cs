@@ -25,13 +25,13 @@ internal sealed class GetPaginated : IEndpoint
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("/inventories/{InventoryId}/items", async (
+        app.MapGet("/inventories/{id}/items", async (
             [AsParameters] Request request,
-            string InventoryId,
+            string id,
             IQueryHandler<GetItemsPaginatedQuery, ItemsResponse> handler,
             CancellationToken cancellationToken = default) =>
         {
-            _ = Guid.TryParse(InventoryId, out Guid inventoryId);
+            _ = Guid.TryParse(id, out Guid inventoryId);
             _ = Enum.TryParse(request.SortBy, out SortBy sortBy);
 
             Guid? creatorId = null;

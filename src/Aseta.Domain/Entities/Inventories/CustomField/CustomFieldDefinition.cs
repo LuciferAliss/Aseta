@@ -40,4 +40,29 @@ public class CustomFieldDefinition
 
         return new CustomFieldDefinition(Guid.NewGuid(), name, type);
     }
+
+    public static Result<CustomFieldDefinition> Reconstitute(Guid id, string name, CustomFieldType type)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return CustomFieldErrors.DefinitionNameEmpty();
+        }
+
+        if (name.Length > MaxNameLength)
+        {
+            return CustomFieldErrors.DefinitionNameTooLong(MaxNameLength);
+        }
+
+        if (type == CustomFieldType.None)
+        {
+            return CustomFieldErrors.InvalidType();
+        }
+
+        if (id == Guid.Empty)
+        {
+            return CustomFieldErrors.IdEmpty();
+        }
+
+        return new CustomFieldDefinition(id, name, type);
+    }
 }

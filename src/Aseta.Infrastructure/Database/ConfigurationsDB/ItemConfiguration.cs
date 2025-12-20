@@ -9,7 +9,7 @@ internal sealed class ItemConfiguration : IEntityTypeConfiguration<Item>
 {
     public void Configure(EntityTypeBuilder<Item> item)
     {
-        item.ToTable("Items");
+        item.ToTable("items");
         item.HasKey(i => i.Id);
 
         item.Property(i => i.CreatedAt).IsRequired();

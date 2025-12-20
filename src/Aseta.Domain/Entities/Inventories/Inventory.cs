@@ -122,6 +122,54 @@ public class Inventory : Entity
         return Result.Success();
     }
 
+    public Result UpdateCustomFields(ICollection<CustomFieldDefinition> updateFields)
+    {
+        var existingIds = CustomFields.Select(cf => cf.Id).ToList();
+
+        var missingIds = updateFields
+            .Select(val => val.Id)
+            .Except(existingIds)
+            .ToList();
+
+        if (missingIds.Count > 0)
+        {
+            return CustomFieldErrors.NotFound(missingIds);
+        }
+
+        CustomFields = CustomFields.Select(cfs =>
+        {
+            CustomFieldDefinition? updateField = updateFields.FirstOrDefault(ufs => ufs.Id == cfs.Id);
+
+            if (updateField is null)
+            {
+                return cfs;
+            }
+
+            return updateField;
+        }).ToList();
+
+        return Result.Success();
+    }
+
+    public Result DeleteCustomFields(ICollection<CustomFieldDefinition> deleteFields)
+    {
+        var existingIds = CustomFields.Select(cf => cf.Id).ToList();
+
+        var missingIds = deleteFields
+            .Select(val => val.Id)
+            .Except(existingIds)
+            .ToList();
+
+        if (missingIds.Count > 0)
+        {
+            return CustomFieldErrors.NotFound(missingIds);
+        }
+
+        CustomFields = CustomFields.Where(cfs => !deleteFields.Any(ufs => ufs.Id == cfs.Id)).ToList();
+
+        return Result.Success();
+    }
+
     public Result Update(string name, string description, Uri imageUrl, Guid categoryId, bool isPublic)
     {
         if (string.IsNullOrWhiteSpace(name))

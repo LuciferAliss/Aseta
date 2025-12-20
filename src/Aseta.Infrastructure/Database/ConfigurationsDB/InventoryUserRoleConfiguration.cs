@@ -8,7 +8,7 @@ internal sealed class InventoryUserRoleConfiguration : IEntityTypeConfiguration<
 {
     public void Configure(EntityTypeBuilder<InventoryRole> inventoryUserRole)
     {
-        inventoryUserRole.ToTable("InventoryUserRoles");
+        inventoryUserRole.ToTable("inventory_user_roles");
 
         inventoryUserRole.HasKey(i => new { i.UserId, i.InventoryId });
 

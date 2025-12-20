@@ -1,4 +1,4 @@
-using Aseta.Application.Abstractions.Authorization;
+using Aseta.Application.Abstractions.Authentication;
 using Aseta.Application.Abstractions.Messaging;
 using Aseta.Domain.Abstractions.Primitives.Results;
 using Aseta.Domain.DTO.User;
@@ -17,7 +17,7 @@ internal static class LockedUserDecorator
     {
         public async Task<Result<TResponse>> Handle(TCommand command, CancellationToken cancellationToken)
         {
-            Result lockedUserResult = await LockedUserRequestAsync(
+            Result lockedUserResult = await CheckingUserBlocking(
                 currentUserService,
                 lockedUserChecker,
                 cancellationToken);
@@ -37,7 +37,7 @@ internal static class LockedUserDecorator
     {
         public async Task<Result> Handle(TCommand command, CancellationToken cancellationToken)
         {
-            Result lockedUserResult = await LockedUserRequestAsync(
+            Result lockedUserResult = await CheckingUserBlocking(
                 currentUserService,
                 lockedUserChecker,
                 cancellationToken);
@@ -57,7 +57,7 @@ internal static class LockedUserDecorator
     {
         public async Task<Result<TResponse>> Handle(TQuery query, CancellationToken cancellationToken)
         {
-            Result lockedUserResult = await LockedUserRequestAsync(
+            Result lockedUserResult = await CheckingUserBlocking(
                 currentUserService,
                 lockedUserChecker,
                 cancellationToken);
@@ -68,7 +68,7 @@ internal static class LockedUserDecorator
         }
     }
 
-    private static async Task<Result> LockedUserRequestAsync(
+    private static async Task<Result> CheckingUserBlocking(
         IUserContext currentUserService,
         ILockedUserChecker lockedUserChecker,
         CancellationToken cancellationToken)
@@ -78,7 +78,7 @@ internal static class LockedUserDecorator
             return Result.Success();
         }
 
-        bool userLocked = await lockedUserChecker.IsLockedAsync(currentUserService.UserId, cancellationToken);
+        bool userLocked = await lockedUserChecker.CheckAsync(currentUserService.UserId, cancellationToken);
         if (userLocked)
         {
             return UserErrors.AccountLocked(currentUserService.UserId);

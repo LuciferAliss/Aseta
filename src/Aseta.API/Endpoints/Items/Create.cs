@@ -1,7 +1,7 @@
 using System;
 using Aseta.API.Extensions;
 using Aseta.API.Infrastructure;
-using Aseta.Application.Abstractions.Authorization;
+using Aseta.Application.Abstractions.Authentication;
 using Aseta.Application.Abstractions.Messaging;
 using Aseta.Application.Items.Create;
 using Aseta.Domain.Abstractions.Primitives.Results;
@@ -18,14 +18,14 @@ internal sealed class Create : IEndpoint
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("/inventories/{InventoryId}/items", async (
-            string InventoryId,
+        app.MapPost("/inventories/{id}/items", async (
+            string id,
             Request request,
             ICommandHandler<CreateItemCommand> handler,
             IUserContext user,
             CancellationToken cancellationToken = default) =>
         {
-            _ = Guid.TryParse(InventoryId, out Guid inventoryId);
+            _ = Guid.TryParse(id, out Guid inventoryId);
             _ = Guid.TryParse(user.UserId, out Guid userId);
 
             ICollection<CustomFieldValueData> customFieldValue = request.CustomFieldValueRequests.Select(c =>
@@ -43,6 +43,7 @@ internal sealed class Create : IEndpoint
 
             return result.Match(Results.Created, CustomResults.Problem);
         })
-        .WithTags(Tags.Items);
+        .WithTags(Tags.Items)
+        .RequireAuthorization();
     }
 }

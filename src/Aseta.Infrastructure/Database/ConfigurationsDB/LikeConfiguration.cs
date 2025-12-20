@@ -8,7 +8,7 @@ public class LikeConfiguration : IEntityTypeConfiguration<Like>
 {
     public void Configure(EntityTypeBuilder<Like> like)
     {
-        like.ToTable("Likes");
+        like.ToTable("likes");
 
         like.HasKey(l => l.Id);
 

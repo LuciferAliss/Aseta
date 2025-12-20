@@ -4,6 +4,10 @@ namespace Aseta.Domain.Entities.Users;
 
 public static class UserErrors
 {
+    public static Error InvalidId(string id) => Error.Validation(
+        "Users.InvalidId",
+        $"User id: {id} is invalid.");
+
     public static Error NotFound(string userId) => Error.NotFound(
         "Users.NotFound",
         $"The user with id: {userId} was not found.");
@@ -19,6 +23,10 @@ public static class UserErrors
     public static Error NotPermission(Guid inventoryId) => Error.Forbidden(
         "Users.NotPermission",
         $"User does not have required permission for inventory with id: {inventoryId}.");
+
+    public static Error NotGlobalPermission(string role) => Error.Forbidden(
+        "Users.NotGlobalPermission",
+        $"User does not have required global role: {role}.");
 
     public static Error AccountLocked(string userId) => Error.Forbidden(
         "Users.AccountLocked",

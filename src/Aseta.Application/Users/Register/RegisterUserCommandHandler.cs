@@ -1,5 +1,5 @@
 
-using Aseta.Application.Abstractions.Authorization;
+using Aseta.Application.Abstractions.Authentication;
 using Aseta.Application.Abstractions.Messaging;
 using Aseta.Domain.Abstractions.Persistence;
 using Aseta.Domain.Abstractions.Primitives.Results;
@@ -14,9 +14,9 @@ internal sealed class RegisterUserCommandHandler(
 {
     public async Task<Result> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
-        bool hasUser = await userRepository.FirstOrDefaultAsync(
+        bool hasUser = await userRepository.ExistsAsync(
             u => u.Email == command.Email,
-            cancellationToken: cancellationToken) is not null;
+            cancellationToken: cancellationToken);
 
         if (hasUser)
         {

@@ -8,7 +8,7 @@ internal sealed class CommentConfiguration : IEntityTypeConfiguration<Comment>
 {
     public void Configure(EntityTypeBuilder<Comment> comment)
     {
-        comment.ToTable("Comments");
+        comment.ToTable("comments");
         comment.HasKey(c => c.Id);
 
         comment.Property(c => c.Content)

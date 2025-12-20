@@ -1,6 +1,6 @@
 using Aseta.API.Extensions;
 using Aseta.API.Infrastructure;
-using Aseta.Application.Abstractions.Authorization;
+using Aseta.Application.Abstractions.Authentication;
 using Aseta.Application.Abstractions.Messaging;
 using Aseta.Application.Items.Update;
 using Aseta.Domain.Abstractions.Primitives.Results;
@@ -9,23 +9,23 @@ namespace Aseta.API.Endpoints.Items;
 
 internal sealed class Update : IEndpoint
 {
-    public sealed record Request(
-        ICollection<CustomFieldValue> CustomFieldsValue);
+    public sealed record Request(CustomFieldValue[] CustomFieldsValue);
+
     public sealed record CustomFieldValue(string FieldId, string Value);
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPatch("/inventories/{InventoryId}/items/{ItemId}", async (
-            string InventoryId,
-            string ItemId,
+        app.MapPatch("/inventories/{inventoryId}/items/{itemId}", async (
+            string inventoryId,
+            string itemId,
             Request request,
             ICommandHandler<UpdateItemCommand> handler,
             IUserContext user,
             CancellationToken cancellationToken = default) =>
         {
-            _ = Guid.TryParse(ItemId, out Guid itemId);
+            _ = Guid.TryParse(itemId, out Guid parsedItemId);
             _ = Guid.TryParse(user.UserId, out Guid userId);
-            _ = Guid.TryParse(InventoryId, out Guid inventoryId);
+            _ = Guid.TryParse(inventoryId, out Guid parsedInventoryId);
 
             var customFieldValueData = request.CustomFieldsValue.Select(x =>
             {
@@ -35,9 +35,9 @@ internal sealed class Update : IEndpoint
             }).ToList();
 
             var command = new UpdateItemCommand(
-                itemId,
+                parsedItemId,
                 customFieldValueData,
-                inventoryId,
+                parsedInventoryId,
                 userId);
 
             Result result = await handler.Handle(command, cancellationToken);

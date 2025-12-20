@@ -8,7 +8,7 @@ internal sealed class InventoryConfiguration : IEntityTypeConfiguration<Inventor
 {
     public void Configure(EntityTypeBuilder<Inventory> inventory)
     {
-        inventory.ToTable("Inventories");
+        inventory.ToTable("inventories");
         inventory.HasKey(i => i.Id);
 
         inventory.Property(i => i.Name)

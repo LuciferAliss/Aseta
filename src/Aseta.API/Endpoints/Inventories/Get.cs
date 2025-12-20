@@ -12,12 +12,12 @@ internal sealed class Get : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("/inventories/{InventoryId}", async (
-            string InventoryId,
+        app.MapGet("/inventories/{id}", async (
+            string id,
             IQueryHandler<GetInventoryQuery, InventoryResponse> handler,
             CancellationToken cancellationToken = default) =>
         {
-            _ = Guid.TryParse(InventoryId, out Guid inventoryId);
+            _ = Guid.TryParse(id, out Guid inventoryId);
 
             var query = new GetInventoryQuery(inventoryId);
 
