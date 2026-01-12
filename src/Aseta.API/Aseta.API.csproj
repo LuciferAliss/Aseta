@@ -26,7 +26,7 @@
 
   <ItemGroup>
     <Folder Include="Endpoints\Items\" />
-    <Folder Include="Endpoints\UserSessions\" />
+    <Folder Include="Endpoints\Users\" />
   </ItemGroup>
 
 </Project>

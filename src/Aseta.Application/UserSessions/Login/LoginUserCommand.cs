@@ -1,7 +1,7 @@
 using System;
 using Aseta.Application.Abstractions.Messaging;
 
-namespace Aseta.Application.Users.Login;
+namespace Aseta.Application.UserSessions.Login;
 
 public sealed record LoginUserCommand(
     string Email,

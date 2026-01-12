@@ -2,11 +2,12 @@ using System;
 using Aseta.API.Extensions;
 using Aseta.API.Infrastructure;
 using Aseta.Application.Abstractions.Messaging;
-using Aseta.Application.Users.Login;
+using Aseta.Application.UserSessions.Login;
 using Aseta.Domain.Abstractions.Primitives.Results;
+using Aseta.Domain.Entities.Users;
 using Microsoft.AspNetCore.Http;
 
-namespace Aseta.API.Endpoints.Users;
+namespace Aseta.API.Endpoints.UserSessions;
 
 internal sealed class Login : IEndpoint
 {
@@ -20,7 +21,7 @@ internal sealed class Login : IEndpoint
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("/users/login", async (
+        app.MapPost("/user-sessions", async (
             Request request,
             ICommandHandler<LoginUserCommand, LoginResponse> handler,
             HttpContext httpContext,
@@ -52,6 +53,6 @@ internal sealed class Login : IEndpoint
                 },
                 CustomResults.Problem);
         })
-        .WithTags(Tags.Users);
+        .WithTags(Tags.UserSessions);
     }
 }

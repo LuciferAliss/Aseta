@@ -30,7 +30,9 @@ internal sealed class TokenProvider(
             [
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.Sid, sessionId.ToString())
+                new Claim(JwtRegisteredClaimNames.Name, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Sid, sessionId.ToString()),
+                new Claim("role", user.Role.ToString())
             ]),
             Expires = DateTime.UtcNow.AddMinutes(jwtOptions.Value.ExpirationInMinutes),
             SigningCredentials = credentials,

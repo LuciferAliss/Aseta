@@ -75,14 +75,33 @@ internal sealed class KeysetPaginator<T>(IQueryable<T> query) where T : class, I
         ParameterExpression parameter = Expression.Parameter(typeof(T), "e");
         Expression keySelectorBody = new ExpressionParameterReplacer(keySelector.Parameters[0], parameter).Visit(keySelector.Body);
 
+        Expression keyComparison;
         ExpressionType comparisonOperator = descending ? ExpressionType.LessThan : ExpressionType.GreaterThan;
-        BinaryExpression keyComparison = Expression.MakeBinary(comparisonOperator, keySelectorBody, Expression.Constant(sortValue, keyType));
 
+        if (keyType == typeof(string))
+        {
+            // Для строковых типов используем string.CompareTo, который возвращает -1, 0, или 1
+            MethodInfo? compareToMethod = typeof(string).GetMethod("CompareTo", [typeof(string)]);
+            // Строим вызов e.PropertyName.CompareTo("value")
+            MethodCallExpression comparisonCall = Expression.Call(keySelectorBody, compareToMethod!, Expression.Constant(sortValue, keyType));
+            ConstantExpression zero = Expression.Constant(0);
+            // Сравниваем результат с нулем: e.g., result > 0
+            keyComparison = Expression.MakeBinary(comparisonOperator, comparisonCall, zero);
+        }
+        else
+        {
+            // Для других типов (числа, даты) используем обычное сравнение
+            keyComparison = Expression.MakeBinary(comparisonOperator, keySelectorBody, Expression.Constant(sortValue, keyType));
+        }
+
+        // Вторичная сортировка по ID для элементов с одинаковым ключом сортировки
         MemberExpression idProperty = Expression.Property(parameter, nameof(IEntity.Id));
         BinaryExpression idComparison = Expression.MakeBinary(ExpressionType.GreaterThan, idProperty, Expression.Constant(id));
 
+        // Проверка на точное равенство по ключу сортировки
         BinaryExpression keyEquality = Expression.MakeBinary(ExpressionType.Equal, keySelectorBody, Expression.Constant(sortValue, keyType));
 
+        // Финальное выражение: (e.SortKey > cursor.SortKey) OR (e.SortKey == cursor.SortKey AND e.Id > cursor.Id)
         BinaryExpression combinedExpression = Expression.OrElse(keyComparison, Expression.AndAlso(keyEquality, idComparison));
 
         var whereLambda = Expression.Lambda<Func<T, bool>>(combinedExpression, parameter);

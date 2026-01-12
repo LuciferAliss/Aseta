@@ -7,7 +7,7 @@ using Aseta.Domain.Abstractions.Primitives.Results;
 using Aseta.Domain.Entities.Users;
 using Microsoft.Extensions.Options;
 
-namespace Aseta.Application.Users.Login;
+namespace Aseta.Application.UserSessions.Login;
 
 internal sealed class LoginUserCommandHandler(
     IUserRepository userRepository,
