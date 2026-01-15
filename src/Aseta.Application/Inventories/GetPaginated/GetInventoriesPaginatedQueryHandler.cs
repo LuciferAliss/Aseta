@@ -42,7 +42,6 @@ internal sealed class GetInventoriesPaginatedQueryHandler(
             var response = new InventoryResponse(
                 i.Id,
                 i.Name,
-                i.Description,
                 imageUrl,
                 i.ItemsCount,
                 i.Creator.UserName,

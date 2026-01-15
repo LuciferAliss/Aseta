@@ -2,34 +2,29 @@ using System;
 using Aseta.API.Extensions;
 using Aseta.API.Infrastructure;
 using Aseta.Application.Abstractions.Messaging;
-using Aseta.Application.Users.Register;
+using Aseta.Application.Tags.Create;
 using Aseta.Domain.Abstractions.Primitives.Results;
 
-namespace Aseta.API.Endpoints.Users;
+namespace Aseta.API.Endpoints.Tags;
 
-internal sealed class Register : IEndpoint
+internal sealed class Create : IEndpoint
 {
-    public sealed record Request(
-        string UserName,
-        string Email,
-        string Password);
+    public sealed record Request(string Name);
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("/users", async (
+        app.MapPost("/tags", async (
             Request request,
-            ICommandHandler<RegisterUserCommand> handler,
+            ICommandHandler<CreateTagCommand> handler,
             CancellationToken cancellationToken = default) =>
         {
-            var command = new RegisterUserCommand(
-                request.Email,
-                request.UserName,
-                request.Password);
+            var command = new CreateTagCommand(request.Name);
 
             Result result = await handler.Handle(command, cancellationToken);
 
             return result.Match(Results.Created, CustomResults.Problem);
         })
-        .WithTags(TagsApi.Users);
+        .WithTags(TagsApi.Tags)
+        .RequireAuthorization();
     }
 }

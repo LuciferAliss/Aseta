@@ -5,7 +5,6 @@ namespace Aseta.Application.Inventories.GetPaginated.Contracts;
 public sealed record InventoryResponse(
     Guid Id,
     string Name,
-    string Description,
     Uri ImageUrl,
     int ItemsCount,
     string CreatorName,

@@ -15,7 +15,8 @@ internal sealed class Update : IEndpoint
         string Description,
         string ImageUrl,
         bool IsPublic,
-        string CategoryId);
+        string CategoryId,
+        string[] TagIds);
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
@@ -28,6 +29,11 @@ internal sealed class Update : IEndpoint
             _ = Guid.TryParse(id, out Guid inventoryId);
             _ = Guid.TryParse(request.CategoryId, out Guid categoryId);
             _ = Uri.TryCreate(request.ImageUrl, UriKind.Absolute, out Uri? imageUrl);
+            ICollection<Guid> tagIds = request.TagIds?.Select(t =>
+            {
+                _ = Guid.TryParse(t, out Guid tagId);
+                return tagId;
+            }).ToList() ?? [];
 
             var command = new UpdateInventoryCommand(
                 inventoryId,
@@ -35,13 +41,14 @@ internal sealed class Update : IEndpoint
                 request.Description,
                 imageUrl,
                 categoryId,
+                tagIds,
                 request.IsPublic);
 
             Result result = await handler.Handle(command, cancellationToken);
 
             return result.Match(Results.NoContent, CustomResults.Problem);
         })
-        .WithTags(Tags.Inventories)
+        .WithTags(TagsApi.Inventories)
         .RequireAuthorization();
     }
 }

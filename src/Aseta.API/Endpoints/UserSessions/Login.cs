@@ -53,6 +53,6 @@ internal sealed class Login : IEndpoint
                 },
                 CustomResults.Problem);
         })
-        .WithTags(Tags.UserSessions);
+        .WithTags(TagsApi.UserSessions);
     }
 }

@@ -30,14 +30,15 @@ internal sealed class Logout : IEndpoint
             Result result = await handler.Handle(command, cancellationToken);
 
             return result.Match(
-                () => {
+                () =>
+                {
                     httpContext.Response.Cookies.Delete("refreshToken");
                     return Results.NoContent();
                 },
                 CustomResults.Problem
             );
         })
-        .WithTags(Tags.UserSessions)
+        .WithTags(TagsApi.UserSessions)
         .RequireAuthorization();
     }
 }

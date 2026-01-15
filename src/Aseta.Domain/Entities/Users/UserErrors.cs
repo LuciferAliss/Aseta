@@ -40,6 +40,10 @@ public static class UserErrors
         "Users.EmailEmpty",
         "Email cannot be empty.");
 
+    public static Error EmailInvalid() => Error.Validation(
+        "Users.EmailInvalid",
+        "Email is invalid.");
+
     public static Error UserAlreadyExists(string email, string userName) => Error.Conflict(
         "Users.UserAlreadyExists",
         $"User with email: {email} and user name: {userName} already exists.");

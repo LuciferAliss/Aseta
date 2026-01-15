@@ -9,15 +9,15 @@ internal sealed class LoginUserCommandValidation : AbstractValidator<LoginUserCo
     public LoginUserCommandValidation()
     {
         RuleFor(x => x.Email)
-            .NotNull().WithMessage("Email is required.");
+            .NotNull().WithMessage(UserErrors.EmailEmpty().Description);
 
         RuleFor(x => x.Password)
-            .NotNull().WithMessage("Password is required.");
+            .NotNull().WithMessage(UserErrors.PasswordEmpty().Description);
 
         RuleFor(x => x.DeviceId)
-            .NotNull().WithMessage("DeviceId is required.");
+            .NotNull().WithMessage(UserSessionErrors.DeviceIdEmpty().Description);
 
         RuleFor(x => x.DeviceName)
-            .NotNull().WithMessage("DeviceName is required.");
+            .NotNull().WithMessage(UserSessionErrors.DeviceNameEmpty().Description);
     }
 }

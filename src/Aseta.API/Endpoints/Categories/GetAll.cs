@@ -22,6 +22,6 @@ internal sealed class GetGetAll : IEndpoint
             return result.Match(Results.Ok, CustomResults.Problem);
         }
 
-        ).WithTags(Tags.Categories);
+        ).WithTags(TagsApi.Categories);
     }
 }

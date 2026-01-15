@@ -16,6 +16,7 @@ internal sealed partial class Create : IEndpoint
         string Description,
         string ImageUrl,
         string CategoryId,
+        string[] TagIds,
         bool IsPublic);
 
     public void MapEndpoint(IEndpointRouteBuilder app)
@@ -29,6 +30,11 @@ internal sealed partial class Create : IEndpoint
             _ = Uri.TryCreate(request.ImageUrl, UriKind.Absolute, out Uri? imageUrl);
             _ = Guid.TryParse(request.CategoryId, out Guid categoryId);
             _ = Guid.TryParse(user.UserId, out Guid creatorId);
+            ICollection<Guid> tagIds = request.TagIds?.Select(t =>
+            {
+                _ = Guid.TryParse(t, out Guid tagId);
+                return tagId;
+            }).ToList() ?? [];
 
             var command = new CreateInventoryCommand(
                 request.Name,
@@ -36,13 +42,14 @@ internal sealed partial class Create : IEndpoint
                 imageUrl,
                 request.IsPublic,
                 categoryId,
+                tagIds,
                 creatorId);
 
             Result<InventoryResponse> result = await handler.Handle(command, cancellationToken);
 
             return result.Match(Results.Created, CustomResults.Problem);
         })
-        .WithTags(Tags.Inventories)
+        .WithTags(TagsApi.Inventories)
         .RequireAuthorization();
     }
 }

@@ -36,7 +36,7 @@ public class Inventory : Entity
 
     private Inventory() { }
 
-    private Inventory(Guid id, string name, string description, Uri imageUrl, bool isPublic, Guid categoryId, Guid creatorId) : base(id)
+    private Inventory(Guid id, string name, string description, Uri imageUrl, bool isPublic, Guid categoryId, ICollection<Tag> tags, Guid creatorId) : base(id)
     {
         Name = name;
         Description = description;
@@ -46,10 +46,11 @@ public class Inventory : Entity
         CreatorId = creatorId;
         CreatedAt = DateTime.UtcNow;
         ItemsCount = 0;
+        Tags = tags;
         CustomIdRules = [new GuidRule("N")];
     }
 
-    public static Result<Inventory> Create(string name, string description, Uri imageUrl, bool isPublic, Guid categoryId, Guid creatorId)
+    public static Result<Inventory> Create(string name, string description, Uri imageUrl, bool isPublic, Guid categoryId, ICollection<Tag> tags, Guid creatorId)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -81,7 +82,12 @@ public class Inventory : Entity
             return InventoryErrors.CategoryIdEmpty();
         }
 
-        return new Inventory(Guid.NewGuid(), name, description, imageUrl, isPublic, categoryId, creatorId);
+        if (tags.Any(t => t.Id == Guid.Empty))
+        {
+            return InventoryErrors.TagIdEmpty();
+        }
+
+        return new Inventory(Guid.NewGuid(), name, description, imageUrl, isPublic, categoryId, tags, creatorId);
     }
 
     public void IncrementItemsCount() => ItemsCount++;
@@ -170,7 +176,7 @@ public class Inventory : Entity
         return Result.Success();
     }
 
-    public Result Update(string name, string description, Uri imageUrl, Guid categoryId, bool isPublic)
+    public Result Update(string name, string description, Uri imageUrl, Guid categoryId, ICollection<Tag> tags, bool isPublic)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -197,11 +203,17 @@ public class Inventory : Entity
             return InventoryErrors.CategoryIdEmpty();
         }
 
+        if (tags.Any(t => t.Id == Guid.Empty))
+        {
+            return InventoryErrors.TagIdEmpty();
+        }
+
         Name = name;
         Description = description;
         ImageUrl = imageUrl.ToString();
         IsPublic = isPublic;
         CategoryId = categoryId;
+        Tags = tags;
 
         return Result.Success();
     }

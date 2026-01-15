@@ -21,6 +21,18 @@ public class Repository<T>(AppDbContext context) : IRepository<T> where T : clas
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyCollection<T>> FindAsync(
+        Expression<Func<T, bool>> predicate,
+        bool trackChanges = default,
+        CancellationToken cancellationToken = default,
+        params Expression<Func<T, object>>[] includeProperties)
+    {
+        return await _dbSet.ApplyInclude(includeProperties)
+            .ApplyTracking(trackChanges)
+            .Where(predicate)
+            .ToListAsync(cancellationToken);
+    }
+
     public virtual async Task<T?> GetByIdAsync(
         Guid id,
         bool trackChanges = default,

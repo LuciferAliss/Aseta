@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <Folder Include="Endpoints\Items\" />
+    <Folder Include="Endpoints\Tags\" />
     <Folder Include="Endpoints\Users\" />
   </ItemGroup>
 

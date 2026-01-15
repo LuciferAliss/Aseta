@@ -5,4 +5,10 @@ using Aseta.Infrastructure.Persistence.Common;
 
 namespace Aseta.Infrastructure.Persistence.Tags;
 
-public sealed class TagRepository(AppDbContext context) : Repository<Tag>(context), ITagRepository;
+public sealed class TagRepository(AppDbContext context) : Repository<Tag>(context), ITagRepository
+{
+    public Task<Tag?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+    {
+        return FirstOrDefaultAsync(i => i.Name == name, cancellationToken: cancellationToken);
+    }
+}

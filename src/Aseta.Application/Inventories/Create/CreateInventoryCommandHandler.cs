@@ -5,12 +5,14 @@ using Aseta.Domain.Abstractions.Primitives.Results;
 using Aseta.Domain.Entities.Categories;
 using Aseta.Domain.Entities.Inventories;
 using Aseta.Domain.Entities.InventoryRoles;
+using Aseta.Domain.Entities.Tags;
 
 namespace Aseta.Application.Inventories.Create;
 
 internal sealed class CreateInventoryCommandHandler(
     IInventoryRepository inventoryRepository,
     ICategoryRepository categoryRepository,
+    ITagRepository tagRepository,
     IInventoryUserRoleRepository inventoryUserRoleRepository,
     IUnitOfWork unitOfWork) : ICommandHandler<CreateInventoryCommand, InventoryResponse>
 {
@@ -25,12 +27,23 @@ internal sealed class CreateInventoryCommandHandler(
             return CategoryErrors.NotFound(command.CategoryId);
         }
 
+        IReadOnlyCollection<Tag> tags = [];
+        if (command.TagIds.Count > 0)
+        {
+            tags = await tagRepository.FindAsync(t => command.TagIds.Contains(t.Id), cancellationToken: cancellationToken);
+            if (tags.Count != command.TagIds.Count)
+            {
+                return TagErrors.NotFound();
+            }
+        }
+
         Result<Inventory> inventoryResult = Inventory.Create(
             command.Name,
             command.Description,
             command.ImageUrl!,
             command.IsPublic,
             command.CategoryId,
+            tags.ToList(),
             command.UserId);
 
         if (inventoryResult.IsFailure)

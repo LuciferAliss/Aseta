@@ -37,7 +37,7 @@ internal sealed class Add : IEndpoint
 
             return result.Match(Results.Created, CustomResults.Problem);
         })
-        .WithTags(Tags.CustomFields)
+        .WithTags(TagsApi.CustomFields)
         .RequireAuthorization();
     }
 }

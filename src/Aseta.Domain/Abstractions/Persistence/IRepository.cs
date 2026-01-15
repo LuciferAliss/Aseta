@@ -14,6 +14,13 @@ public interface IRepository<T> where T : IEntity
         bool trackChanges = default,
         CancellationToken cancellationToken = default,
         params Expression<Func<T, object>>[] includeProperties);
+
+    Task<IReadOnlyCollection<T>> FindAsync(
+        Expression<Func<T, bool>> predicate,
+        bool trackChanges = default,
+        CancellationToken cancellationToken = default,
+        params Expression<Func<T, object>>[] includeProperties);
+
     Task<T?> FirstOrDefaultAsync(
         Expression<Func<T, bool>> predicate,
         bool trackChanges = default,

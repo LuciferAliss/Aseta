@@ -25,6 +25,6 @@ internal sealed class Get : IEndpoint
 
             return result.Match(Results.Ok, CustomResults.Problem);
         })
-        .WithTags(Tags.Inventories);
+        .WithTags(TagsApi.Inventories);
     }
 }

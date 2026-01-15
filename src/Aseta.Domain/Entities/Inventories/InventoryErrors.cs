@@ -35,4 +35,8 @@ public static class InventoryErrors
     public static Error CategoryIdEmpty() => Error.Validation(
         "Inventories.CategoryIdEmpty",
         "Category id cannot be empty.");
+
+    public static Error TagIdEmpty() => Error.Validation(
+        "Inventories.TagIdEmpty",
+        "Tag id cannot be empty.");
 }

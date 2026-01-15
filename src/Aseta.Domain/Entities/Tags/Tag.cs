@@ -7,6 +7,7 @@ namespace Aseta.Domain.Entities.Tags;
 public class Tag : Entity
 {
     public const int MaxNameLength = 25;
+    public const int MinNameLength = 1;
 
     public string Name { get; private set; }
     public virtual ICollection<Inventory> Inventories { get; }
@@ -28,6 +29,11 @@ public class Tag : Entity
         if (name.Length > MaxNameLength)
         {
             return TagErrors.NameTooLong(MaxNameLength);
+        }
+
+        if (name.Length < MinNameLength)
+        {
+            return TagErrors.NameTooShort(MinNameLength);
         }
 
         return new Tag(Guid.NewGuid(), name);

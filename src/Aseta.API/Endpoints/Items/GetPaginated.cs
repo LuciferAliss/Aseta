@@ -68,6 +68,6 @@ internal sealed class GetPaginated : IEndpoint
 
             return result.Match(Results.Ok, CustomResults.Problem);
         })
-        .WithTags(Tags.Items);
+        .WithTags(TagsApi.Items);
     }
 }

@@ -11,4 +11,5 @@ public sealed record UpdateInventoryCommand(
     string Description,
     Uri? ImageUrl,
     Guid CategoryId,
+    ICollection<Guid> TagIds,
     bool IsPublic) : ICommand, IInventoryScopedRequest;
