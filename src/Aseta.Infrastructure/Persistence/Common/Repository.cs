@@ -12,14 +12,12 @@ public class Repository<T>(AppDbContext context) : IRepository<T> where T : clas
     protected readonly DbSet<T> _dbSet = context.Set<T>();
 
     public async Task<IReadOnlyCollection<T>> GetAllAsync(
-        Expression<Func<T, bool>> predicate,
         bool trackChanges = default,
         CancellationToken cancellationToken = default,
         params Expression<Func<T, object>>[] includeProperties)
     {
         return await _dbSet.ApplyInclude(includeProperties)
             .ApplyTracking(trackChanges)
-            .Where(predicate)
             .ToListAsync(cancellationToken);
     }
 

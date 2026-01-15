@@ -9,4 +9,5 @@ public static class Tags
     public const string Items = "Items";
     public const string Users = "Users";
     public const string UserSessions = "UserSessions";
+    public const string Categories = "Categories";
 }

@@ -46,6 +46,7 @@ internal sealed class GetInventoriesPaginatedQueryHandler(
                 imageUrl,
                 i.ItemsCount,
                 i.Creator.UserName,
+                new CategoryResponse(i.Category.Id, i.Category.Name),
                 i.CreatedAt);
 
             return response;

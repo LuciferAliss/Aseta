@@ -9,4 +9,5 @@ public sealed record InventoryResponse(
     Uri ImageUrl,
     int ItemsCount,
     string CreatorName,
+    CategoryResponse Category,
     DateTime CreatedAt);

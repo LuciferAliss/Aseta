@@ -11,13 +11,12 @@ public interface IRepository<T> where T : IEntity
     Task<T?> GetByIdAsync(Guid id, bool trackChanges = default, CancellationToken cancellationToken = default, params Expression<Func<T, object>>[] includeProperties);
     Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<T>> GetAllAsync(
-        Expression<Func<T, bool>> predicate, 
-        bool trackChanges = default, 
-        CancellationToken cancellationToken = default, 
+        bool trackChanges = default,
+        CancellationToken cancellationToken = default,
         params Expression<Func<T, object>>[] includeProperties);
     Task<T?> FirstOrDefaultAsync(
-        Expression<Func<T, bool>> predicate, 
-        bool trackChanges = default, 
-        CancellationToken cancellationToken = default, 
+        Expression<Func<T, bool>> predicate,
+        bool trackChanges = default,
+        CancellationToken cancellationToken = default,
         params Expression<Func<T, object>>[] includeProperties);
 }
