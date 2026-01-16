@@ -14,7 +14,7 @@ internal sealed class Create : IEndpoint
         string FieldId,
         string? Value);
 
-    public sealed record Request(CustomFieldValueRequest[] CustomFieldValueRequests);
+    public sealed record Request(CustomFieldValueRequest[]? CustomFieldValueRequests);
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
@@ -28,11 +28,16 @@ internal sealed class Create : IEndpoint
             _ = Guid.TryParse(id, out Guid inventoryId);
             _ = Guid.TryParse(user.UserId, out Guid userId);
 
-            ICollection<CustomFieldValueData> customFieldValue = request.CustomFieldValueRequests.Select(c =>
+
+            ICollection<CustomFieldValueData> customFieldValue = [];
+            if (request.CustomFieldValueRequests is not null)
             {
-                _ = Guid.TryParse(c.FieldId, out Guid fieldId);
-                return new CustomFieldValueData(fieldId, c.Value);
-            }).ToList();
+                customFieldValue = request.CustomFieldValueRequests.Select(c =>
+                {
+                    _ = Guid.TryParse(c.FieldId, out Guid fieldId);
+                    return new CustomFieldValueData(fieldId, c.Value);
+                }).ToList();
+            }
 
             var command = new CreateItemCommand(
                 customFieldValue,

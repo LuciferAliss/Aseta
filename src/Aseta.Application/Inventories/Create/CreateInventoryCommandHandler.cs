@@ -30,7 +30,7 @@ internal sealed class CreateInventoryCommandHandler(
         IReadOnlyCollection<Tag> tags = [];
         if (command.TagIds.Count > 0)
         {
-            tags = await tagRepository.FindAsync(t => command.TagIds.Contains(t.Id), cancellationToken: cancellationToken);
+            tags = await tagRepository.FindAsync(t => command.TagIds.Contains(t.Id), true, cancellationToken);
             if (tags.Count != command.TagIds.Count)
             {
                 return TagErrors.NotFound();

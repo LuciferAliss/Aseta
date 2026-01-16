@@ -9,9 +9,11 @@ namespace Aseta.API.Endpoints.Items;
 
 internal sealed class Update : IEndpoint
 {
-    public sealed record Request(CustomFieldValue[] CustomFieldsValue);
+    public sealed record CustomFieldValueRequest(
+        string FieldId,
+        string? Value);
 
-    public sealed record CustomFieldValue(string FieldId, string Value);
+    public sealed record Request(CustomFieldValueRequest[]? CustomFieldValueRequests);
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
@@ -27,16 +29,19 @@ internal sealed class Update : IEndpoint
             _ = Guid.TryParse(user.UserId, out Guid userId);
             _ = Guid.TryParse(inventoryId, out Guid parsedInventoryId);
 
-            var customFieldValueData = request.CustomFieldsValue.Select(x =>
+            ICollection<CustomFieldValueData> customFieldValue = [];
+            if (request.CustomFieldValueRequests is not null)
             {
-                _ = Guid.TryParse(x.FieldId, out Guid fieldId);
-
-                return new CustomFieldValueData(fieldId, x.Value);
-            }).ToList();
+                customFieldValue = request.CustomFieldValueRequests.Select(c =>
+                {
+                    _ = Guid.TryParse(c.FieldId, out Guid fieldId);
+                    return new CustomFieldValueData(fieldId, c.Value);
+                }).ToList();
+            }
 
             var command = new UpdateItemCommand(
                 parsedItemId,
-                customFieldValueData,
+                customFieldValue,
                 parsedInventoryId,
                 userId);
 

@@ -20,5 +20,8 @@ internal sealed class UpdateInventoryCommandValidator : AbstractValidator<Update
 
         RuleFor(x => x.CategoryId)
             .NotEqual(Guid.Empty).WithMessage("A valid CategoryId is required.");
+
+        RuleForEach(x => x.TagIds)
+            .NotEqual(Guid.Empty).WithMessage("A valid TagId is required.");
     }
 }

@@ -23,5 +23,8 @@ internal sealed class CreateInventoryCommandValidator : AbstractValidator<Create
 
         RuleFor(x => x.UserId)
             .NotEqual(Guid.Empty).WithMessage("A valid CreatorId is required.");
+
+        RuleForEach(x => x.TagIds)
+            .NotEqual(Guid.Empty).WithMessage("A valid TagId is required.");
     }
 }
