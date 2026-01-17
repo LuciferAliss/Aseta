@@ -1,6 +1,7 @@
 using Aseta.Domain.Abstractions.Persistence;
 using Aseta.Domain.DTO.Inventories;
 using Aseta.Domain.Entities.Inventories;
+using Aseta.Domain.Entities.Inventories.CustomField;
 using Aseta.Infrastructure.Database;
 using Aseta.Infrastructure.Pagination;
 using Aseta.Infrastructure.Persistence.Common;

@@ -157,21 +157,14 @@ public class Inventory : Entity
         return Result.Success();
     }
 
-    public Result DeleteCustomFields(ICollection<CustomFieldDefinition> deleteFields)
+    public Result DeleteCustomField(CustomFieldDefinition deleteField)
     {
-        var existingIds = CustomFields.Select(cf => cf.Id).ToList();
-
-        var missingIds = deleteFields
-            .Select(val => val.Id)
-            .Except(existingIds)
-            .ToList();
-
-        if (missingIds.Count > 0)
+        if (!CustomFields.Any(cfs => cfs.Id == deleteField.Id))
         {
-            return CustomFieldErrors.NotFound(missingIds);
+            return CustomFieldErrors.NotFound(deleteField.Id);
         }
 
-        CustomFields = CustomFields.Where(cfs => !deleteFields.Any(ufs => ufs.Id == cfs.Id)).ToList();
+        CustomFields = CustomFields.Where(cfs => deleteField.Id != cfs.Id).ToList();
 
         return Result.Success();
     }

@@ -7,5 +7,5 @@ namespace Aseta.Application.CustomFields.Delete;
 
 [Authorize(Role.Owner)]
 public sealed record DeleteCustomFieldDefinitionCommand(
-    ICollection<CustomFieldData> CustomFields,
+    Guid FieldId,
     Guid InventoryId) : ICommand, IInventoryScopedRequest;

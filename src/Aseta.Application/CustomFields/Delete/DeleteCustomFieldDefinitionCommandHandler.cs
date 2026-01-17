@@ -22,36 +22,14 @@ public class DeleteCustomFieldDefinitionCommandHandler(
             return InventoryErrors.NotFound(command.InventoryId);
         }
 
-        var existingIds = inventory.CustomFields.Select(cf => cf.Id).ToList();
+        CustomFieldDefinition? customField = inventory.CustomFields.FirstOrDefault(cf => cf.Id == command.FieldId);
 
-        var missingIds = command.CustomFields
-            .Select(val => val.FieldId)
-            .Except(existingIds)
-            .ToList();
-
-        if (missingIds.Count > 0)
+        if (customField is null)
         {
-            return CustomFieldErrors.CannotDeleteNonExistentField(missingIds);
+            return CustomFieldErrors.NotFound(command.FieldId);
         }
 
-        var deleteCustomFieldsResult = command.CustomFields.Select(cfs => CustomFieldDefinition.Reconstitute(
-            cfs.FieldId,
-            cfs.Name,
-            cfs.Type)).ToList();
-
-        if (deleteCustomFieldsResult.Any(r => r.IsFailure))
-        {
-            return deleteCustomFieldsResult.First(r => r.IsFailure).Error;
-        }
-
-        var customFields = deleteCustomFieldsResult.Select(r => r.Value).ToList();
-
-        Result deleteResult = inventory.DeleteCustomFields(customFields);
-
-        if (deleteResult.IsFailure)
-        {
-            return deleteResult.Error;
-        }
+        inventory.DeleteCustomField(customField);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -1,5 +1,6 @@
 using Aseta.Domain.DTO.Inventories;
 using Aseta.Domain.Entities.Inventories;
+using Aseta.Domain.Entities.Inventories.CustomField;
 
 namespace Aseta.Domain.Abstractions.Persistence;
 
