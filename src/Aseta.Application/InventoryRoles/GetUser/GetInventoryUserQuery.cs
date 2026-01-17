@@ -5,4 +5,4 @@ using Aseta.Domain.Entities.InventoryRoles;
 namespace Aseta.Application.InventoryRoles.GetUser;
 
 [Authorize(Role.Owner)]
-public sealed record GetInventoryUserQuery(Guid InventoryId) : IQuery<UsersResponse>;
+public sealed record GetInventoryUserQuery(Guid InventoryId) : IQuery<UsersResponse>, IInventoryScopedRequest;

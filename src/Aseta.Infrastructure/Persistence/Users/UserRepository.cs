@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Aseta.Domain.Abstractions.Persistence;
+using Aseta.Domain.DTO.User;
 using Aseta.Domain.Entities.Users;
 using Aseta.Infrastructure.Database;
 using Aseta.Infrastructure.Persistence.Common;
@@ -20,17 +21,12 @@ public sealed class UserRepository(AppDbContext context) : Repository<User>(cont
             .FirstOrDefaultAsync(i => i.Email == email, cancellationToken: cancellationToken);
     }
 
-    public async Task<ICollection<User>?> SearchAsync(
-        string email,
-        bool trackChanges = false,
-        CancellationToken cancellationToken = default,
-        params Expression<Func<User, object>>[] includeProperties)
+    public async Task<ICollection<User>> SearchAsync(string searchTerm, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.Where(u => u.Email.Contains(
-            email,
-            StringComparison.CurrentCultureIgnoreCase))
+        ICollection<User> users = await _dbSet
+            .Where(p => EF.Functions.ILike(p.UserName, $"%{searchTerm}%") || EF.Functions.ILike(p.Email, $"%{searchTerm}%"))
             .ToListAsync(cancellationToken);
 
-        throw new NotImplementedException();
+        return users;
     }
 }
