@@ -35,7 +35,7 @@ internal sealed class GetInventoryQueryHandler(
             return InventoryErrors.ImageUrlNull();
         }
 
-        Role userRoleInInventory = await inventoryUserRoleRepository.GetUserRoleInInventory(
+        InventoryRole? userRoleInInventory = await inventoryUserRoleRepository.GetUserRoleInInventory(
             query.UserId,
             query.InventoryId,
             cancellationToken);
@@ -51,7 +51,7 @@ internal sealed class GetInventoryQueryHandler(
             inventory.CreatedAt,
             inventory.Tags.Select(t => new TagResponse(t.Id, t.Name)).ToList(),
             inventory.CustomFields.Select(c => new CustomFieldDefinitionResponse(c.Id, c.Name, c.Type.ToString())).ToList(),
-            userRoleInInventory.ToString());
+            userRoleInInventory?.Role.ToString() ?? Role.None.ToString());
 
         return response;
     }

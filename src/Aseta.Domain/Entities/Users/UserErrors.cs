@@ -12,6 +12,11 @@ public static class UserErrors
         "Users.NotFound",
         $"The user with id: {userId} was not found.");
 
+    public static Error NotFound() => Error.NotFound(
+        "Users.NotFound",
+        "Users not found."
+    );
+
     public static Error NotFoundByEmail(string email) => Error.NotFound(
         "Users.NotFoundByEmail",
         $"The user with email: {email} was not found.");

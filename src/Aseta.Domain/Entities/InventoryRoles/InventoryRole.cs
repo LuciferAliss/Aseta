@@ -31,4 +31,6 @@ public class InventoryRole : Entity
 
         return new InventoryRole(Guid.NewGuid(), userId, inventoryId, role);
     }
+
+    public void UpdateRole(Role role) => Role = role;
 }

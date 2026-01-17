@@ -20,8 +20,12 @@
   <ItemGroup>
     <Folder Include="CustomFields\Delete\" />
     <Folder Include="CustomFields\Update\" />
+    <Folder Include="InventoryRoles\Delete\" />
+    <Folder Include="InventoryRoles\Update\" />
     <Folder Include="Tags\Create\" />
     <Folder Include="UserSessions\Refresh\" />
+    <Folder Include="Users\GetByEmail\" />
+    <Folder Include="Users\SearchUser\" />
   </ItemGroup>
 
 </Project>

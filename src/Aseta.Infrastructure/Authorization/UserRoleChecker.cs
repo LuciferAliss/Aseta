@@ -15,8 +15,13 @@ internal sealed class UserRoleChecker(
         Role requiredRole,
         CancellationToken cancellationToken = default)
     {
-        Role role = await inventoryUserRoleRepository.GetUserRoleInInventory(userId, inventoryId, cancellationToken);
+        InventoryRole? role = await inventoryUserRoleRepository.GetUserRoleInInventory(userId, inventoryId, cancellationToken);
 
-        return role >= requiredRole;
+        if (role is null)
+        {
+            return false;
+        }
+
+        return role.Role >= requiredRole;
     }
 }

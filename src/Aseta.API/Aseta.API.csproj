@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Endpoints\InventoryRoles\" />
     <Folder Include="Endpoints\Items\" />
     <Folder Include="Endpoints\Tags\" />
     <Folder Include="Endpoints\Users\" />
