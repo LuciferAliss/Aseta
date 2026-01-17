@@ -52,10 +52,10 @@ app.UseSerilogRequestLogging();
 
 app.UseExceptionHandler();
 
+app.UseCors("CorsPolicy");
+
 app.UseAuthentication();
 
 app.UseAuthorization();
-
-app.UseCors("CorsPolicy");
 
 await app.RunAsync();

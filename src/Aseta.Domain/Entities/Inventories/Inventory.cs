@@ -128,31 +128,25 @@ public class Inventory : Entity
         return Result.Success();
     }
 
-    public Result UpdateCustomFields(ICollection<CustomFieldDefinition> updateFields)
+    public Result UpdateCustomFields(Guid fieldId, string name, CustomFieldType type)
     {
-        var existingIds = CustomFields.Select(cf => cf.Id).ToList();
+        CustomFieldDefinition? customField = CustomFields.FirstOrDefault(cf => cf.Id == fieldId);
 
-        var missingIds = updateFields
-            .Select(val => val.Id)
-            .Except(existingIds)
-            .ToList();
-
-        if (missingIds.Count > 0)
+        if (customField is null)
         {
-            return CustomFieldErrors.NotFound(missingIds);
+            return CustomFieldErrors.NotFound(fieldId);
         }
 
-        CustomFields = CustomFields.Select(cfs =>
+        Result<CustomFieldDefinition> result = customField.Reconstitute(name, type);
+
+        if (result.IsFailure)
         {
-            CustomFieldDefinition? updateField = updateFields.FirstOrDefault(ufs => ufs.Id == cfs.Id);
+            return result.Error;
+        }
 
-            if (updateField is null)
-            {
-                return cfs;
-            }
+        customField = result.Value;
 
-            return updateField;
-        }).ToList();
+        CustomFields = CustomFields.Select(cf => cf.Id == fieldId ? customField : cf).ToList();
 
         return Result.Success();
     }

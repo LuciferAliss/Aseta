@@ -10,4 +10,5 @@ public sealed record InventoryResponse(
     bool IsPublic,
     DateTime CreatedAt,
     ICollection<TagResponse> Tags,
-    ICollection<CustomFieldDefinitionResponse> CustomFieldsDefinition);
+    ICollection<CustomFieldDefinitionResponse> CustomFieldsDefinition,
+    string UserRole);

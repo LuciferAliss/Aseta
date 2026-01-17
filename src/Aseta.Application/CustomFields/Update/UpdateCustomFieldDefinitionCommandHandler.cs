@@ -22,28 +22,14 @@ internal sealed class UpdateCustomFieldDefinitionCommandHandler(
             return InventoryErrors.NotFound(command.InventoryId);
         }
 
-        var existingIds = inventory.CustomFields.Select(cf => cf.Id).ToList();
+        bool existingCustomField = inventory.CustomFields.Any(cf => cf.Id == command.FieldId);
 
-        var missingIds = command.CustomFields
-            .Select(val => val.FieldId)
-            .Except(existingIds)
-            .ToList();
-
-        if (missingIds.Count > 0)
+        if (!existingCustomField)
         {
-            return CustomFieldErrors.CannotUpdateNonExistentField(missingIds);
+            return CustomFieldErrors.NotFound(command.FieldId);
         }
 
-        var customFieldResults = command.CustomFields.Select(val => CustomFieldDefinition.Reconstitute(val.FieldId, val.Name, val.Type)).ToList();
-
-        if (customFieldResults.Any(r => r.IsFailure))
-        {
-            return customFieldResults.First(r => r.IsFailure).Error;
-        }
-
-        var customFields = customFieldResults.Select(val => val.Value).ToList();
-
-        Result result = inventory.UpdateCustomFields(customFields);
+        Result result = inventory.UpdateCustomFields(command.FieldId, command.Name, command.Type);
 
         if (result.IsFailure)
         {

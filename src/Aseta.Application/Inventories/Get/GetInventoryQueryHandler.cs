@@ -3,12 +3,14 @@ using Aseta.Application.Inventories.Get.Contracts;
 using Aseta.Domain.Abstractions.Persistence;
 using Aseta.Domain.Abstractions.Primitives.Results;
 using Aseta.Domain.Entities.Inventories;
+using Aseta.Domain.Entities.InventoryRoles;
 using AutoMapper;
 
 namespace Aseta.Application.Inventories.Get;
 
 internal sealed class GetInventoryQueryHandler(
-    IInventoryRepository inventoryRepository) : IQueryHandler<GetInventoryQuery, InventoryResponse>
+    IInventoryRepository inventoryRepository,
+    IInventoryUserRoleRepository inventoryUserRoleRepository) : IQueryHandler<GetInventoryQuery, InventoryResponse>
 {
     public async Task<Result<InventoryResponse>> Handle(
         GetInventoryQuery query,
@@ -33,6 +35,11 @@ internal sealed class GetInventoryQueryHandler(
             return InventoryErrors.ImageUrlNull();
         }
 
+        Role userRoleInInventory = await inventoryUserRoleRepository.GetUserRoleInInventory(
+            query.UserId,
+            query.InventoryId,
+            cancellationToken);
+
         var response = new InventoryResponse(
             inventory.Id,
             inventory.Name,
@@ -43,7 +50,8 @@ internal sealed class GetInventoryQueryHandler(
             inventory.IsPublic,
             inventory.CreatedAt,
             inventory.Tags.Select(t => new TagResponse(t.Id, t.Name)).ToList(),
-            inventory.CustomFields.Select(c => new CustomFieldDefinitionResponse(c.Id, c.Name, c.Type.ToString())).ToList());
+            inventory.CustomFields.Select(c => new CustomFieldDefinitionResponse(c.Id, c.Name, c.Type.ToString())).ToList(),
+            userRoleInInventory.ToString());
 
         return response;
     }

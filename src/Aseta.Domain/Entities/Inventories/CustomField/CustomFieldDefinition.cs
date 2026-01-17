@@ -41,7 +41,7 @@ public class CustomFieldDefinition
         return new CustomFieldDefinition(Guid.NewGuid(), name, type);
     }
 
-    public static Result<CustomFieldDefinition> Reconstitute(Guid id, string name, CustomFieldType type)
+    public Result<CustomFieldDefinition> Reconstitute(string name, CustomFieldType type)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -58,11 +58,9 @@ public class CustomFieldDefinition
             return CustomFieldErrors.InvalidType();
         }
 
-        if (id == Guid.Empty)
-        {
-            return CustomFieldErrors.IdEmpty();
-        }
+        Name = name;
+        Type = type;
 
-        return new CustomFieldDefinition(id, name, type);
+        return this;
     }
 }
