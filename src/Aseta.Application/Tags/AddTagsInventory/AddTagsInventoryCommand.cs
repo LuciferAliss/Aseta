@@ -1,8 +1,0 @@
-using Aseta.Application.Abstractions.Authorization;
-using Aseta.Application.Abstractions.Messaging;
-using Aseta.Domain.Entities.InventoryRoles;
-
-namespace Aseta.Application.Tags.AddTagsInventory;
-
-[Authorize(Role.Owner)]
-public sealed record AddTagsInventoryCommand(Guid InventoryId, Guid[] TagIds) : ICommand;

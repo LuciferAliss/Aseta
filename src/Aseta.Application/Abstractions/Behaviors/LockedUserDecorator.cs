@@ -1,5 +1,6 @@
 using Aseta.Application.Abstractions.Authentication;
 using Aseta.Application.Abstractions.Messaging;
+using Aseta.Application.UserSessions.Logout;
 using Aseta.Domain.Abstractions.Primitives.Results;
 using Aseta.Domain.Entities.Users;
 

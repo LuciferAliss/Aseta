@@ -37,4 +37,25 @@ public class Category : Entity
 
         return new Category(Guid.NewGuid(), name);
     }
+
+    public Result Update(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return CategoryErrors.NameEmpty();
+        }
+
+        if (name.Length > MaxNameLength)
+        {
+            return CategoryErrors.NameTooLong(MaxNameLength);
+        }
+
+        if (name.Length < MinNameLength)
+        {
+            return CategoryErrors.NameTooShort(MinNameLength);
+        }
+
+        Name = name;
+        return Result.Success();
+    }
 }

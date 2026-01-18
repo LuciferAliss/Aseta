@@ -38,4 +38,25 @@ public class Tag : Entity
 
         return new Tag(Guid.NewGuid(), name);
     }
+
+    public Result Update(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return TagErrors.NameEmpty();
+        }
+
+        if (name.Length > MaxNameLength)
+        {
+            return TagErrors.NameTooLong(MaxNameLength);
+        }
+
+        if (name.Length < MinNameLength)
+        {
+            return TagErrors.NameTooShort(MinNameLength);
+        }
+
+        Name = name;
+        return Result.Success();
+    }
 }

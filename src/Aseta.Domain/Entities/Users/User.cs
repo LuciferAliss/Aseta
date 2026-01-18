@@ -72,13 +72,53 @@ public class User : Entity
         return new User(Guid.NewGuid(), userName, email, passwordHash, role);
     }
 
-    public Result Update(string userName, string email, string passwordHash) // ! TODO: add validation
+    public Result Update(string userName, string email, string passwordHash)
     {
+        if (string.IsNullOrWhiteSpace(userName))
+        {
+            return UserErrors.UserNameEmpty();
+        }
+
+        if (userName.Length > MaxUserNameLength)
+        {
+            return UserErrors.UserNameTooLong(MaxUserNameLength);
+        }
+
+        if (userName.Length < MinUserNameLength)
+        {
+            return UserErrors.UserNameTooShort(MinUserNameLength);
+        }
+
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return UserErrors.EmailEmpty();
+        }
+
+        if (email.Length > MaxEmailLength)
+        {
+            return UserErrors.EmailTooLong(MaxEmailLength);
+        }
+
+        if (string.IsNullOrWhiteSpace(passwordHash))
+        {
+            return UserErrors.PasswordEmpty();
+        }
+
         UserName = userName;
         Email = email;
         PasswordHash = passwordHash;
         UpdatedAt = DateTime.UtcNow;
 
         return Result.Success();
+    }
+
+    public void Lock()
+    {
+        IsLocked = true;
+    }
+
+    public void Unlock()
+    {
+        IsLocked = false;
     }
 }

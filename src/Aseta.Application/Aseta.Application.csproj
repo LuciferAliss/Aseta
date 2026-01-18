@@ -18,12 +18,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Categories\Create\" />
+    <Folder Include="Categories\Delete\" />
+    <Folder Include="Categories\Update\" />
     <Folder Include="Comments\Add\" />
     <Folder Include="CustomFields\Delete\" />
     <Folder Include="CustomFields\Update\" />
     <Folder Include="InventoryRoles\Delete\" />
     <Folder Include="InventoryRoles\Update\" />
     <Folder Include="Tags\Create\" />
+    <Folder Include="Tags\Delete\" />
+    <Folder Include="Tags\Update\" />
     <Folder Include="UserSessions\Refresh\" />
   </ItemGroup>
 
