@@ -14,4 +14,8 @@
     <ProjectReference Include="..\Aseta.Application\Aseta.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Persistence\Comments\" />
+  </ItemGroup>
+
 </Project>

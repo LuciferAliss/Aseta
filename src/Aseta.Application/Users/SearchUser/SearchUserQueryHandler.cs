@@ -2,7 +2,6 @@ using System;
 using Aseta.Application.Abstractions.Messaging;
 using Aseta.Domain.Abstractions.Persistence;
 using Aseta.Domain.Abstractions.Primitives.Results;
-using Aseta.Domain.DTO.User;
 using Aseta.Domain.Entities.Users;
 
 namespace Aseta.Application.Users.SearchUser;

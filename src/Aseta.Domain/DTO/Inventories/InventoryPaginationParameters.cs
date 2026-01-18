@@ -12,12 +12,3 @@ public record class InventoryPaginationParameters(
     string? Cursor,
     int PageSize
 );
-
-public enum SortBy
-{
-    None,
-    Date,
-    Name,
-    Creator,
-    NumberOfItems
-}

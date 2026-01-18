@@ -21,7 +21,7 @@ internal sealed class CommentConfiguration : IEntityTypeConfiguration<Comment>
             .OnDelete(DeleteBehavior.Restrict);
 
         comment.HasOne(c => c.Inventory)
-            .WithMany()
+            .WithMany(i => i.Comments)
             .HasForeignKey(c => c.InventoryId)
             .OnDelete(DeleteBehavior.Cascade);
 

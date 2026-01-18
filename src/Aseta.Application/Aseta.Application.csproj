@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Comments\Add\" />
     <Folder Include="CustomFields\Delete\" />
     <Folder Include="CustomFields\Update\" />
     <Folder Include="InventoryRoles\Delete\" />

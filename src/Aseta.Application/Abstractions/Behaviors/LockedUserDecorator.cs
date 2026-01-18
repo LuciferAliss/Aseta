@@ -1,7 +1,6 @@
 using Aseta.Application.Abstractions.Authentication;
 using Aseta.Application.Abstractions.Messaging;
 using Aseta.Domain.Abstractions.Primitives.Results;
-using Aseta.Domain.DTO.User;
 using Aseta.Domain.Entities.Users;
 
 namespace Aseta.Application.Abstractions.Behaviors;

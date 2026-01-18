@@ -12,4 +12,5 @@ public static class TagsApi
     public const string Categories = "Categories";
     public const string Tags = "Tags";
     public const string InventoryRoles = "InventoryRoles";
+    public const string Comments = "Comments";
 }

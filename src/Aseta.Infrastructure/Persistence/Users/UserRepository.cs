@@ -1,6 +1,5 @@
 using System.Linq.Expressions;
 using Aseta.Domain.Abstractions.Persistence;
-using Aseta.Domain.DTO.User;
 using Aseta.Domain.Entities.Users;
 using Aseta.Infrastructure.Database;
 using Aseta.Infrastructure.Persistence.Common;

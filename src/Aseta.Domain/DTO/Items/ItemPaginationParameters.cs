@@ -11,12 +11,3 @@ public record ItemPaginationParameters(
     string SortOrder,
     string? Cursor,
     int PageSize);
-
-public enum SortBy
-{
-    None,
-    DateCreated,
-    DateUpdated,
-    Creator,
-    Updater
-}

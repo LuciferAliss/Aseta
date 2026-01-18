@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using Aseta.Domain.DTO.User;
 using Aseta.Domain.Entities.Users;
 
 namespace Aseta.Domain.Abstractions.Persistence;
