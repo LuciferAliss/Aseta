@@ -200,7 +200,22 @@ public class Inventory : Entity
         ImageUrl = imageUrl.ToString();
         IsPublic = isPublic;
         CategoryId = categoryId;
-        Tags = tags;
+
+        var newTagIds = tags.Select(t => t.Id).ToHashSet();
+        var tagsToRemove = Tags.Where(t => !newTagIds.Contains(t.Id)).ToList();
+
+        foreach (Tag? tagToRemove in tagsToRemove)
+        {
+            Tags.Remove(tagToRemove);
+        }
+
+        foreach (Tag newTag in tags)
+        {
+            if (!Tags.Any(t => t.Id == newTag.Id))
+            {
+                Tags.Add(newTag);
+            }
+        }
 
         return Result.Success();
     }

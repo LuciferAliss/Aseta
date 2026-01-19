@@ -17,9 +17,9 @@ internal sealed class InventoryUserRoleConfiguration : IEntityTypeConfiguration<
             .HasForeignKey(i => i.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        inventoryUserRole.HasOne(i => i.Inventory)
+        inventoryUserRole.HasOne(iur => iur.Inventory)
             .WithMany(i => i.UserRoles)
-            .HasForeignKey(i => i.InventoryId)
+            .HasForeignKey(iur => iur.InventoryId)
             .OnDelete(DeleteBehavior.Cascade);
 
         inventoryUserRole.Property(i => i.Role)
